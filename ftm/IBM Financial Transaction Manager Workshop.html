@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IBM Financial Transaction Manager — Virtual Instructor-Led Workshop</title>
+  <meta name="description" content="Course overview, objectives, agenda, labs, prerequisites, and commercials for a Virtual Instructor-Led IBM Financial Transaction Manager (FTM) workshop." />
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: #0f1a2b;
+      --panel-2:#121f33;
+      --ink: #e9f1ff;
+      --muted:#a9b8d6;
+      --brand: #5dd5ff;
+      --brand-2:#7cf7d4;
+      --accent:#ffd166;
+      --ok:#7cf7d4;
+      --warn:#ffb86b;
+      --danger:#ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03);
+      --radius: 18px;
+      --radius-sm: 14px;
+      --gutter: clamp(16px, 3vw, 28px);
+      --maxw: 1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif}
+    a{color:var(--brand)}
+    .wrap{max-width:var(--maxw);margin:auto;padding:calc(var(--gutter)*1.3) var(--gutter)}
+    .hero{
+      position:relative;
+      border-radius:var(--radius);
+      padding:48px clamp(20px, 6vw, 64px);
+      background:
+        radial-gradient(1200px 400px at 20% -10%, rgba(93,213,255,.20), transparent 60%),
+        radial-gradient(900px 300px at 100% -20%, rgba(124,247,212,.18), transparent 60%),
+        linear-gradient(180deg, #0e1730 0%, #0b1220 100%);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .hero .badge{display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:6px 12px;border-radius:999px;color:var(--muted);backdrop-filter: blur(6px)}
+    .hero .title{margin:.6rem 0 0;font-size:clamp(26px, 5vw, 42px);line-height:1.2;letter-spacing:.2px}
+    .hero .subtitle{color:var(--muted);margin:.75rem 0 0;max-width:60ch}
+    .hero .meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;color:var(--ink)}
+    .chip{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:8px 12px;border-radius:999px;color:var(--ink)}
+    .grid{display:grid;gap:var(--gutter)}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+    @media (max-width:980px){.grid.cols-3{grid-template-columns:1fr 1fr}}
+    @media (max-width:720px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:clamp(16px, 2.2vw, 22px);
+    }
+    .card h3{margin:.2rem 0 1rem;font-size:1.1rem;letter-spacing:.2px}
+    h2.section{font-size:clamp(22px,3.2vw,28px);margin:28px 0 14px;letter-spacing:.3px}
+    ul{margin:0;padding-left:20px}
+    .kv{display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:center}
+    @media (max-width:560px){.kv{grid-template-columns:1fr}}
+    .kv .viz{
+      height:120px;border-radius:var(--radius-sm);
+      background:
+        radial-gradient(160px 60px at 30% 10%, rgba(93,213,255,.25), transparent 60%),
+        radial-gradient(140px 50px at 80% 0%, rgba(124,247,212,.22), transparent 60%),
+        linear-gradient(180deg, #12203a 0%, #0f1b2f 100%);
+      border:1px solid rgba(255,255,255,.1);
+      display:grid;place-items:center;
+    }
+    .viz svg{opacity:.9}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px;color:var(--muted)}
+    .list-check li{list-style:none;margin:.5rem 0;padding-left:28px;position:relative}
+    .list-check li::before{
+      content:"";position:absolute;left:0;top:.35rem;width:18px;height:18px;border-radius:6px;
+      background: linear-gradient(135deg,var(--brand),var(--brand-2));
+      box-shadow: 0 4px 10px rgba(0,0,0,.35);
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M20.285 6.709l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/></svg>') no-repeat center / 14px 14px;
+    }
+    .agenda{display:grid;gap:14px}
+    .day{
+      background:linear-gradient(180deg,#101b2e 0%, #0e1828 100%);border:1px solid rgba(255,255,255,.09);
+      border-radius:14px;padding:14px 14px 10px
+    }
+    .day header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .day .tag{font-weight:600;color:#08131f;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      padding:6px 10px;border-radius:999px}
+    .timeline{margin:0;padding:0;list-style:none}
+    .timeline li{padding:8px 0;border-top:1px dashed rgba(255,255,255,.12)}
+    .timeline li:first-child{border-top:0}
+    .lab{
+      background:rgba(124,247,212,.08);
+      border:1px dashed rgba(124,247,212,.25);
+      border-radius:12px;padding:12px;margin-top:10px;color:#d9fff3
+    }
+    .price{
+      display:grid;gap:14px;grid-template-columns:1fr 1fr 1fr
+    }
+    @media (max-width:980px){.price{grid-template-columns:1fr}}
+    .price .tier{
+      background:linear-gradient(180deg,#111d31 0%, #0f1a2b 100%);border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;padding:18px
+    }
+    .tier h4{margin:.2rem 0 .6rem}
+    .tier .amt{font-size:1.6rem;font-weight:700}
+    .cta{
+      display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px
+    }
+    .btn{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:10px 14px;border-radius:12px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#061221;text-decoration:none;font-weight:700;border:0
+    }
+    .btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.15)}
+    .foot{color:var(--muted);font-size:.92rem;margin-top:20px}
+    .small{font-size:.9rem;color:var(--muted)}
+    /* print tweaks */
+    @media print{
+      .hero{box-shadow:none}
+      a.btn{border:1px solid #333;color:#000;background:#fff}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <span class="badge">
+        <!-- certificate icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.32L12 14.77 7.22 16.7l.91-5.32L4.27 7.62l5.34-.78L12 2z" fill="url(#g1)"/>
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#5dd5ff"/><stop offset="1" stop-color="#7cf7d4"/></linearGradient></defs>
+        </svg>
+        Virtual Instructor-Led • Hands-on Labs • Customer Workshop
+      </span>
+      <h1 class="title">IBM Financial Transaction Manager (FTM) — Architecture & Implementation Workshop</h1>
+      <p class="subtitle">Plan, deploy, integrate, and operate IBM FTM for Immediate Payments and Check Services. Built for solution architects, integration engineers, and platform/SRE teams.</p>
+      <div class="meta">
+        <span class="chip" title="Course Code">🧾 Course Code: <strong>&nbsp;SKW-FTM-IL05</strong></span>
+        <span class="chip" title="Duration">⏱ Duration: <strong>&nbsp;5 days (30 hours)</strong> <span class="pill">Optional 3-day fast-track</span></span>
+        <span class="chip" title="Delivery">💻 Delivery: <strong>&nbsp;Virtual Instructor-Led (VILT)</strong></span>
+        <span class="chip" title="Labs">🧪 Labs: <strong>&nbsp;OpenShift / RHEL VM</strong></span>
+      </div>
+    </section>
+
+    <!-- OVERVIEW / OBJECTIVES -->
+    <section class="grid cols-3" aria-label="Overview">
+      <article class="card">
+        <h3>Who Should Attend</h3>
+        <ul class="list-check">
+          <li>Solution / Integration Architects</li>
+          <li>Payments & Core-banking Engineers</li>
+          <li>Platform / SRE & Middleware (MQ/DB2)</li>
+          <li>Developers working with ISO&nbsp;20022 & ITX</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Course Objectives</h3>
+        <ul class="list-check">
+          <li>Explain FTM components (Base, CPS, IP, Check) and message flows</li>
+          <li>Deploy FTM on OpenShift or RHEL VMs with MQ, DB2 & Liberty</li>
+          <li>Build inbound/outbound maps with IBM Transformation Extender (ITX)</li>
+          <li>Operate & troubleshoot with OAC; implement HA/DR & scaling</li>
+          <li>Integrate ISO 20022 flows and external payment rails</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Delivery Format</h3>
+        <div class="kv">
+          <div class="viz" role="img" aria-label="Abstract topology">
+            <!-- abstract network svg -->
+            <svg width="120" height="80" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="40" r="6" fill="#7cf7d4"/>
+              <circle cx="60" cy="20" r="6" fill="#5dd5ff"/>
+              <circle cx="100" cy="40" r="6" fill="#7cf7d4"/>
+              <circle cx="60" cy="60" r="6" fill="#ffd166"/>
+              <path d="M20 40L60 20L100 40L60 60Z" stroke="#a9b8d6" stroke-width="1.5" fill="none" opacity=".7"/>
+            </svg>
+          </div>
+          <div>
+            <p class="small">Live sessions with expert instructor, guided labs, downloadable runbooks, and templates. Recordings available on request. Cohort size: 8–16.</p>
+            <div class="cta">
+              <a class="btn" href="#commercials">View Commercials</a>
+              <a class="btn ghost" href="#agenda">Jump to Agenda</a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- PREREQUISITES -->
+    <h2 class="section" id="prereq">Prerequisites</h2>
+    <section class="grid cols-3">
+      <article class="card">
+        <h3>Technical</h3>
+        <ul class="list-check">
+          <li>Linux fundamentals (RHEL) & container basics</li>
+          <li>IBM MQ & DB2 basics; Liberty profiles familiarity</li>
+          <li>Git & CI/CD fundamentals</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Payments</h3>
+        <ul class="list-check">
+          <li>Basic ISO&nbsp;20022 concepts (pain/pacs/camt)</li>
+          <li>Understanding of payment initiation & clearing</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Environment</h3>
+        <ul class="list-check">
+          <li>Access to lab cluster (OpenShift Local or cloud) or RHEL VMs</li>
+          <li>Workshop materials (provided), ITX designer trial/licensed</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- THEORY AGENDA -->
+    <h2 class="section" id="agenda">Theory Outline & Day-by-Day Agenda</h2>
+    <section class="agenda">
+      <!-- Day 1 -->
+      <article class="day">
+        <header>
+          <strong>Day 1 — FTM Fundamentals & Platform Topologies</strong>
+          <span class="tag">Architecture</span>
+        </header>
+        <ul class="timeline">
+          <li>FTM suite components: Base, CPS, Immediate Payments (IP), Check Services</li>
+          <li>Message flows: Physical Transmission, Event Processing, Wrapper flows</li>
+          <li>Reference topology: OpenShift vs. RHEL VMs, z/OS coexistence</li>
+          <li>Core services: MQ, DB2, Liberty; security & secrets; OAC overview</li>
+        </ul>
+        <div class="lab">
+          <strong>Lab:</strong> Provision sandbox (OpenShift Local or RHEL), deploy prereqs, explore OAC.
+        </div>
+      </article>
+      <!-- Day 2 -->
+      <article class="day">
+        <header>
+          <strong>Day 2 — ISO&nbsp;20022 & Mapping with IBM Transformation Extender</strong>
+          <span class="tag">ITX</span>
+        </header>
+        <ul class="timeline">
+          <li>ISO 20022 (pain/pacs/camt), CBPR+, validation strategies</li>
+          <li>Map lifecycles in FTM (inbound/outbound), pack & promote</li>
+          <li>Error handling, replays, and investigations</li>
+        </ul>
+        <div class="lab">
+          <strong>Lab:</strong> Build inbound pacs.008 and outbound camt.054 maps; unit tests & promotion bundle.
+        </div>
+      </article>
+      <!-- Day 3 -->
+      <article class="day">
+        <header>
+          <strong>Day 3 — Immediate Payments (FTM4IP) Flows & Operations</strong>
+          <span class="tag">Operations</span>
+        </header>
+        <ul class="timeline">
+          <li>End-to-end flow walkthrough; idempotency & retries</li>
+          <li>Operational dashboards & OAC actions</li>
+          <li>Observability: logs/metrics/traces & incident playbooks</li>
+        </ul>
+        <div class="lab">
+          <strong>Lab:</strong> Ingest payment set, trace through flows, triage & recover failures in OAC.
+        </div>
+      </article>
+      <!-- Day 4 -->
+      <article class="day">
+        <header>
+          <strong>Day 4 — Performance, Scaling & Resilience</strong>
+          <span class="tag">SRE</span>
+        </header>
+        <ul class="timeline">
+          <li>Throughput & latency tuning (MQ/DB2/Flow concurrency)</li>
+          <li>Horizontal scale on OpenShift, blue-green & canary</li>
+          <li>HA/DR patterns & backup/restore strategies</li>
+        </ul>
+        <div class="lab">
+          <strong>Lab:</strong> Load test harness; tune concurrency, DB config; observe impact.
+        </div>
+      </article>
+      <!-- Day 5 -->
+      <article class="day">
+        <header>
+          <strong>Day 5 — Check Services (FTM4C) & Customization</strong>
+          <span class="tag">Extensibility</span>
+        </header>
+        <ul class="timeline">
+          <li>FTM4C components, image repository, rules & user exits</li>
+          <li>Compliance notes; ACH deprecation context</li>
+          <li>Packaging & release management</li>
+        </ul>
+        <div class="lab">
+          <strong>Lab:</strong> Implement a simple user exit & rule; package and deploy; E2E verification.
+        </div>
+      </article>
+    </section>
+
+    <!-- LAB OUTLINE (compact recap) -->
+    <h2 class="section">Course Lab Outline (Recap)</h2>
+    <section class="grid cols-3">
+      <article class="card">
+        <h3>Environment & OAC</h3>
+        <ul>
+          <li>Cluster/VM bootstrap</li>
+          <li>FTM prerequisites (MQ/DB2/Liberty)</li>
+          <li>OAC navigation & actions</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>ITX Mapping</h3>
+        <ul>
+          <li>Inbound pacs.008 mapping</li>
+          <li>Outbound camt.054 mapping</li>
+          <li>Promotion bundle & tests</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Ops & Resilience</h3>
+        <ul>
+          <li>Flow tracing and recovery</li>
+          <li>Scaling & performance tuning</li>
+          <li>FTM4C customization & release</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- COURSE DETAILS -->
+    <h2 class="section">Course Details</h2>
+    <section class="grid cols-2">
+      <article class="card">
+        <h3>Course Name</h3>
+        <p><strong>IBM Financial Transaction Manager — Architecture, Integration & Operations</strong></p>
+        <p class="small">Alternative: <em>FTM Immediate Payments Fast-Track</em> (3 days) — condensed theory + focused labs.</p>
+      </article>
+      <article class="card">
+        <h3>Course Code & Duration</h3>
+        <p><strong>Code:</strong> SKW-FTM-IL05 &nbsp; | &nbsp; <strong>Duration:</strong> 5 days (6 hours/day)</p>
+      </article>
+      <article class="card">
+        <h3>Delivery & Materials</h3>
+        <ul class="list-check">
+          <li>Virtual Instructor-Led sessions (Zoom/Teams)</li>
+          <li>PDF slides, lab guides, runbooks, and templates</li>
+          <li>Post-course Q&A clinic (2 hours, within 30 days)</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Assessment & Certification</h3>
+        <ul class="list-check">
+          <li>Daily knowledge checks + final practical</li>
+          <li>Certificate of Completion (digital)</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- COMMERCIALS -->
+    <h2 class="section" id="commercials">Commercials</h2>
+    <section class="price">
+      <div class="tier">
+        <h4>Public (Open Cohort)</h4>
+        <div class="amt">From <span>[EDIT] ZAR 16,500</span> per learner</div>
+        <ul class="small">
+          <li>Minimum 6, maximum 16 learners</li>
+          <li>Includes materials & lab time</li>
+          <li>Group/partner discounts available</li>
+        </ul>
+        <div class="cta">
+          <a class="btn" href="#contact">Register Interest</a>
+          <span class="pill">Virtual • Instructor-Led</span>
+        </div>
+      </div>
+      <div class="tier">
+        <h4>Private (Single Customer)</h4>
+        <div class="amt">From <span>[EDIT] ZAR 129,000</span> per cohort</div>
+        <ul class="small">
+          <li>Up to 12 participants (additional seats on request)</li>
+          <li>Tailored labs & artifacts aligned to your stack</li>
+          <li>Optional NDA & white-labeling</li>
+        </ul>
+        <div class="cta">
+          <a class="btn" href="#contact">Request Proposal</a>
+          <span class="pill">Customizable Agenda</span>
+        </div>
+      </div>
+      <div class="tier">
+        <h4>Fast-Track (3-day)</h4>
+        <div class="amt">From <span>[EDIT] ZAR 89,000</span> per cohort</div>
+        <ul class="small">
+          <li>Architecture + ITX + FTM4IP core labs</li>
+          <li>Ideal for engineering ramp-ups</li>
+          <li>Add optional add-on day for FTM4C</li>
+        </ul>
+        <div class="cta">
+          <a class="btn" href="#contact">Enquire</a>
+          <span class="pill">Accelerated</span>
+        </div>
+      </div>
+    </section>
+    <p class="foot small">Prices are indicative and subject to scope, region, and scheduling. All amounts exclude taxes. Currency may be quoted in USD/EUR/ZAR on request.</p>
+
+    <!-- CONTACT -->
+    <h2 class="section" id="contact">Booking & Contact</h2>
+    <section class="grid cols-2">
+      <article class="card">
+        <h3>What We Provide</h3>
+        <ul class="list-check">
+          <li>Instructor, slides, lab guides, and datasets</li>
+          <li>Pre-flight checklist for your environment</li>
+          <li>Office hours for stakeholder alignment</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>What You Provide</h3>
+        <ul class="list-check">
+          <li>Access to lab cluster (OpenShift/RHEL) or we can host</li>
+          <li>Participants with listed prerequisites</li>
+          <li>Scheduling windows & stakeholder availability</li>
+        </ul>
+      </article>
+    </section>
+
+    <p class="small">Questions? Email <a href="mailto:training@skunkworks.africa">training@skunkworks.africa</a> or call <a href="tel:+27-83-380-7950">+27 83 380 7950</a>.</p>
+
+    <hr style="border-color:rgba(255,255,255,.08);margin:28px 0" />
+    <p class="small">© <span id="yr"></span> Skunkworks (Pty) Ltd. IBM, IBM FTM, and product names are trademarks of IBM Corporation. This workshop is delivered as a customer enablement and is not an official IBM course unless explicitly stated in the agreement.</p>
+  </div>
+
+  <script>
+    // tiny nicety: current year
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
