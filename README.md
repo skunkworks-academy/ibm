@@ -1,5 +1,3 @@
-Awesome—let’s make this repeatable and audit-friendly.
-
 Below are **two proven ways** to generate an **environment-wide report** that shows, for **every job**, where data **originates (sources)** and where it **lands (targets)**—not just the intermediate links. Option A (recommended) uses a **DSX export + Python parser**; Option B uses **istool (ISX) + parsing**. Both produce CSV you can slice in Excel/Power BI, plus (optionally) a lineage graph.
 
 ---
