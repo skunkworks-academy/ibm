@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WE7531 – AAA, OAuth, and OIDC in IBM DataPower Gateway V7.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="WE7531 course outline – AAA, OAuth 2.0, and OpenID Connect implementation using IBM DataPower Gateway V7.5.1" />
+
+  <style>
+    :root {
+      --ibm-blue: #0f62fe;
+      --ibm-gray: #393939;
+      --light-gray: #f4f4f4;
+      --border-gray: #e0e0e0;
+      --success: #198038;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ibm-gray);
+      background: #ffffff;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--ibm-blue), #002d9c);
+      color: white;
+      padding: 3rem 1.5rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+
+    header p {
+      max-width: 800px;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem 1.5rem;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      border-left: 6px solid var(--ibm-blue);
+      padding-left: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1.6rem;
+    }
+
+    h3 {
+      margin-top: 1.5rem;
+      font-size: 1.25rem;
+      color: #161616;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--ibm-blue);
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: var(--light-gray);
+      margin-right: 0.5rem;
+    }
+
+    .lab {
+      background: #fdfefe;
+      border-left: 4px solid var(--success);
+    }
+
+    footer {
+      background: var(--light-gray);
+      padding: 2rem 1.5rem;
+      font-size: 0.9rem;
+      color: #525252;
+    }
+
+    footer p {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>WE7531 – AAA, OAuth, and OIDC in IBM DataPower Gateway V7.5</h1>
+  <p>
+    This course teaches developers how to design, configure, and test
+    enterprise-grade authentication and authorization solutions using
+    IBM DataPower Gateway V7.5.1.
+  </p>
+</header>
+
+<main>
+
+  <section>
+    <h2>Course Overview</h2>
+    <p>
+      Modern integration platforms must enforce identity, authorization,
+      and token-based access control at scale. In this course, learners
+      configure IBM DataPower Gateway to act as a centralized security
+      enforcement point using AAA, OAuth 2.0, and OpenID Connect (OIDC).
+    </p>
+  </section>
+
+  <section>
+    <h2>Audience & Prerequisites</h2>
+    <div class="grid">
+      <div class="card">
+        <h4>Target Audience</h4>
+        <ul>
+          <li>Integration Developers</li>
+          <li>API & Security Engineers</li>
+          <li>Middleware Architects</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Prerequisites</h4>
+        <ul>
+          <li>IBM DataPower fundamentals (WE751 or equivalent)</li>
+          <li>Basic HTTP & REST knowledge</li>
+          <li>High-level understanding of security concepts</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Learning Objectives</h2>
+    <ul>
+      <li>Explain the AAA framework in IBM DataPower Gateway</li>
+      <li>Configure authentication and authorization using LDAP and policy files</li>
+      <li>Implement OAuth 2.0 authorization flows using DataPower</li>
+      <li>Configure DataPower as an OAuth Authorization Server</li>
+      <li>Integrate OpenID Connect for social login and federated identity</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Course Structure</h2>
+
+    <div class="card">
+      <h3>Unit 1 – Authentication, Authorization, and Auditing (AAA)</h3>
+      <ul>
+        <li>AAA framework overview</li>
+        <li>Access control policy design</li>
+        <li>LDAP-based authentication</li>
+        <li>Role-based authorization</li>
+      </ul>
+    </div>
+
+    <div class="card lab">
+      <h3>Exercise 1 – Configuring AAA in a DataPower Service</h3>
+      <ul>
+        <li>Create AAA information files</li>
+        <li>Configure LDAP connections</li>
+        <li>Attach AAA policies to MPGW services</li>
+        <li>Test authentication and authorization behavior</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Unit 2 – OAuth 2.0 and DataPower Implementation</h3>
+      <ul>
+        <li>OAuth 2.0 concepts and terminology</li>
+        <li>Three-legged OAuth flow</li>
+        <li>OAuth roles and responsibilities</li>
+      </ul>
+    </div>
+
+    <div class="card lab">
+      <h3>Exercise 2 – Implementing OAuth 2.0 with DataPower</h3>
+      <ul>
+        <li>Create OAuth client profiles and groups</li>
+        <li>Configure Web Token Services</li>
+        <li>Protect backend services using OAuth tokens</li>
+        <li>Validate access tokens in AAA policies</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Unit 3 – OpenID Connect and Social Login</h3>
+      <ul>
+        <li>OIDC architecture and identity federation</li>
+        <li>Relationship between OAuth and OIDC</li>
+        <li>JWT usage and claims mapping</li>
+      </ul>
+    </div>
+
+    <div class="card lab">
+      <h3>Exercise 3 – Configuring an OIDC Client</h3>
+      <ul>
+        <li>Register DataPower as an OIDC client</li>
+        <li>Integrate with an external Identity Provider</li>
+        <li>Validate ID tokens and user claims</li>
+        <li>Enforce authenticated access to services</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Duration & Delivery</h2>
+    <ul>
+      <li><strong>Duration:</strong> 1 Day</li>
+      <li><strong>Delivery:</strong> Instructor-led or Self-paced Virtual Classroom</li>
+      <li><strong>Skill Level:</strong> Intermediate</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    © IBM Training – Course outline adapted for instructor-led lab delivery.
+    IBM, DataPower, and related marks are trademarks of International Business Machines Corporation.
+  </p>
+</footer>
+
+</body>
+</html>
