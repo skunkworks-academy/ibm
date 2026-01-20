@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IBM Practical Lab Environment – Build Plan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Practical lab-environment build plan for IBM DataPower and App Connect Enterprise training cohorts. Includes hardware, software, setup effort, timelines, and pricing models." />
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --card: #1f2933;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --accent-soft: #0ea5e9;
+      --border: #374151;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #020617, var(--bg));
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 3rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: radial-gradient(circle at top right, #0ea5e930, transparent 60%);
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      margin: 0 0 0.5rem;
+      color: #f9fafb;
+    }
+
+    header p {
+      max-width: 960px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--accent);
+      padding-left: 0.75rem;
+    }
+
+    h3 {
+      margin-top: 2rem;
+      font-size: 1.25rem;
+      color: #f9fafb;
+    }
+
+    p {
+      color: var(--muted);
+      max-width: 900px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--panel));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+      margin: 0.75rem 0;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #020617;
+      color: #f9fafb;
+      font-weight: 600;
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      background: #0ea5e920;
+      color: var(--accent);
+      border: 1px solid #0ea5e950;
+      margin-left: 0.25rem;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .highlight {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      background: #020617;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Practical Lab Environment – Build Plan</h1>
+  <p>
+    This document defines the <strong>hardware, software, setup effort, timelines, and pricing models</strong>
+    for delivering hands-on IBM DataPower and IBM App Connect Enterprise labs in instructor-led cohorts.
+    It is designed for repeatable, production-grade training delivery.
+  </p>
+</header>
+
+<main>
+
+  <!-- COURSES -->
+  <section>
+    <h2>Courses in Scope</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>WE751 / ZE751</h3>
+        <p>Essentials of Service Development for IBM DataPower Gateway V7.5</p>
+        <span class="badge">Foundational</span>
+      </div>
+      <div class="card">
+        <h3>WE753 / ZE753</h3>
+        <p>AAA, OAuth, and OIDC in IBM DataPower Gateway V7.5</p>
+        <span class="badge">Advanced Security</span>
+      </div>
+      <div class="card">
+        <h3>WM669 / ZM669</h3>
+        <p>Fundamentals of IBM App Connect Enterprise V11</p>
+        <span class="badge">Integration</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BASELINE -->
+  <section>
+    <h2>Baseline Infrastructure (Standardised)</h2>
+    <div class="card">
+      <ul>
+        <li><strong>Compute:</strong> 16–24 vCPU per 8–10 students</li>
+        <li><strong>Memory:</strong> 64–96 GB RAM</li>
+        <li><strong>Storage:</strong> 500 GB SSD (snapshots + fast I/O)</li>
+        <li><strong>Hypervisor:</strong> VMware ESXi, Proxmox, KVM, or Cloud VM</li>
+        <li><strong>Networking:</strong> Private lab network + NAT + fixed student IPs</li>
+        <li><strong>Access:</strong> Instructor jump host, isolated student domains</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- LAB STACKS -->
+  <section>
+    <h2>Course-Specific Lab Stacks</h2>
+
+    <div class="card">
+      <h3>WE751 – DataPower Development</h3>
+      <ul>
+        <li>IBM DataPower Gateway V7.5.1.x (2 vCPU / 4–6 GB RAM)</li>
+        <li>Ubuntu 14.04 LTS Student VM</li>
+        <li>Tools: Firefox, SoapUI, cURL</li>
+        <li>Preloaded Booking & Baggage mock services</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>WE753 – AAA, OAuth, OIDC</h3>
+      <ul>
+        <li>All WE751 components</li>
+        <li>LDAP backend (OpenLDAP)</li>
+        <li>OAuth Web Token Service</li>
+        <li>Node.js OAuth/OIDC client</li>
+        <li>Per-student SSL certificates & secrets</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>WM669 – App Connect Enterprise</h3>
+      <ul>
+        <li>Windows VM (4 vCPU / 8 GB RAM)</li>
+        <li>IBM App Connect Enterprise Toolkit V11</li>
+        <li>Standalone Integration Server</li>
+        <li>Lab files in <code>C:\labfiles</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SETUP TIME -->
+  <section>
+    <h2>Setup Effort & Time Estimates</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>Estimated Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Initial infrastructure & networking</td>
+          <td>6–8 hours</td>
+        </tr>
+        <tr>
+          <td>Golden image creation (all stacks)</td>
+          <td>12–16 hours</td>
+        </tr>
+        <tr>
+          <td>Security objects, OAuth, LDAP</td>
+          <td>4–6 hours</td>
+        </tr>
+        <tr>
+          <td>Snapshot & validation</td>
+          <td>2–3 hours</td>
+        </tr>
+        <tr>
+          <td><strong>Total one-time effort</strong></td>
+          <td><strong>24–33 hours</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Per Cohort (20–25 students)</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>VM cloning & IP allocation</td>
+          <td>2–3 hours</td>
+        </tr>
+        <tr>
+          <td>Credential resets</td>
+          <td>1–2 hours</td>
+        </tr>
+        <tr>
+          <td>Smoke testing</td>
+          <td>2 hours</td>
+        </tr>
+        <tr>
+          <td><strong>Total per cohort</strong></td>
+          <td><strong>6–8 hours</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COHORTS -->
+  <section>
+    <h2>Cohort Schedule</h2>
+    <div class="timeline">
+      <div class="card">
+        <h3>Cohort 1</h3>
+        <p>
+          <strong>Start:</strong> 16 or 18 Feb 2026<br />
+          <strong>End:</strong> 27 Feb 2026
+        </p>
+      </div>
+      <div class="card">
+        <h3>Cohort 2</h3>
+        <p>
+          <strong>Start:</strong> 02 or 04 Mar 2026<br />
+          <strong>End:</strong> 13 Mar 2026
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section>
+    <h2>Lab Pricing Models (Guidance)</h2>
+
+    <h3>Rent (Time-boxed Access – Recommended)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Access Period</th>
+          <th>Price / Student (ZAR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WE751</td>
+          <td>10 days</td>
+          <td>R2,500 – R3,000</td>
+        </tr>
+        <tr>
+          <td>WE753</td>
+          <td>10 days</td>
+          <td>R3,000 – R3,500</td>
+        </tr>
+        <tr>
+          <td>WM669</td>
+          <td>10 days</td>
+          <td>R2,000 – R2,500</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Own (Enterprise / Partner)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Indicative Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DataPower labs (WE751 + WE753)</td>
+          <td>R85k – R120k</td>
+        </tr>
+        <tr>
+          <td>ACE labs (WM669)</td>
+          <td>R45k – R65k</td>
+        </tr>
+        <tr>
+          <td>Full lab bundle</td>
+          <td>R120k – R160k</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- RECOMMENDATION -->
+  <section>
+    <h2>Operational Recommendation</h2>
+    <div class="card">
+      <p>
+        For Feb–Mar 2026 cohorts, the optimal model is
+        <span class="highlight">time-boxed lab rental</span>.
+        It minimises risk, preserves intellectual property, enables rapid resets,
+        and maximises margin while maintaining delivery quality.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 • Practical Lab Environment Build Plan • Internal / Client-Facing Use
+</footer>
+
+</body>
+</html>
