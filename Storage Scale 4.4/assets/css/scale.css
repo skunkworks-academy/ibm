@@ -205,3 +205,71 @@ kbd{
   font-size:13px;
 }
 .small{ font-size:13px; color:var(--muted); }
+/* Progress tracker UI */
+.progress-panel{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.progress-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.progress-score{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+.progress-score .pct{
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+.progress-bar{
+  height:12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 70%, var(--card));
+  overflow:hidden;
+}
+.progress-bar > div{
+  height:100%;
+  width:0%;
+  background: color-mix(in srgb, var(--accent) 55%, var(--card));
+  transition: width 220ms ease;
+}
+.checklist{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:8px;
+}
+.checkitem{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background: color-mix(in srgb, var(--bg) 70%, var(--card));
+}
+.checkitem input{ margin-top:3px; transform:scale(1.15); }
+.checkitem .label{
+  display:flex;
+  flex-direction:column;
+}
+.checkitem .label .title{ font-weight:750; }
+.checkitem .label .desc{ font-size:13px; color:var(--muted); }
+
+/* Locked links/buttons */
+.locked{
+  pointer-events:none;
+  opacity:.55;
+  filter:grayscale(.2);
+}
+.locked::after{
+  content:" 🔒";
+}
+
