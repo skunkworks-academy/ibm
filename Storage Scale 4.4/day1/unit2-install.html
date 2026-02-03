@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unit 2 — Installation & Cluster Configuration | Day 1</title>
+  <meta name="description" content="Unit 2: install Storage Scale on Linux, extract installer, install RPMs, build portability layer, create a cluster." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">U2</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Unit 2 — Installation & cluster configuration</div>
+        <div class="meta">Extract → RPMs → portability layer → cluster</div>
+      </div>
+      <span class="badge">Day 1</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="./index.html">Day 1</a>
+      <a data-nav href="./unit1-overview.html">Unit 1</a>
+      <a data-nav href="./lab1-node-prep.html">Lab 1</a>
+      <a data-nav href="./unit2-install.html" class="active">Unit 2</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>Installation flow (Linux)</h1>
+    <p data-mode="normal">
+      The self-extracting installer stages packages under <code>/usr/lpp/mmfs/&lt;version&gt;</code>.
+      You then install the base GPFS/Scale RPMs and build the portability layer for the running kernel.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+
+    <div class="callout warn" data-mode="normal">
+      <strong>Rule:</strong> don’t run cluster-creating commands until prerequisites and packages are consistent across nodes.
+      “Half-installed clusters” are how you learn new swear words.
+    </div>
+  </div>
+
+  <section class="grid" style="margin-top:14px;">
+    <div class="card col-6">
+      <h2>Step A — Run the installer (extract)</h2>
+
+      <div data-mode="lab">
+        <pre><code># On each node (example filename)
+chmod +x Storage_Scale_Data_Management-5.x.x.x-x86_64-Linux-install
+./Storage_Scale_Data_Management-5.x.x.x-x86_64-Linux-install --text-only</code></pre>
+        <pre><code># Expected:
+# - content extracted under /usr/lpp/mmfs/5.x.x.x
+# - license acceptance completed (text mode)</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          The installer does not “install everything” automatically; it stages the versioned payload so you can install the right RPM sets.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-6">
+      <h2>Step B — Install base Storage Scale RPMs</h2>
+
+      <div data-mode="lab">
+        <pre><code># Example (base packages) — adjust version path
+cd /usr/lpp/mmfs/5.x.x.x/gpfs_rpms
+rpm -ivh gpfs.base*.rpm gpfs.gpl*.rpm gpfs.license*.rpm gpfs.gskit*.rpm gpfs.msg*.rpm gpfs.docs*.rpm</code></pre>
+        <pre><code># Expected:
+# - RPMs install without dependency failures
+# - gpfs.gpl packages present to support kernel module build</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          This sets up the Storage Scale binaries and the kernel integration components.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-12">
+      <h2>Step C — Build the portability layer (kernel interface)</h2>
+
+      <div data-mode="lab">
+        <pre><code># Typical build command (varies by version/tooling in your lab)
+# If your environment provides a helper script, use it.
+# Otherwise, verify module build succeeds and 'mmfs' loads.
+
+# Example checks:
+ls -l /usr/lpp/mmfs/bin
+/usr/lpp/mmfs/bin/mmbuildgpl</code></pre>
+        <pre><code># Expected:
+# - build completes successfully
+# - kernel module loads without "invalid module format" errors</code></pre>
+      </div>
+
+      <div data-mode="normal" class="callout warn">
+        <strong>If build fails:</strong> 90% of the time it’s kernel-devel mismatch. Go back to Lab 1 gate.
+      </div>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Why correct:</strong> portability layer must match the running kernel for the filesystem to integrate with VFS.
+        <br/>
+        <strong>Why wrong:</strong> skipping portability build and “hoping it works” — it won’t.
+      </div>
+    </div>
+
+    <div class="card col-12">
+      <h2>Step D — Create cluster (concept + command)</h2>
+
+      <div data-mode="normal">
+        <p>
+          Cluster creation defines trust, roles (including quorum), and cluster-wide metadata. Treat this as a critical boundary decision.
+        </p>
+      </div>
+
+      <div data-mode="lab">
+        <pre><code># Example node file format (nodefile.txt):
+# node01:quorum-manager
+# node02:quorum
+# node03:nonquorum
+
+# Create cluster (example)
+mmcrcluster -N nodefile.txt -p node01 -s node02</code></pre>
+        <pre><code># Expected:
+# - cluster created successfully
+# - no unresolved hostnames
+# - roles applied from nodefile</code></pre>
+      </div>
+
+      <div data-mode="lab">
+        <pre><code># Start and verify
+mmstartup -a
+mmgetstate -aLs
+mmlscluster</code></pre>
+        <pre><code># Expected:
+# - all nodes show active state
+# - quorum nodes indicated
+# - cluster summary lists all nodes</code></pre>
+      </div>
+
+      <div class="callout ok" data-mode="normal">
+        <strong>Day 1 done right:</strong> you can explain what these commands changed, where that state lives, and what “healthy” looks like.
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <a href="./lab1-node-prep.html">← Lab 1</a>
+    <span style="float:right;"><a href="./index.html">Back to Day 1 overview →</a></span>
+  </footer>
+</main>
+</body>
+</html>
