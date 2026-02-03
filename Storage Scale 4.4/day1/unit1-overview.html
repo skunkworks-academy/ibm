@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unit 1 — Storage Scale Overview | Day 1</title>
+  <meta name="description" content="Unit 1: Storage Scale concepts, components, parallel architecture, and quorum fundamentals." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">U1</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Unit 1 — IBM Storage Scale overview</div>
+        <div class="meta">Architecture first, always</div>
+      </div>
+      <span class="badge">Day 1</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="./index.html">Day 1</a>
+      <a data-nav href="./unit1-overview.html" class="active">Unit 1</a>
+      <a data-nav href="./lab1-node-prep.html">Lab 1</a>
+      <a data-nav href="./unit2-install.html">Unit 2</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>What Storage Scale is (and isn’t)</h1>
+    <p data-mode="normal">
+      Storage Scale (formerly GPFS) is a clustered file system designed for concurrent access from multiple nodes,
+      scaling capacity and performance while keeping a single namespace.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+
+    <div class="callout warn" data-mode="normal">
+      <strong>Key mental model:</strong> Storage Scale is not a classic “single filer”.
+      There is no single metadata server bottleneck, and the system relies on quorum to prevent split-brain.
+    </div>
+
+    <div class="accordion" data-mode="normal">
+      <details>
+        <summary>Core components you must name without hesitation</summary>
+        <ul>
+          <li><strong>Nodes</strong> (clients, NSD servers, quorum nodes)</li>
+          <li><strong>NSDs</strong> (Network Shared Disks) exporting storage to the cluster</li>
+          <li><strong>Daemon + kernel extension</strong> (I/O path + VFS integration)</li>
+          <li><strong>Pagepool</strong> (Storage Scale cache, not OS page cache)</li>
+          <li><strong>File system descriptor</strong> (replicated metadata on disks)</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>Exam trap: “Quorum improves availability” (Nope.)</summary>
+        <p>
+          Quorum primarily protects <strong>integrity</strong> by preventing multiple partitions from writing independently.
+          The system would rather stop than corrupt.
+        </p>
