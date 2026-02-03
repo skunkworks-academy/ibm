@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lab 1 — Cluster Node Preparation | Day 1</title>
+  <meta name="description" content="Lab 1: prepare nodes for Storage Scale installation with checkpoints and recovery tips." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">L1</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Lab 1 — Cluster node preparation</div>
+        <div class="meta">Get the prerequisites right or pay later</div>
+      </div>
+      <span class="badge">Day 1</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="./index.html">Day 1</a>
+      <a data-nav href="./unit1-overview.html">Unit 1</a>
+      <a data-nav href="./lab1-node-prep.html" class="active">Lab 1</a>
+      <a data-nav href="./unit2-install.html">Unit 2</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>Objective</h1>
+    <p data-mode="normal">
+      Prepare Linux nodes so Storage Scale can install cleanly and build the portability layer against the running kernel.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+
+    <div class="callout warn" data-mode="normal">
+      <strong>Most common failure:</strong> kernel headers / kernel-devel don’t match the running kernel.
+      Portability layer build fails, then everyone blames “GPFS”.
+    </div>
+  </div>
+
+  <!-- LAB MODE: commands + expected output -->
+  <section class="grid" style="margin-top:14px;">
+    <div class="card col-6">
+      <h2>1) Validate OS & kernel</h2>
+      <div data-mode="lab">
+        <pre><code># Run on each node
+cat /etc/redhat-release
+uname -r</code></pre>
+        <pre><code># Expected (example)
+Red Hat Enterprise Linux release 8.x (...)
+4.18.0-xxx.el8.x86_64</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          Storage Scale’s kernel integration depends on the portability layer (GPL module) matching the running kernel.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-6">
+      <h2>2) Install prerequisite packages</h2>
+
+      <div data-mode="lab">
+        <pre><code># Run on each node (RHEL 8.x baseline)
+dnf -y install kernel-devel kernel-headers gcc gcc-c++ cpp binutils elfutils-libelf-devel python38</code></pre>
+        <pre><code># Expected: packages install without dependency errors</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          These packages are required to build the kernel portability layer and run tools used by install workflows.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-6">
+      <h2>3) Time sync & name resolution</h2>
+      <div data-mode="lab">
+        <pre><code># Time sync check (pick what exists in your lab)
+timedatectl status
+chronyc tracking || true</code></pre>
+        <pre><code># Name resolution check
+getent hosts node01
+getent hosts node02
+getent hosts node03</code></pre>
+        <pre><code># Expected: each hostname resolves to the correct IP on every node</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          Cluster behavior is incredibly sensitive to timing and consistent node identity. Drift + bad DNS = ghost problems.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-6">
+      <h2>4) Disk visibility & stability</h2>
+      <div data-mode="lab">
+        <pre><code># Show disks (verify intended devices exist)
+lsblk -o NAME,SIZE,TYPE,MODEL
+
+# (Optional) For SAN/iSCSI labs, confirm sessions
+iscsiadm -m session -P 3 || true</code></pre>
+        <pre><code># Expected: all intended candidate disks visible, consistent naming/paths</code></pre>
+      </div>
+
+      <div data-mode="normal">
+        <p>
+          Before NSDs exist, your job is to make sure storage is visible, stable, and repeatable across reboots.
+        </p>
+      </div>
+    </div>
+
+    <div class="card col-12">
+      <h2>Checkpoint: Node readiness gate</h2>
+
+      <div data-mode="lab">
+        <pre><code># Quick gate — rerun until clean on every node
+uname -r
+rpm -q kernel-devel kernel-headers gcc gcc-c++ cpp binutils elfutils-libelf-devel python38
+getent hosts node01 node02 node03
+lsblk</code></pre>
+        <pre><code># Expected:
+# - RPM queries return installed packages (not "is not installed")
+# - hostnames resolve
+# - storage devices visible</code></pre>
+      </div>
+
+      <div data-mode="normal" class="callout ok">
+        <strong>Pass criteria:</strong> every node passes this gate before you touch the Storage Scale installer.
+      </div>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Why correct:</strong> Node prep focuses on kernel/toolchain alignment and predictable identity (name/time/storage).
+        <br/>
+        <strong>Why wrong:</strong> “We’ll fix kernel-devel after install” — the portability layer depends on it during install/build.
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <a href="./unit1-overview.html">← Unit 1</a>
+    <span style="float:right;"><a href="./unit2-install.html">Next: Unit 2 →</a></span>
+  </footer>
+</main>
+</body>
+</html>
