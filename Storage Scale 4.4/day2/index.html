@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day 2 — Cluster Management | Storage Scale 4.4</title>
+  <meta name="description" content="Day 2 stub: cluster management topics and navigation." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">D2</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Day 2 — Cluster Management</div>
+        <div class="meta">Stub (navigation + roadmap)</div>
+      </div>
+      <span class="badge">Coming soon</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="../day1/index.html">Day 1</a>
+      <a data-nav href="./index.html" class="active">Day 2</a>
+      <a data-nav href="../day3/index.html">Day 3</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>Day 2 roadmap</h1>
+    <p data-mode="normal">
+      Day 2 focuses on controlling and validating cluster behavior: roles, quorum management, configuration attributes,
+      and operational controls that keep the system stable.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+
+    <div class="callout warn">
+      This is a stub page so navigation feels complete. Content pages will be added next.
+    </div>
+  </div>
+
+  <section class="grid" style="margin-top:14px;">
+    <div class="card col-6">
+      <h2>Planned sections</h2>
+      <ul>
+        <li>Cluster configuration models (SAN / NSD / shared-nothing)</li>
+        <li>Node roles: manager, quorum, client/server</li>
+        <li>Quorum commands and best practices</li>
+        <li>Where config lives (and what not to edit)</li>
+        <li>Performance basics: pagepool, I/O threads, monitoring hooks</li>
+      </ul>
+    </div>
+
+    <div class="card col-6">
+      <h2>Planned labs</h2>
+      <ul>
+        <li>Cluster role validation & changes</li>
+        <li>Quorum verification and safe changes</li>
+        <li>NSD access method concepts (client vs server paths)</li>
+        <li>State monitoring “known-good” baseline capture</li>
+      </ul>
+      <div class="callout ok">
+        Goal: you can explain what changed, where it’s stored, and how to roll back safely.
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <a href="../day1/index.html">← Day 1</a>
+    <span style="float:right;"><a href="../day3/index.html">Next: Day 3 →</a></span>
+  </footer>
+</main>
+</body>
+</html>
