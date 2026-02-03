@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IBM Storage Scale 4.4 — Interactive Course Site</title>
+  <meta name="description" content="Interactive learning site for IBM Storage Scale Basic Administration for Linux and AIX (H005G ERC 4.4)." />
+  <link rel="stylesheet" href="./assets/css/scale.css" />
+  <script defer src="./assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">SS</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">IBM Storage Scale 4.4</div>
+        <div class="meta">Basic Administration for Linux and AIX</div>
+      </div>
+      <span class="badge">H005G ERC 4.4</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="./index.html" class="active">Home</a>
+      <a data-nav href="./day1/index.html">Day 1</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="card">
+      <h1>Learn Storage Scale like an administrator, not a tourist.</h1>
+      <p>
+        This site pairs instructor-led flow with interactive architecture views, lab checkpoints,
+        and recovery-first thinking. It follows the Day 1–3 agenda used in the course.
+      </p>
+      <div class="kpis">
+        <span class="pill">3 Days</span>
+        <span class="pill">Labs + Recovery</span>
+        <span class="pill">Linux + AIX context</span>
+        <span class="pill">Quorum & NSD first-principles</span>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="./day1/index.html">Start Day 1</a>
+        <a class="btn" href="./day1/unit1-overview.html#diagram-parallel-io">View Parallel I/O Diagram</a>
+        <a class="btn" href="./day1/unit1-overview.html#diagram-quorum">View Quorum Diagram</a>
+      </div>
+
+      <hr class="sep" />
+
+      <h2>Modes</h2>
+      <p class="small">Modes persist in your browser (localStorage) and apply across pages.</p>
+      <div class="controls">
+        <label class="toggle" title="Show only commands + expected output blocks">
+          <input id="toggleLab" type="checkbox" />
+          <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+        </label>
+        <label class="toggle" title="Reveal why correct / why wrong exam logic blocks">
+          <input id="toggleExam" type="checkbox" />
+          <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+        </label>
+      </div>
+    </div>
+
+    <aside class="card">
+      <h2>What you’ll actually build (Day 1)</h2>
+      <ul>
+        <li>Node readiness baseline (OS, kernel headers, time sync, name resolution)</li>
+        <li>Storage Scale install flow (extract → RPMs → portability layer)</li>
+        <li>Cluster creation and validation (state, quorum visibility)</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Instructor bias:</strong> split-brain is worse than downtime.
+        Quorum protects integrity, not availability.
+      </div>
+
+      <div class="callout ok">
+        <strong>Outcome:</strong> by end of Day 1 you should have a running cluster and know where to look first when it misbehaves.
+      </div>
+    </aside>
+  </section>
+
+  <section class="grid">
+    <div class="card col-6">
+      <h2>Course structure</h2>
+      <p class="small">Mirrors the official agenda.</p>
+      <ul>
+        <li><strong>Day 1:</strong> Overview + Node Prep + Installation & Cluster Config</li>
+        <li><strong>Day 2:</strong> Cluster Management</li>
+        <li><strong>Day 3:</strong> ILM + High Availability & Backups</li>
+      </ul>
+      <div class="callout">
+        <strong>Reminder:</strong> Storage Scale is a clustered file system (formerly GPFS) designed for concurrent access and parallel I/O.
+      </div>
+    </div>
+
+    <div class="card col-6">
+      <h2>Navigation</h2>
+      <p>Day 1 is split into concept pages that match how learners get lost:</p>
+      <ul>
+        <li><a href="./day1/index.html">Day 1 overview</a></li>
+        <li><a href="./day1/unit1-overview.html">Unit 1 — Storage Scale overview</a></li>
+        <li><a href="./day1/lab1-node-prep.html">Lab 1 — Cluster node preparation</a></li>
+        <li><a href="./day1/unit2-install.html">Unit 2 — Installation & cluster configuration</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Built for hands-on administration training. Keep it deterministic. Keep it recoverable.
+  </footer>
+</main>
+</body>
+</html>
