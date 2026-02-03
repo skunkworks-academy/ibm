@@ -52,7 +52,104 @@
         <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
       </label>
     </div>
+    <div class="callout ok" data-progress-scope="day1">
+  <div class="progress-panel">
+    <div class="progress-top">
+      <div class="progress-score">
+        <div class="pct" data-score="day1">0%</div>
+        <div class="meta" data-scoretext="day1">0/0 checkpoints complete</div>
+      </div>
+      <button class="btn" type="button" data-reset="day1">Reset Day 1 progress</button>
+    </div>
 
+    <div class="progress-bar" aria-label="Day 1 readiness score">
+      <div data-scorebar="day1"></div>
+    </div>
+
+    <!-- Checkpoints: edit text freely; keys must stay stable -->
+    <div class="checklist">
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="os-kernel" />
+        <span class="label">
+          <span class="title">OS + kernel baseline captured</span>
+          <span class="desc">cat /etc/redhat-release, uname -r recorded for all nodes</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="deps-installed" />
+        <span class="label">
+          <span class="title">Prereqs installed</span>
+          <span class="desc">kernel-devel/headers + toolchain installed and matching</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="dns-hosts" />
+        <span class="label">
+          <span class="title">Name resolution validated</span>
+          <span class="desc">getent hosts resolves all cluster nodes from every node</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="time-sync" />
+        <span class="label">
+          <span class="title">Time sync validated</span>
+          <span class="desc">timedatectl/chrony shows stable sync</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="disk-visible" />
+        <span class="label">
+          <span class="title">Disk visibility proven</span>
+          <span class="desc">lsblk shows intended disks consistently</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="payload-staged" />
+        <span class="label">
+          <span class="title">Installer payload staged</span>
+          <span class="desc">/usr/lpp/mmfs/&lt;version&gt; exists with gpfs rpms</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="rpms-installed" />
+        <span class="label">
+          <span class="title">Base RPMs installed</span>
+          <span class="desc">gpfs.base/gpl/license/msg installed on all nodes</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="gpl-built" />
+        <span class="label">
+          <span class="title">Portability layer built</span>
+          <span class="desc">mmbuildgpl (or lab equivalent) succeeded</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="cluster-created" />
+        <span class="label">
+          <span class="title">Cluster created</span>
+          <span class="desc">mmcrcluster ran successfully; roles correct</span>
+        </span>
+      </label>
+
+      <label class="checkitem">
+        <input type="checkbox" data-scope="day1" data-check="cluster-healthy" />
+        <span class="label">
+          <span class="title">Cluster healthy baseline</span>
+          <span class="desc">mmstartup -a + mmgetstate -aLs shows expected states</span>
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
     <div class="callout warn" data-mode="normal">
       If you can’t provide these outputs, you haven’t proven the system state. Troubleshooting starts here.
     </div>
