@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day 1 Knowledge Check | Storage Scale 4.4</title>
+  <meta name="description" content="Day 1 knowledge check: 10 exam-style questions with explanations." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">QZ</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Day 1 Knowledge Check</div>
+        <div class="meta">10 exam-style questions</div>
+      </div>
+      <span class="badge">Exam Reinforcement Mode supported</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="../day1/index.html">Day 1</a>
+      <a data-nav href="./unit1-overview.html">Unit 1</a>
+      <a data-nav href="./lab1-node-prep.html">Lab 1</a>
+      <a data-nav href="./unit2-install.html">Unit 2</a>
+      <a data-nav href="./knowledge-check.html" class="active">Knowledge Check</a>
+      <a data-nav href="../day2/index.html">Day 2</a>
+      <a data-nav href="../day3/index.html">Day 3</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>How to use this page</h1>
+    <p data-mode="normal">
+      Answer first without peeking. Then enable <strong>Exam Reinforcement Mode</strong> to reveal “why correct / why wrong”.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+
+    <div class="callout warn" data-mode="normal">
+      These questions are designed to catch the exact misunderstandings that cause broken installs and split-brain nightmares.
+    </div>
+  </div>
+
+  <section class="card accordion" style="margin-top:14px;">
+    <!-- Q1 -->
+    <details>
+      <summary>1) What is the primary purpose of quorum in Storage Scale?</summary>
+      <p data-mode="normal">
+        A) Improve read performance by choosing the fastest nodes<br/>
+        B) Prevent split-brain by ensuring only one partition continues I/O<br/>
+        C) Reduce network traffic by limiting management messages<br/>
+        D) Guarantee the cluster stays online even if most nodes fail
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> Quorum is an integrity safeguard: it prevents two partitions from writing independently.<br/>
+        <strong>Why wrong:</strong> A/C are performance/optimization statements; D confuses integrity with availability (quorum may stop the cluster to prevent corruption).
+      </div>
+    </details>
+
+    <!-- Q2 -->
+    <details>
+      <summary>2) Which statement best describes an NSD (Network Shared Disk)?</summary>
+      <p data-mode="normal">
+        A) A NAS share exported via NFS<br/>
+        B) A raw disk that can only be used by one node at a time<br/>
+        C) A Storage Scale abstraction that allows disks to be shared and accessed across nodes<br/>
+        D) A file system mounted over SMB
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> C<br/>
+        <strong>Why correct:</strong> NSD is a protocol/abstraction used by Storage Scale for shared block access, not “just a disk”.<br/>
+        <strong>Why wrong:</strong> A/D are file-level sharing protocols; B contradicts the shared-disk model and NSD server/client design.
+      </div>
+    </details>
+
+    <!-- Q3 -->
+    <details>
+      <summary>3) Why must kernel-devel and kernel-headers match the running kernel on Linux?</summary>
+      <p data-mode="normal">
+        A) To enable NFS exports<br/>
+        B) To build the Storage Scale portability layer for that kernel version<br/>
+        C) To prevent users from deleting files<br/>
+        D) To automatically configure NSDs
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> The portability layer (kernel integration) must be built against the running kernel interfaces.<br/>
+        <strong>Why wrong:</strong> A/D are unrelated; C is a permissions/ACL topic.
+      </div>
+    </details>
+
+    <!-- Q4 -->
+    <details>
+      <summary>4) Where are Storage Scale administrative commands typically located on Linux?</summary>
+      <p data-mode="normal">
+        A) /usr/bin<br/>
+        B) /opt/gpfs/bin<br/>
+        C) /usr/lpp/mmfs/bin<br/>
+        D) /var/mmfs/gen
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> C<br/>
+        <strong>Why correct:</strong> Storage Scale command binaries/scripts are under <code>/usr/lpp/mmfs/bin</code>.<br/>
+        <strong>Why wrong:</strong> A is generic; D contains generated/config state (not binaries); B is a common but not the intended standard path here.
+      </div>
+    </details>
+
+    <!-- Q5 -->
+    <details>
+      <summary>5) A cluster network partition happens. What is the “safe” outcome Storage Scale aims for?</summary>
+      <p data-mode="normal">
+        A) Both sides keep writing and reconcile later<br/>
+        B) The side that retains quorum continues I/O; the other side stops I/O<br/>
+        C) The node with fastest disks becomes manager automatically and forces others to follow<br/>
+        D) The cluster always stays up because disk leasing prevents problems
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> Only one partition should remain active for writing; otherwise split-brain corruption occurs.<br/>
+        <strong>Why wrong:</strong> A is the classic corruption recipe; C is fantasy; D overstates disk leasing (it helps, but quorum remains a core integrity mechanism).
+      </div>
+    </details>
+
+    <!-- Q6 -->
+    <details>
+      <summary>6) In the Linux install flow, what does the self-extracting installer primarily do?</summary>
+      <p data-mode="normal">
+        A) Automatically creates your cluster and file systems<br/>
+        B) Stages installable packages under /usr/lpp/mmfs/&lt;version&gt;<br/>
+        C) Formats disks into NSDs immediately<br/>
+        D) Enables SMB and NFS exports by default
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> It extracts/stages packages; you then install RPMs and perform cluster creation separately.<br/>
+        <strong>Why wrong:</strong> A/C/D are later steps or optional features, not what extraction primarily does.
+      </div>
+    </details>
+
+    <!-- Q7 -->
+    <details>
+      <summary>7) A learner edits /var/mmfs/gen/mmsdrfs directly to “fix config quickly.” What’s the best answer?</summary>
+      <p data-mode="normal">
+        A) Good practice; it’s a standard config file<br/>
+        B) Fine if you restart the daemon afterwards<br/>
+        C) Not supported; use Storage Scale commands because the file is replicated/generated cluster-wide<br/>
+        D) Only allowed on non-quorum nodes
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> C<br/>
+        <strong>Why correct:</strong> Cluster-wide state is managed via commands; direct edits risk inconsistency and are explicitly discouraged.<br/>
+        <strong>Why wrong:</strong> A/B/D normalize an unsupported shortcut and ignore replication/consistency risks.
+      </div>
+    </details>
+
+    <!-- Q8 -->
+    <details>
+      <summary>8) What is “pagepool” in Storage Scale?</summary>
+      <p data-mode="normal">
+        A) The OS file cache used by applications<br/>
+        B) Storage Scale’s own cache for data/metadata buffers and communication buffers<br/>
+        C) A swap partition reserved for GPFS<br/>
+        D) A set of disks dedicated to descriptor quorum
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> Storage Scale uses its own caching mechanisms (pagepool) rather than relying on the OS file cache.<br/>
+        <strong>Why wrong:</strong> A confuses caches; C/D are different subsystems.
+      </div>
+    </details>
+
+    <!-- Q9 -->
+    <details>
+      <summary>9) Which command is most directly used to see daemon state across nodes?</summary>
+      <p data-mode="normal">
+        A) mmlsattr<br/>
+        B) mmgetstate -aLs<br/>
+        C) mmcrnsd<br/>
+        D) mmchdisk
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> <code>mmgetstate -aLs</code> shows Storage Scale daemon state for nodes (and highlights quorum nodes).<br/>
+        <strong>Why wrong:</strong> A relates to file attributes; C creates NSDs; D changes disk attributes inside a filesystem context.
+      </div>
+    </details>
+
+    <!-- Q10 -->
+    <details>
+      <summary>10) You add NSD capacity to a capacity-licensed edition. What changes?</summary>
+      <p data-mode="normal">
+        A) Nothing; licensing is per client node only<br/>
+        B) Your licensing footprint changes because capacity licensing is based on total NSD capacity in the cluster<br/>
+        C) Only the GUI license changes, not storage<br/>
+        D) The cluster must be rebuilt
+      </p>
+
+      <div data-mode="exam" class="callout ok">
+        <strong>Correct:</strong> B<br/>
+        <strong>Why correct:</strong> In capacity-based licensing, the cluster’s total NSD capacity determines the licensing footprint.<br/>
+        <strong>Why wrong:</strong> A is false (clients may not require license, but capacity does); C is irrelevant; D is unnecessary.
+      </div>
+    </details>
+  </section>
+
+  <footer class="footer">
+    <a href="./unit2-install.html">← Unit 2</a>
+    <span style="float:right;"><a href="./lab-evidence.html">Next: Lab Evidence Checklist →</a></span>
+  </footer>
+</main>
+</body>
+</html>
