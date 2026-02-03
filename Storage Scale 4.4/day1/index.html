@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day 1 — Foundations & Installation | Storage Scale 4.4</title>
+  <meta name="description" content="Day 1 flow: Storage Scale overview, node preparation, installation and cluster configuration." />
+  <link rel="stylesheet" href="../assets/css/scale.css" />
+  <script defer src="../assets/js/interactions.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="bar">
+    <div class="brand">
+      <div style="width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 12%, var(--card));display:grid;place-items:center;font-weight:800;">D1</div>
+      <div>
+        <div style="font-weight:800;letter-spacing:-.01em;">Day 1 — Foundations & Installation</div>
+        <div class="meta">Storage Scale 4.4</div>
+      </div>
+      <span class="badge">Concept → Command → Outcome → Failure</span>
+    </div>
+    <nav class="nav">
+      <a data-nav href="../index.html">Home</a>
+      <a data-nav href="./index.html" class="active">Day 1</a>
+      <a data-nav href="./unit1-overview.html">Unit 1</a>
+      <a data-nav href="./lab1-node-prep.html">Lab 1</a>
+      <a data-nav href="./unit2-install.html">Unit 2</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+    <h1>Day 1 goals</h1>
+    <p>
+      By end of Day 1 you should be able to explain the core architecture, prep nodes correctly,
+      and execute an installation flow that results in a healthy cluster.
+    </p>
+
+    <div class="controls">
+      <label class="toggle">
+        <input id="toggleLab" type="checkbox" />
+        <span><strong>Lab Assistant Mode</strong> — commands + expected output only</span>
+      </label>
+      <label class="toggle">
+        <input id="toggleExam" type="checkbox" />
+        <span><strong>Exam Reinforcement Mode</strong> — why correct / why wrong</span>
+      </label>
+    </div>
+  </div>
+
+  <section class="grid" style="margin-top:14px;">
+    <div class="card col-7">
+      <h2>Agenda</h2>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left;border-bottom:1px solid var(--border);padding:10px;">Time</th>
+            <th style="text-align:left;border-bottom:1px solid var(--border);padding:10px;">Topic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:10px;border-bottom:1px solid var(--border);">00:30</td><td style="padding:10px;border-bottom:1px solid var(--border);">Welcome & course overview</td></tr>
+          <tr><td style="padding:10px;border-bottom:1px solid var(--border);">01:15</td><td style="padding:10px;border-bottom:1px solid var(--border);"><a href="./unit1-overview.html">Unit 1: Storage Scale overview</a></td></tr>
+          <tr><td style="padding:10px;border-bottom:1px solid var(--border);">01:00</td><td style="padding:10px;border-bottom:1px solid var(--border);"><a href="./lab1-node-prep.html">Lab 1: Cluster node preparation</a></td></tr>
+          <tr><td style="padding:10px;">01:30</td><td style="padding:10px;"><a href="./unit2-install.html">Unit 2: Installation & cluster configuration</a></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn" style="margin-top:14px;">
+        <strong>Operational implication:</strong> if node prep is sloppy, installation “works” until it doesn’t.
+        Most outages begin with a prerequisite you ignored.
+      </div>
+    </div>
+
+    <aside class="card col-5">
+      <h2>Day 1 navigation</h2>
+      <ul>
+        <li><a href="./unit1-overview.html">Unit 1 — What Storage Scale is (and isn’t)</a></li>
+        <li><a href="./unit1-overview.html#diagram-parallel-io">Diagram — Parallel I/O</a></li>
+        <li><a href="./unit1-overview.html#diagram-quorum">Diagram — Quorum & split-brain prevention</a></li>
+        <li><a href="./lab1-node-prep.html">Lab 1 — Node prep checklist + checkpoints</a></li>
+        <li><a href="./unit2-install.html">Unit 2 — Install flow + cluster creation</a></li>
+      </ul>
+
+      <div class="callout ok">
+        <strong>Success criteria:</strong> a cluster that forms, shows healthy daemon state,
+        and has predictable next steps for NSDs + file system creation.
+      </div>
+    </aside>
+  </section>
+
+  <footer class="footer">
+    <a href="../index.html">← Landing</a>
+    <span style="float:right;"><a href="./unit1-overview.html">Next: Unit 1 →</a></span>
+  </footer>
+</main>
+</body>
+</html>
