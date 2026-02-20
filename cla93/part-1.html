@@ -1,204 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
-  <title>CLA93 – Part 1 | Db2 Essentials</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
+<title>CLA93 – Part 1 | Db2 Architecture & Fundamentals</title>
 
-  <style>
-    :root {
-      --primary: #0f62fe;
-      --bg: #0b1220;
-      --card: #121a2b;
-      --text: #e6edf6;
-      --muted: #9aa8bd;
-      --border: rgba(255,255,255,0.08);
-    }
+<style>
+:root {
+  --primary: #0f62fe;
+  --dark: #0a0f1c;
+  --card: #121a2b;
+  --text: #e6edf6;
+  --muted: #9aa8bd;
+  --border: rgba(255,255,255,0.08);
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
+body {
+  background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
+  color: var(--text);
+  line-height: 1.6;
+}
 
-    header {
-      padding: 60px 20px 30px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
+/* ================= HEADER ================= */
 
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+header {
+  padding: 60px 20px 30px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
 
-    header p {
-      color: var(--muted);
-      max-width: 650px;
-      margin: 0 auto;
-      font-size: 0.95rem;
-    }
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
 
-    nav {
-      text-align: center;
-      padding: 15px 20px;
-      border-bottom: 1px solid var(--border);
-    }
+header p {
+  color: var(--muted);
+  max-width: 750px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
 
-    nav a {
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      margin: 0 10px;
-    }
+/* ================= NAVIGATION ================= */
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+nav {
+  text-align: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+nav a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin: 0 12px;
+}
 
-    section {
-      margin-bottom: 50px;
-    }
+nav a:hover {
+  text-decoration: underline;
+}
 
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      border-left: 4px solid var(--primary);
-      padding-left: 10px;
-    }
+/* ================= PRINT BUTTON ================= */
 
-    ul {
-      list-style: disc;
-      margin-left: 20px;
-    }
+.print-actions {
+  text-align: center;
+  padding: 25px 20px;
+}
 
-    li {
-      margin-bottom: 8px;
-      color: var(--muted);
-    }
+button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
+button:hover {
+  opacity: 0.9;
+}
 
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--border);
-      margin-top: 60px;
-    }
+/* ================= CONTENT ================= */
 
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.4rem;
-      }
+.container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
 
-      h2 {
-        font-size: 1.05rem;
-      }
-    }
-  </style>
+section {
+  margin-bottom: 40px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+}
+
+ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 60px;
+}
+
+/* ================= PRINT MANUAL MODE ================= */
+
+@media print {
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  nav,
+  .print-actions,
+  footer {
+    display: none !important;
+  }
+
+  .card {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 16pt;
+    margin-top: 25px;
+    border-left: none;
+  }
+
+  li {
+    color: black;
+  }
+
+  @page {
+    size: A4;
+    margin: 25mm;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>Part 1 – Db2 Essentials</h1>
+  <h1>Part 1 – Db2 Architecture & Fundamentals</h1>
   <p>
-    Foundation knowledge for Relational DBAs covering Db2 architecture,
-    deployment models, editions, tools, and instance management fundamentals.
+    Core architectural components of IBM Db2 12.1 including instance management,
+    memory structures, process model, installation fundamentals,
+    and database engine foundations.
   </p>
 </header>
 
 <nav>
   <a href="/ibm/cla93/">Home</a>
+  <a href="/ibm/cla93/part-1">Part 1</a>
   <a href="/ibm/cla93/part-2">Part 2</a>
   <a href="/ibm/cla93/part-3">Part 3</a>
   <a href="/ibm/cla93/part-4">Part 4</a>
   <a href="/ibm/cla93/assessment">Assessment</a>
 </nav>
 
+<div class="print-actions">
+  <button onclick="window.print()">Print to PDF (Manual Format)</button>
+</div>
+
 <div class="container">
 
   <section class="card">
-    <h2>Db2 Product & Platform Overview</h2>
+    <h2>Db2 Server Architecture</h2>
     <ul>
-      <li>Supported OS: AIX, Linux, Windows, IBM i, z/OS</li>
-      <li>Editions: Community, Starter, Standard, Advanced</li>
-      <li>Understand licensing limits (cores, memory, features)</li>
-      <li>VRMF versioning model (Version.Release.Mod.Fix)</li>
-      <li>On-prem, Cloud, and Containerized deployment models</li>
+      <li>Instance and database hierarchy</li>
+      <li>Engine Dispatchable Units (EDUs)</li>
+      <li>Memory model (Bufferpools, Sortheap, Locklist)</li>
+      <li>Database manager configuration vs database configuration</li>
+      <li>Shared memory and process communication</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Db2 Tools & Connectivity</h2>
+    <h2>Installation & Instance Management</h2>
     <ul>
-      <li>Command Line Processor (CLP) – SQL and Db2 commands</li>
-      <li>CLPPlus – scripting and formatted output</li>
-      <li>Data Management Console (DMC)</li>
-      <li>IBM Data Server Drivers (JDBC, ODBC, CLI)</li>
-      <li>Db2 Connect for z/OS and IBM i connectivity</li>
+      <li>Db2 product editions overview</li>
+      <li>Installation methods (GUI vs silent)</li>
+      <li>Creating and managing instances</li>
+      <li>db2start and db2stop operations</li>
+      <li>Environment variables and profile configuration</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Db2 Instance Architecture</h2>
+    <h2>Database Creation Fundamentals</h2>
     <ul>
-      <li>Instance = Database Manager environment</li>
-      <li>Multiple databases per instance</li>
-      <li>DBM CFG vs DB CFG</li>
-      <li>EDUs (Engine Dispatchable Units)</li>
-      <li>Environment & registry variables (db2set)</li>
-    </ul>
-  </section>
-
-  <section class="card">
-    <h2>Core DBA Operational Tasks</h2>
-    <ul>
-      <li>Create / Drop instance (db2icrt, db2idrop)</li>
-      <li>Start / Stop instance (db2start, db2stop)</li>
-      <li>Update DBM configuration</li>
-      <li>Quiesce and unquiesce instance</li>
-      <li>Validate prerequisites (db2prereqcheck)</li>
+      <li>CREATE DATABASE syntax</li>
+      <li>Code pages and territory settings</li>
+      <li>Automatic storage vs DMS/SMS</li>
+      <li>Basic configuration tuning after creation</li>
+      <li>Verifying database health</li>
     </ul>
   </section>
 
   <section>
-    <h2>Key Takeaways</h2>
+    <h2>Key DBA Foundations</h2>
     <ul>
-      <li>Understand instance-level vs database-level configuration</li>
-      <li>Choose the correct edition for workload requirements</li>
-      <li>Use proper client connectivity for enterprise integration</li>
-      <li>Maintain separation between environment, instance, and database scope</li>
-      <li>Foundation knowledge determines production stability</li>
+      <li>Understand logical vs physical architecture separation</li>
+      <li>Know where configuration parameters apply</li>
+      <li>Recognize EDU roles and monitoring implications</li>
+      <li>Build disciplined startup/shutdown procedures</li>
+      <li>Document installation standards</li>
     </ul>
   </section>
 
 </div>
 
 <footer>
-  © 2026 Skunkworks Academy | IBM Db2 12.1 Foundation Training
+  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
 </footer>
 
 </body>
