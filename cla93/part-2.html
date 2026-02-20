@@ -1,275 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
-<title>CLA93 – Part 2 | Database & Object Management</title>
-
-<style>
-:root {
-  --primary: #0f62fe;
-  --dark: #0a0f1c;
-  --card: #121a2b;
-  --text: #e6edf6;
-  --muted: #9aa8bd;
-  --border: rgba(255,255,255,0.08);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-body {
-  background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
-  color: var(--text);
-  line-height: 1.6;
-}
-
-/* ================= HEADER ================= */
-
-header {
-  padding: 60px 20px 30px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-
-header h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-header p {
-  color: var(--muted);
-  max-width: 750px;
-  margin: 0 auto;
-  font-size: 0.95rem;
-}
-
-/* ================= NAVIGATION ================= */
-
-nav {
-  text-align: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-nav a {
-  color: var(--primary);
-  text-decoration: none;
-  font-size: 0.9rem;
-  margin: 0 12px;
-}
-
-nav a:hover {
-  text-decoration: underline;
-}
-
-/* ================= PRINT BUTTON ================= */
-
-.print-actions {
-  text-align: center;
-  padding: 25px 20px;
-}
-
-button {
-  background: var(--primary);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-/* ================= CONTENT ================= */
-
-.container {
-  max-width: 900px;
-  margin: 50px auto;
-  padding: 0 20px;
-}
-
-section {
-  margin-bottom: 40px;
-}
-
-h2 {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  border-left: 4px solid var(--primary);
-  padding-left: 10px;
-}
-
-ul {
-  list-style: disc;
-  margin-left: 20px;
-}
-
-li {
-  margin-bottom: 8px;
-  color: var(--muted);
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-/* ================= FOOTER ================= */
-
-footer {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--muted);
-  font-size: 0.85rem;
-  border-top: 1px solid var(--border);
-  margin-top: 60px;
-}
-
-/* ================= PRINT MANUAL MODE ================= */
-
-@media print {
-
-  body {
-    background: white !important;
-    color: black !important;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 12pt;
-    line-height: 1.5;
-  }
-
-  nav,
-  .print-actions,
-  footer {
-    display: none !important;
-  }
-
-  .card {
-    background: none !important;
-    border: none !important;
-    padding: 0 !important;
-  }
-
-  h1 {
-    font-size: 22pt;
-    margin-bottom: 20px;
-  }
-
-  h2 {
-    font-size: 16pt;
-    margin-top: 25px;
-    border-left: none;
-  }
-
-  li {
-    color: black;
-  }
-
-  @page {
-    size: A4;
-    margin: 25mm;
-  }
-}
-</style>
+<meta charset="UTF-8">
+<title>CLA96G – Part 2</title>
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<header>
-  <h1>Part 2 – Database & Object Management</h1>
-  <p>
-    Database creation, storage architecture, table space design,
-    object structures, configuration fundamentals,
-    and recovery foundations in IBM Db2 12.1.
-  </p>
-</header>
-
 <nav>
-  <a href="/ibm/cla93/">Home</a>
-  <a href="/ibm/cla93/part-1">Part 1</a>
-  <a href="/ibm/cla93/part-2">Part 2</a>
-  <a href="/ibm/cla93/part-3">Part 3</a>
-  <a href="/ibm/cla93/part-4">Part 4</a>
-  <a href="/ibm/cla93/assessment">Assessment</a>
+  <a href="index.html">Home</a>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="part-4.html">Part 4</a>
+  <a href="assessment.html">Final Assessment</a>
 </nav>
 
-<div class="print-actions">
-  <button onclick="window.print()">Print to PDF (Manual Format)</button>
+<header>
+  <h1>Part 2 – Data Management & Recovery</h1>
+  <p>Operational Mastery for Enterprise DBAs</p>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+<h2>Unit 1 – Data Movement & Loading</h2>
+<button onclick="toggle('u1')">Expand / Collapse</button>
+
+<div id="u1" style="display:none;margin-top:15px;">
+
+<h3>Core Concepts</h3>
+<ul>
+<li>INSERT vs LOAD vs IMPORT vs INGEST</li>
+<li>Table states (Load Pending, Set Integrity Pending)</li>
+<li>ADMIN_MOVE_TABLE online table movement</li>
+<li>Parallel insert & column-organized optimizations</li>
+<li>Utility monitoring (LIST UTILITIES, MON_GET_UTILITY)</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Use LOAD for high-volume bulk ingestion when concurrency is not required.</li>
+<li>Use INGEST when concurrency and restartability are required.</li>
+<li>Never ignore Set Integrity Pending state.</li>
+<li>Always examine .msg files post-load.</li>
+<li>Understand COPY YES vs NONRECOVERABLE implications.</li>
+</ul>
+
+<h3>Operational Warnings</h3>
+<ul>
+<li>LOAD REPLACE can truncate table on failure.</li>
+<li>NONRECOVERABLE loads eliminate rollforward ability.</li>
+<li>Do not tamper with LOAD temp files.</li>
+<li>Long-running small transactions can exhaust logs.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u1q1">
+<p>1. When should INGEST be used instead of LOAD?</p>
+<button onclick="answer('u1q1',true)">When concurrency is required</button>
+<button onclick="answer('u1q1',false)">When loading XML columns</button>
+<button onclick="answer('u1q1',false)">When IXF format is required</button>
+<div class="result"></div>
 </div>
 
-<div class="container">
+</div>
+</div>
 
-  <section class="card">
-    <h2>Database Creation & Configuration</h2>
-    <ul>
-      <li>CREATE DATABASE command options</li>
-      <li>Automatic storage vs manual storage</li>
-      <li>Database configuration parameters</li>
-      <li>Bufferpool sizing basics</li>
-      <li>Transaction log configuration (LOGPRIMARY / LOGSECOND)</li>
-    </ul>
-  </section>
+<div class="card">
+<h2>Unit 2 – Backup & Recovery</h2>
+<button onclick="toggle('u2')">Expand / Collapse</button>
 
-  <section class="card">
-    <h2>Table Space Design & Data Placement</h2>
-    <ul>
-      <li>DMS vs SMS table spaces</li>
-      <li>Automatic storage management</li>
-      <li>Container allocation strategy</li>
-      <li>Large tables and performance considerations</li>
-      <li>Separation of data, index, and LOB table spaces</li>
-    </ul>
-  </section>
+<div id="u2" style="display:none;margin-top:15px;">
 
-  <section class="card">
-    <h2>Database Objects</h2>
-    <ul>
-      <li>Tables and column definitions</li>
-      <li>Indexes and clustering</li>
-      <li>Views and materialized query tables</li>
-      <li>Temporary tables</li>
-      <li>Partitioned and column-organized tables</li>
-    </ul>
-  </section>
+<h3>Core Concepts</h3>
+<ul>
+<li>Crash vs Version vs Rollforward recovery</li>
+<li>LOGARCHMETH1, LOGFILSIZ, NEWLOGPATH</li>
+<li>Incremental and encrypted backups</li>
+<li>HADR multi-standby architecture</li>
+<li>Advanced Log Space Management (ALSM)</li>
+</ul>
 
-  <section class="card">
-    <h2>Recovery & Logging Fundamentals</h2>
-    <ul>
-      <li>Active vs archive logging</li>
-      <li>Backup types (offline / online)</li>
-      <li>Rollforward recovery process</li>
-      <li>Log file management</li>
-      <li>Common recovery troubleshooting scenarios</li>
-    </ul>
-  </section>
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Enable rollforward for recoverable production DBs.</li>
+<li>Test restore procedures regularly.</li>
+<li>Understand Rollforward Pending state implications.</li>
+<li>Use PIT recovery cautiously with RI relationships.</li>
+<li>Implement HADR with Pacemaker for automation.</li>
+</ul>
 
-  <section>
-    <h2>Key DBA Takeaways</h2>
-    <ul>
-      <li>Design storage based on workload profile</li>
-      <li>Understand logging impact on recovery objectives</li>
-      <li>Separate logical object design from physical placement</li>
-      <li>Always validate configuration after database creation</li>
-      <li>Plan recovery before production deployment</li>
-    </ul>
-  </section>
+<h3>Operational Warnings</h3>
+<ul>
+<li>Offline restore without rollforward causes pending state.</li>
+<li>Encrypted backup handling requires keystore readiness.</li>
+<li>LOB/XML recovery requires strategy alignment.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u2q1">
+<p>1. What causes Rollforward Pending state?</p>
+<button onclick="answer('u2q1',true)">Restoring online backup</button>
+<button onclick="answer('u2q1',false)">Running RUNSTATS</button>
+<button onclick="answer('u2q1',false)">Executing REORG</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Unit 3 – Maintenance & Monitoring</h2>
+<button onclick="toggle('u3')">Expand / Collapse</button>
+
+<div id="u3" style="display:none;margin-top:15px;">
+
+<h3>Core Concepts</h3>
+<ul>
+<li>RUNSTATS with distribution statistics</li>
+<li>REORG vs REORGCHK</li>
+<li>db2pd monitoring</li>
+<li>Autonomic utilities</li>
+<li>Event monitors</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Statistics drive optimizer decisions.</li>
+<li>Use REORGCHK before reorganization.</li>
+<li>Automate maintenance cautiously.</li>
+<li>Use db2pd for real-time diagnostics.</li>
+</ul>
+
+<h3>Operational Warnings</h3>
+<ul>
+<li>Excess ALTER operations can cause reorg pending state.</li>
+<li>Over-sampling statistics can skew estimates.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u3q1">
+<p>1. What is the primary purpose of RUNSTATS?</p>
+<button onclick="answer('u3q1',true)">Provide statistics to optimizer</button>
+<button onclick="answer('u3q1',false)">Backup data</button>
+<button onclick="answer('u3q1',false)">Compress tables</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Progress</h2>
+<div class="progress-bar"><span id="bar"></span></div>
+<div>Completion: <span id="percent">0%</span></div>
+</div>
 
 </div>
 
-<footer>
-  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
-</footer>
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+let state=load(LMS_KEYS.part2)||{
+  totalQuestions:3,
+  answered:0,
+  correct:0
+};
+
+function answer(qid,correct){
+  const q=document.getElementById(qid);
+  if(q.dataset.answered) return;
+  q.dataset.answered=true;
+  state.answered++;
+  if(correct){
+    state.correct++;
+    q.querySelector(".result").innerHTML="<p style='color:var(--success)'>Correct</p>";
+  }else{
+    q.querySelector(".result").innerHTML="<p style='color:var(--danger)'>Incorrect – review material.</p>";
+  }
+  save(LMS_KEYS.part2,state);
+  updateProgress();
+}
+
+function updateProgress(){
+  const percent=percentage(state.answered,state.totalQuestions);
+  document.getElementById("percent").innerText=percent+"%";
+  document.getElementById("bar").style.width=percent+"%";
+  if(window.SCORM){
+    SCORM.update(percentage(state.correct,state.totalQuestions),percent);
+  }
+}
+
+updateProgress();
+</script>
 
 </body>
 </html>
