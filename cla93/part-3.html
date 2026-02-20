@@ -1,247 +1,194 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Db2 v12.1 — Part 3 Expanded Summary (Security & Concurrency)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLA93 – Part 3 | Security & Concurrency</title>
+
   <style>
-    :root{
-      --bg:#0b0f19; --panel:#0f172a; --card:#101827; --muted:#97a3b6; --text:#e8eef9;
-      --line:rgba(255,255,255,.10); --accent:#7dd3fc; --accent2:#a78bfa; --ink:#0b1220;
-      --good:#86efac; --warn:#fde68a; --bad:#fca5a5;
+    :root {
+      --primary: #0f62fe;
+      --bg: #0b1220;
+      --card: #121a2b;
+      --text: #e6edf6;
+      --muted: #9aa8bd;
+      --border: rgba(255,255,255,0.08);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font:14px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--text);
-      background:radial-gradient(1200px 700px at 15% 10%, rgba(125,211,252,.18), transparent 55%),
-                 radial-gradient(900px 600px at 85% 15%, rgba(167,139,250,.16), transparent 55%),
-                 var(--bg);
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-    .wrap{max-width:1020px;margin:28px auto;padding:0 18px}
-    .top{
-      border:1px solid var(--line); border-radius:18px; padding:18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
-    h1{margin:0; font-size:18px}
-    .sub{margin-top:6px;color:var(--muted);max-width:85ch}
-    .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .tag{border:1px solid var(--line); padding:5px 9px; border-radius:999px; background:rgba(255,255,255,.03); font-size:12px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-    @media (max-width:980px){.grid{grid-template-columns:1fr}}
-    .card{
-      border:1px solid var(--line); border-radius:18px; padding:14px 14px 12px;
-      background:linear-gradient(180deg, rgba(16,24,39,.82), rgba(16,24,39,.70));
+
+    header {
+      padding: 60px 20px 30px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
     }
-    h2{
-      margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 10px;
     }
-    h3{margin:12px 0 6px; font-size:14px}
-    ul{margin:8px 0 0 18px;padding:0}
-    li{margin:6px 0}
-    .k{color:var(--accent)} .k2{color:var(--accent2)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .box{
-      flex:1 1 230px; border:1px solid var(--line); border-radius:16px; padding:10px 12px;
-      background:rgba(255,255,255,.03)
+
+    header p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 0 auto;
+      font-size: 0.95rem;
     }
-    .box b{display:block;margin-bottom:4px}
-    .signal{display:inline-flex;align-items:center;gap:8px}
-    .dot{width:10px;height:10px;border-radius:50%}
-    .good{background:var(--good)} .warn{background:var(--warn)} .bad{background:var(--bad)}
-    pre{
-      margin:10px 0 0; padding:10px 10px; border-radius:12px; overflow:auto;
-      border:1px solid var(--line); background:rgba(0,0,0,.25); font-size:12px;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+
+    nav {
+      text-align: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
     }
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media (max-width:860px){.two{grid-template-columns:1fr}}
-    .mini{color:var(--muted); font-size:12px}
-    footer{color:var(--muted); font-size:12px; margin:14px 4px 28px}
-    @media print{
-      body{background:#fff;color:#111}
-      .top,.card,.box{background:#fff;border-color:#ddd}
-      .k,.k2{color:#111}
-      .tag{border-color:#ddd}
-      pre{background:#f7f7f7;border-color:#ddd;color:#111}
-      .mini, .sub{color:#333}
+
+    nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 50px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--primary);
+      padding-left: 10px;
+    }
+
+    ul {
+      list-style: disc;
+      margin-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      h2 {
+        font-size: 1.05rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <section class="top">
-      <h1>IBM Db2 v12.1 — Part 3 (Expanded): Security & Concurrency</h1>
-      <div class="sub">
-        Part 3 is the “production DBA reality check”: concurrency issues don’t show up in design docs, and security
-        issues don’t announce themselves until audit day. You’ll learn how Db2 serializes work (locks/versioning/latches),
-        how to diagnose lock stalls (waits/timeouts/deadlocks/escalations), and how to enforce least-privilege,
-        encrypted connections, fine-grained access control, and auditing.
-      </div>
-      <div class="meta">
-        <span class="tag">Unit 1: Locking & Concurrency</span>
-        <span class="tag">Unit 2: Security Fundamentals</span>
-        <span class="tag">Unit 3: Advanced Security</span>
-        <span class="tag">Hands-on exercises included</span>
-      </div>
-    </section>
 
-    <section class="grid">
-      <div class="card">
-        <h2>Unit 1 — Locking & Concurrency Control</h2>
+<header>
+  <h1>Part 3 – Security & Concurrency</h1>
+  <p>
+    Understanding how Db2 manages transaction integrity, locking behavior,
+    and secure access control in enterprise production environments.
+  </p>
+</header>
 
-        <h3>Concepts you must be able to explain</h3>
-        <ul>
-          <li><b>Why isolation exists:</b> prevent anomalies (dirty read/write, fuzzy/non-repeatable reads) by choosing the right isolation contract.:contentReference[oaicite:29]{index=29}</li>
-          <li><b>Serialization mechanisms:</b> <span class="k">locking</span> (primary), <span class="k">versioning/MVCC</span> (for “currently committed” semantics), <span class="k">latching</span> (internal).:contentReference[oaicite:30]{index=30}</li>
-          <li><b>Isolation levels (UR/CS/RS/RR):</b> trade-off between consistency guarantees and concurrency throughput; CS is default.:contentReference[oaicite:31]{index=31}</li>
-        </ul>
+<nav>
+  <a href="/ibm/cla93/">Home</a>
+  <a href="/ibm/cla93/part-1">Part 1</a>
+  <a href="/ibm/cla93/part-2">Part 2</a>
+  <a href="/ibm/cla93/part-4">Part 4</a>
+  <a href="/ibm/cla93/assesment">Assessment</a>
+</nav>
 
-        <div class="row">
-          <div class="box">
-            <b class="signal"><span class="dot warn"></span>Common production failure mode</b>
-            Long transactions (missing COMMIT/ROLLBACK) create “lock hogs” → wait chains → timeouts → user-visible outages.
-          </div>
-          <div class="box">
-            <b class="signal"><span class="dot good"></span>Operational discipline</b>
-            Treat lock waits as an SRE signal: measure, baseline, alert on spikes, and collect enough evidence to identify root cause.
-          </div>
-        </div>
+<div class="container">
 
-        <h3>Monitoring & troubleshooting “minimum kit”</h3>
-        <ul>
-          <li><b>Who holds vs who waits:</b> <code>sysibmadm.mon_lockwaits</code> shows holder/waiter, object type, and elapsed wait.:contentReference[oaicite:32]{index=32}</li>
-          <li><b>Connection rollup:</b> <code>MON_GET_CONNECTION</code> provides locks held, escalations, timeouts, deadlocks, and wait time per connection.:contentReference[oaicite:33]{index=33}</li>
-          <li><b>Event capture for sporadic incidents:</b> enable deadlock and lock timeout capture; capture lock waits when needed (balance overhead vs detail).:contentReference[oaicite:34]{index=34}</li>
-        </ul>
+  <section class="card">
+    <h2>Concurrency & Locking</h2>
+    <ul>
+      <li>Isolation levels: UR, CS (default), RS, RR</li>
+      <li>Lock modes: Shared (S), Exclusive (X), Intent locks</li>
+      <li>Lock escalation governed by LOCKLIST and MAXLOCKS</li>
+      <li>Deadlocks vs lock timeouts — understand the difference</li>
+      <li>Use MON_GET_CONNECTION and sysibmadm.mon_lockwaits for diagnostics</li>
+    </ul>
+  </section>
 
-        <pre aria-label="Lock event monitoring controls (as taught)">
--- Lock event monitoring parameters & guidance
--- mon_lockwait: best practice enable at workload level
--- mon_locktimeout: best practice enable at DB level if unexpected, else workload level
--- mon_deadlock: best practice enable at DB level (default WITHOUT_HIST)
--- mon_lw_thresh: microseconds; default 5 seconds
--- dlchktime: deadlock check interval (ms)
--- locktimeout: max wait for lock acquisition (n, -1, 0):contentReference[oaicite:35]{index=35}
-        </pre>
+  <section class="card">
+    <h2>Security & Access Control</h2>
+    <ul>
+      <li>Authentication vs Authorization</li>
+      <li>Authorities: SYSADM, DBADM, SECADM, DATAACCESS</li>
+      <li>Implement separation of duties</li>
+      <li>Prefer Roles over direct user grants</li>
+      <li>Review catalog authorization views regularly</li>
+    </ul>
+  </section>
 
-        <div class="mini">
-          Lab alignment: Unit 1 includes “Investigating Db2 Locking Issues.”:contentReference[oaicite:36]{index=36}
-        </div>
-      </div>
+  <section class="card">
+    <h2>Advanced Protection</h2>
+    <ul>
+      <li>TLS encryption for data in transit</li>
+      <li>Db2 native encryption for data at rest</li>
+      <li>Row and Column Access Control (RCAC)</li>
+      <li>Trusted Context for 3-tier architectures</li>
+      <li>Audit policies for compliance and traceability</li>
+    </ul>
+  </section>
 
-      <div class="card">
-        <h2>Unit 2 — Db2 Security & Access Control Fundamentals</h2>
+  <section>
+    <h2>Key DBA Takeaways</h2>
+    <ul>
+      <li>Short transactions reduce lock contention</li>
+      <li>Monitor deadlocks proactively</li>
+      <li>Enforce least privilege at all levels</li>
+      <li>Encrypt both in transit and at rest</li>
+      <li>Always design for both performance and security together</li>
+    </ul>
+  </section>
 
-        <h3>Security model (what DBAs get wrong)</h3>
-        <ul>
-          <li><b>AuthN vs AuthZ:</b> authentication identifies the user; authorization enforces what they can do (catalog/config).:contentReference[oaicite:37]{index=37}</li>
-          <li><b>Privilege hierarchy:</b> instance authorities (SYSADM, SYSCTRL, SYSMAINT, SYSMON) + database task authorities (SECADM, DBADM, ACCESSCTRL, DATAACCESS, etc.).:contentReference[oaicite:38]{index=38}</li>
-          <li><b>Separation of duties:</b> only SECADM can grant/revoke key security authorities (SECADM/DBADM/DATAACCESS/ACCESSCTRL).:contentReference[oaicite:39]{index=39}</li>
-        </ul>
+</div>
 
-        <h3>Design patterns to use in production</h3>
-        <div class="two">
-          <div class="box">
-            <b>Pattern: Least-privilege via task authorities</b>
-            Use SECADM for security management, DBADM for operational control, and grant ACCESSCTRL/DATAACCESS only where justified.
-          </div>
-          <div class="box">
-            <b>Pattern: Prefer Roles when object creation matters</b>
-            Privileges via roles can be used to create views/routines/packages; privileges via groups cannot in those creation contexts—use roles to avoid surprises.:contentReference[oaicite:40]{index=40}
-          </div>
-        </div>
+<footer>
+  © 2026 Skunkworks Academy | IBM Db2 12.1 Training
+</footer>
 
-        <h3>Day-to-day DBA tasks</h3>
-        <ul>
-          <li>Review effective privileges using catalog views (schema/table/routine/role authorization views are central to audits and troubleshooting).:contentReference[oaicite:41]{index=41}</li>
-          <li>Implement controlled schema usage to avoid “schema sprawl” and unpredictable implicit privileges (govern CREATEIN/ALTERIN/DROPIN patterns).:contentReference[oaicite:42]{index=42}</li>
-        </ul>
-
-        <div class="mini">
-          Lab alignment: Unit 2 includes “Grant and Examine Db2 Privileges.”:contentReference[oaicite:43]{index=43}
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Unit 3 — Advanced Security Controls</h2>
-
-        <h3>Encrypt in transit: TLS (preferred)</h3>
-        <ul>
-          <li><b>Server modes:</b> AUTHENTICATION can be SERVER, SERVER_ENCRYPT, etc. Older “DATA_ENCRYPT” is deprecated; TLS is recommended for data in transit.:contentReference[oaicite:44]{index=44}</li>
-          <li><b>Operational setup:</b> enable TLS endpoints and configure the DBM SSL_* parameters; avoid port collisions (don’t reuse the normal SVCENAME port).:contentReference[oaicite:45]{index=45}</li>
-        </ul>
-
-        <h3>Fine-grained access: RCAC + Trusted Context</h3>
-        <ul>
-          <li><b>RCAC:</b> row permissions + column masks; transparent and data-centric; leverages roles/groups; SECADM manages the policy.:contentReference[oaicite:46]{index=46}</li>
-          <li><b>Trusted Context:</b> reduce “single app ID over-privilege” in 3-tier systems by binding trust to attributes like system authid, IP/domain, and encryption.:contentReference[oaicite:47]{index=47}</li>
-        </ul>
-
-        <div class="hr"></div>
-
-        <h3>Encrypt at rest: Db2 Native Encryption (what gets encrypted)</h3>
-        <ul>
-          <li>Encrypts user data in tablespaces, all data types (LOB/XML), transaction logs (active + archives), and backups by default when DB is encrypted; also covers LOAD COPY and staging files.:contentReference[oaicite:48]{index=48}</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h2>Production runbook: what to do when it breaks</h2>
-
-        <h3>Lock incident playbook (15-minute triage)</h3>
-        <ol style="margin:8px 0 0 18px">
-          <li>Confirm whether users experience <b>stall</b> (waits) or <b>failures</b> (timeouts/deadlocks).</li>
-          <li>Identify wait chains (holder vs waiter) via <code>sysibmadm.mon_lockwaits</code>.:contentReference[oaicite:49]{index=49}</li>
-          <li>Correlate to application connections using <code>MON_GET_CONNECTION</code> rollups.:contentReference[oaicite:50]{index=50}</li>
-          <li>If sporadic: enable/verify event capture for deadlocks/timeouts; add lock-wait capture when needed.:contentReference[oaicite:51]{index=51}</li>
-          <li>Fix root cause: shorten transaction scope; add/adjust indexes; tune isolation; reschedule utilities.</li>
-        </ol>
-
-        <pre aria-label="Two high-value queries">
--- Wait chain visibility (holder vs waiter)
-SELECT substr(lw.hld_application_name,1,10) AS Hold_App,
-       substr(lw.hld_userid,1,10)           AS Holder,
-       substr(lw.req_application_name,1,10) AS Wait_App,
-       substr(lw.req_userid,1,10)           AS Waiter,
-       lw.lock_mode, lw.lock_object_type, lw.lock_wait_elapsed_time
-FROM sysibmadm.mon_lockwaits lw;:contentReference[oaicite:52]{index=52}
-
--- Connection rollup (locks, escalations, timeouts, deadlocks)
-SELECT substr(conn.application_name,1,10) AS Application,
-       substr(conn.system_auth_id,1,10)   AS AuthID,
-       conn.num_locks_held, conn.lock_escals, conn.lock_timeouts, conn.deadlocks
-FROM TABLE(MON_GET_CONNECTION(NULL,-1)) AS conn;:contentReference[oaicite:53]{index=53}
-        </pre>
-
-        <h3>Security incident posture (fast checks)</h3>
-        <div class="two">
-          <div class="box">
-            <b class="signal"><span class="dot bad"></span>Risk check: “Everyone is powerful”</b>
-            Validate separation of duties: ensure SECADM is controlled; avoid broad DBADM grants unless justified.:contentReference[oaicite:54]{index=54}
-          </div>
-          <div class="box">
-            <b class="signal"><span class="dot warn"></span>Risk check: cleartext or weak transport</b>
-            Prefer TLS for in-transit encryption; avoid deprecated approaches for protecting data-in-transit.:contentReference[oaicite:55]{index=55}
-          </div>
-          <div class="box">
-            <b class="signal"><span class="dot good"></span>Control check: least privilege that scales</b>
-            Use roles for controlled privilege inheritance and object-creation behavior; use RCAC for data-centric filtering/masking.:contentReference[oaicite:56]{index=56}:contentReference[oaicite:57]{index=57}
-          </div>
-          <div class="box">
-            <b class="signal"><span class="dot good"></span>Control check: encryption at rest coverage</b>
-            If DB is encrypted, verify backups/logs are covered (native encryption includes logs and backups by default).:contentReference[oaicite:58]{index=58}
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <footer>
-      Source: IBM training materials for “IBM Db2 12.1: Security and Concurrency for Relational DBAs (CLA96G) — Part 3"
-    </footer>
-  </div>
 </body>
 </html>
