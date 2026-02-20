@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLA93 – Part 1 | Db2 Essentials</title>
+
+  <style>
+    :root {
+      --primary: #0f62fe;
+      --bg: #0b1220;
+      --card: #121a2b;
+      --text: #e6edf6;
+      --muted: #9aa8bd;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 60px 20px 30px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 0 auto;
+      font-size: 0.95rem;
+    }
+
+    nav {
+      text-align: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin: 0 10px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 50px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--primary);
+      padding-left: 10px;
+    }
+
+    ul {
+      list-style: disc;
+      margin-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      h2 {
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Part 1 – Db2 Essentials</h1>
+  <p>
+    Foundation knowledge for Relational DBAs covering Db2 architecture,
+    deployment models, editions, tools, and instance management fundamentals.
+  </p>
+</header>
+
+<nav>
+  <a href="/ibm/cla93/">Home</a>
+  <a href="/ibm/cla93/part-2">Part 2</a>
+  <a href="/ibm/cla93/part-3">Part 3</a>
+  <a href="/ibm/cla93/part-4">Part 4</a>
+  <a href="/ibm/cla93/assesment">Assessment</a>
+</nav>
+
+<div class="container">
+
+  <section class="card">
+    <h2>Db2 Product & Platform Overview</h2>
+    <ul>
+      <li>Supported OS: AIX, Linux, Windows, IBM i, z/OS</li>
+      <li>Editions: Community, Starter, Standard, Advanced</li>
+      <li>Understand licensing limits (cores, memory, features)</li>
+      <li>VRMF versioning model (Version.Release.Mod.Fix)</li>
+      <li>On-prem, Cloud, and Containerized deployment models</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Db2 Tools & Connectivity</h2>
+    <ul>
+      <li>Command Line Processor (CLP) – SQL and Db2 commands</li>
+      <li>CLPPlus – scripting and formatted output</li>
+      <li>Data Management Console (DMC)</li>
+      <li>IBM Data Server Drivers (JDBC, ODBC, CLI)</li>
+      <li>Db2 Connect for z/OS and IBM i connectivity</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Db2 Instance Architecture</h2>
+    <ul>
+      <li>Instance = Database Manager environment</li>
+      <li>Multiple databases per instance</li>
+      <li>DBM CFG vs DB CFG</li>
+      <li>EDUs (Engine Dispatchable Units)</li>
+      <li>Environment & registry variables (db2set)</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Core DBA Operational Tasks</h2>
+    <ul>
+      <li>Create / Drop instance (db2icrt, db2idrop)</li>
+      <li>Start / Stop instance (db2start, db2stop)</li>
+      <li>Update DBM configuration</li>
+      <li>Quiesce and unquiesce instance</li>
+      <li>Validate prerequisites (db2prereqcheck)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Understand instance-level vs database-level configuration</li>
+      <li>Choose the correct edition for workload requirements</li>
+      <li>Use proper client connectivity for enterprise integration</li>
+      <li>Maintain separation between environment, instance, and database scope</li>
+      <li>Foundation knowledge determines production stability</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  © 2026 Skunkworks Academy | IBM Db2 12.1 Foundation Training
+</footer>
+
+</body>
+</html>
