@@ -9,7 +9,7 @@
 <style>
 :root {
   --primary: #0f62fe;
-  --bg: #0b1220;
+  --dark: #0a0f1c;
   --card: #121a2b;
   --text: #e6edf6;
   --muted: #9aa8bd;
@@ -24,7 +24,7 @@
 }
 
 body {
-  background: var(--bg);
+  background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
   color: var(--text);
   line-height: 1.6;
 }
@@ -45,7 +45,7 @@ header h1 {
 
 header p {
   color: var(--muted);
-  max-width: 700px;
+  max-width: 750px;
   margin: 0 auto;
   font-size: 0.95rem;
 }
@@ -54,7 +54,7 @@ header p {
 
 nav {
   text-align: center;
-  padding: 15px 20px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -62,18 +62,18 @@ nav a {
   color: var(--primary);
   text-decoration: none;
   font-size: 0.9rem;
-  margin: 0 10px;
+  margin: 0 12px;
 }
 
 nav a:hover {
   text-decoration: underline;
 }
 
-/* ================= ACTION BAR ================= */
+/* ================= PRINT BUTTON ================= */
 
-.actions {
+.print-actions {
   text-align: center;
-  padding: 20px;
+  padding: 25px 20px;
 }
 
 button {
@@ -81,7 +81,6 @@ button {
   border: none;
   color: white;
   padding: 8px 16px;
-  margin: 0 8px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -95,7 +94,7 @@ button:hover {
 
 .container {
   max-width: 900px;
-  margin: 40px auto;
+  margin: 50px auto;
   padding: 0 20px;
 }
 
@@ -138,36 +137,48 @@ footer {
   margin-top: 60px;
 }
 
-/* ================= PRINT STYLING ================= */
+/* ================= PRINT MANUAL MODE ================= */
 
 @media print {
 
   body {
-    background: white;
-    color: black;
+    background: white !important;
+    color: black !important;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.5;
   }
 
   nav,
-  .actions,
+  .print-actions,
   footer {
-    display: none;
+    display: none !important;
   }
 
   .card {
-    border: none;
-    padding: 0;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 20px;
   }
 
   h2 {
+    font-size: 16pt;
+    margin-top: 25px;
     border-left: none;
   }
 
-  a::after {
-    content: "";
+  li {
+    color: black;
   }
 
   @page {
-    margin: 20mm;
+    size: A4;
+    margin: 25mm;
   }
 }
 </style>
@@ -176,11 +187,12 @@ footer {
 <body>
 
 <header>
-  <h1>Part 4 – Performance & Tuning Optimization</h1>
+  <h1>Part 4 – Performance & Optimization</h1>
   <p>
-    Advanced performance diagnostics, optimizer behavior,
-    REORG strategy, statistics management, and production DBA
-    operational best practices.
+    Performance tuning methodology, optimizer behavior,
+    index strategy, statistics management,
+    REORG decisioning, and production DBA operational practices
+    in IBM Db2 12.1.
   </p>
 </header>
 
@@ -193,61 +205,71 @@ footer {
   <a href="/ibm/cla93/assessment">Assessment</a>
 </nav>
 
-<div class="actions">
-  <button onclick="window.print()">Print</button>
-  <button onclick="window.print()">Print to PDF</button>
+<div class="print-actions">
+  <button onclick="window.print()">Print to PDF (Manual Format)</button>
 </div>
 
 <div class="container">
 
   <section class="card">
-    <h2>REORG Decisioning & Physical Organization</h2>
+    <h2>REORG & Physical Organization</h2>
     <ul>
-      <li>Understanding physical drift and clustering ratio</li>
-      <li>Using REORGCHK to evaluate table and index health</li>
-      <li>Overflow rows and pseudo-deletes impact</li>
-      <li>Online vs Offline REORG considerations</li>
-      <li>Production maintenance scheduling strategy</li>
+      <li>Understanding clustering ratio</li>
+      <li>Overflow rows and pseudo-deletes</li>
+      <li>REORGCHK interpretation</li>
+      <li>Online vs offline REORG</li>
+      <li>Maintenance scheduling strategy</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Optimizer & Predicate Typology</h2>
+    <h2>Optimizer & Access Plans</h2>
     <ul>
-      <li>Index SARGable vs Data SARGable vs Residual predicates</li>
+      <li>Predicate typology (Index SARGable vs Residual)</li>
       <li>Stage 1 vs Stage 2 evaluation</li>
-      <li>Access plan interpretation (IXSCAN, TBSCAN, IXAND, IXOR)</li>
-      <li>Importance of optimized statement analysis</li>
-      <li>db2exfmt and EXPLAIN PLAN usage</li>
+      <li>IXSCAN, TBSCAN, IXAND, IXOR operators</li>
+      <li>Rewritten predicates & optimized statement</li>
+      <li>db2exfmt analysis workflow</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Distribution Statistics & Correlation</h2>
+    <h2>Advanced Index Strategies</h2>
     <ul>
-      <li>num_freqvalues for equality skew</li>
-      <li>num_quantiles for range selectivity</li>
-      <li>Column group statistics for correlated predicates</li>
-      <li>RUNSTATS with distribution best practices</li>
-      <li>Balancing statistics accuracy vs overhead</li>
+      <li>Composite index design</li>
+      <li>Jump Scan & Skip Scan behavior</li>
+      <li>Multi-index access strategies</li>
+      <li>Balancing index overhead vs query speed</li>
+      <li>Index maintenance best practices</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Statistics & Distribution Management</h2>
+    <ul>
+      <li>num_freqvalues (N most frequent values)</li>
+      <li>num_quantiles (histogram distribution)</li>
+      <li>Column group statistics for correlation</li>
+      <li>RUNSTATS best practices</li>
+      <li>Impact of statistics on cardinality estimation</li>
     </ul>
   </section>
 
   <section>
-    <h2>Key DBA Takeaways</h2>
+    <h2>Key DBA Performance Workflow</h2>
     <ul>
-      <li>Always verify optimized statement, not original SQL</li>
-      <li>Statistics quality directly affects access path choice</li>
-      <li>Physical design (clustering) impacts logical efficiency</li>
-      <li>Use structured tuning workflow (Stats → Explain → Adjust → Validate)</li>
-      <li>Document tuning decisions for production governance</li>
+      <li>Validate statistics freshness</li>
+      <li>Explain the optimized statement</li>
+      <li>Assess physical organization</li>
+      <li>Adjust indexing or distribution strategy</li>
+      <li>Re-test and document performance changes</li>
     </ul>
   </section>
 
 </div>
 
 <footer>
-  © 2026 Skunkworks Academy | IBM Db2 12.1 Foundation Training
+  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
 </footer>
 
 </body>
