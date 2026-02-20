@@ -1,0 +1,1311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
+  <title>CLA96G – Part 4: Performance and Tuning Optimization (Db2 12.1)</title>
+  <meta name="description" content="Db2 12.1 performance tuning: REORG decisioning, predicate typology, rewritten predicates, jump/skip scans, multi-index access, and distribution statistics (num_freqvalues/num_quantiles) + column group stats." />
+
+  <style>
+    :root{
+      --bg: #0b0f16;
+      --panel: #0f1624;
+      --panel2:#0c1320;
+      --text:#e6eefc;
+      --muted:#b8c4dd;
+      --faint:#7f8aa3;
+      --border:#22304a;
+      --accent:#5aa7ff;
+      --accent2:#7c5cff;
+      --good:#4ade80;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --codebg:#070b12;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 700px at 15% 0%, rgba(90,167,255,.16), transparent 55%),
+                  radial-gradient(900px 600px at 95% 10%, rgba(124,92,255,.14), transparent 55%),
+                  linear-gradient(180deg, var(--bg), #060912 70%);
+      color: var(--text);
+      line-height:1.55;
+    }
+
+    a{ color: var(--accent); text-decoration:none; }
+    a:hover{ text-decoration: underline; }
+
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 80px;
+    }
+
+    header.hero{
+      position: relative;
+      padding: 26px 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(90,167,255,.12), rgba(124,92,255,.08));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    header.hero:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(600px 240px at 10% 20%, rgba(90,167,255,.20), transparent 60%),
+        radial-gradient(520px 240px at 90% 10%, rgba(124,92,255,.18), transparent 60%);
+      pointer-events:none;
+      filter: blur(0px);
+    }
+    header.hero > *{ position: relative; z-index: 1; }
+
+    .kicker{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      background: rgba(15,22,36,.55);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge b{ color: var(--text); font-weight: 650; }
+
+    h1{
+      margin: 10px 0 6px;
+      font-size: clamp(26px, 3.2vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .subtitle{
+      margin: 0;
+      color: var(--muted);
+      max-width: 76ch;
+      font-size: 15px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(15,22,36,.70);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card .hd{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+    }
+
+    .card .hd h2{
+      margin:0;
+      font-size: 15px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .card .bd{
+      padding: 16px;
+    }
+
+    .toc{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .toc a{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 12px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      background: rgba(7,11,18,.35);
+      color: var(--text);
+      text-decoration:none;
+    }
+    .toc a:hover{
+      border-color: rgba(90,167,255,.35);
+      background: rgba(90,167,255,.10);
+      text-decoration:none;
+    }
+    .toc .n{
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(15,22,36,.70);
+      flex: 0 0 auto;
+    }
+    .toc .t{ font-weight: 650; font-size: 14px; }
+    .toc .d{ color: var(--muted); font-size: 12px; margin-left:auto; }
+
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .pill{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(7,11,18,.35);
+    }
+
+    section{
+      margin-top: 18px;
+    }
+
+    section .section-title{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+    }
+    section .section-title h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:-.01em;
+    }
+    .hint{
+      color: var(--faint);
+      font-size: 12px;
+    }
+
+    .content{
+      padding: 16px;
+    }
+
+    .lead{
+      color: var(--muted);
+      max-width: 88ch;
+      margin-top: 0;
+    }
+
+    .cols{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){ .cols{ grid-template-columns: 1fr; } }
+
+    .callout{
+      border: 1px solid rgba(255,255,255,.10);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 12px 12px 12px;
+      background: rgba(7,11,18,.32);
+      margin: 12px 0;
+    }
+    .callout.warn{ border-left-color: var(--warn); }
+    .callout.good{ border-left-color: var(--good); }
+    .callout.bad{ border-left-color: var(--bad); }
+
+    .callout h3{
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+    .callout p{ margin: 0; color: var(--muted); }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 980px){ .kpi{ grid-template-columns: 1fr; } }
+
+    .kpi .box{
+      padding: 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(7,11,18,.35);
+    }
+    .kpi .box .label{ color: var(--faint); font-size: 12px; }
+    .kpi .box .value{ font-weight: 750; font-size: 18px; margin-top: 2px; }
+    .kpi .box .desc{ color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    pre{
+      margin: 10px 0 0;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      background: var(--codebg);
+      overflow:auto;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    code{
+      font-family: var(--mono);
+      font-size: 12.8px;
+    }
+
+    pre code{
+      display:block;
+      padding: 12px;
+      white-space: pre;
+      color: #dbeafe;
+    }
+
+    .codebar{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12px;
+      gap: 10px;
+    }
+    .codebar .lang{ display:flex; gap: 8px; align-items:center; }
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,22,36,.70);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor:pointer;
+    }
+    .btn:hover{ border-color: rgba(90,167,255,.35); background: rgba(90,167,255,.10); }
+    .btn:active{ transform: translateY(1px); }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow:hidden;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(7,11,18,.35);
+    }
+    th, td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      vertical-align: top;
+      text-align:left;
+      font-size: 13px;
+    }
+    th{
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      font-weight: 650;
+    }
+    tr:last-child td{ border-bottom:none; }
+
+    .footer{
+      margin-top: 24px;
+      color: var(--faint);
+      font-size: 12px;
+      display:flex;
+      justify-content: space-between;
+      flex-wrap:wrap;
+      gap: 10px;
+      padding: 14px 4px 0;
+    }
+
+    .topnav{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(6,9,18,.75);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .topnav .bar{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .topnav .bar .left{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      min-width: 0;
+    }
+    .logo{
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(90,167,255,.9), rgba(90,167,255,.0)),
+        radial-gradient(14px 14px at 70% 60%, rgba(124,92,255,.85), rgba(124,92,255,.0)),
+        rgba(15,22,36,.7);
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .brand{
+      min-width:0;
+    }
+    .brand .title{
+      margin:0;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .brand .sub{
+      margin:0;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .topnav .bar .right{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+    .search{
+      position: relative;
+      min-width: 240px;
+      max-width: 420px;
+      width: 34vw;
+    }
+    @media (max-width: 880px){
+      .search{ display:none; }
+    }
+    .search input{
+      width:100%;
+      padding: 9px 10px 9px 34px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,22,36,.70);
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+    .search input:focus{
+      border-color: rgba(90,167,255,.35);
+      box-shadow: 0 0 0 3px rgba(90,167,255,.15);
+    }
+    .search .icon{
+      position:absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events:none;
+    }
+
+    mark{
+      background: rgba(90,167,255,.25);
+      color: var(--text);
+      padding: 0 .12em;
+      border-radius: .3em;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sticky top navigation -->
+  <div class="topnav">
+    <div class="bar">
+      <div class="left">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brand">
+          <p class="title">CLA96G – Db2 12.1 Foundation (Part 4)</p>
+          <p class="sub">Performance & Tuning Optimization</p>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="search" role="search">
+          <span class="icon">⌕</span>
+          <input id="searchBox" type="search" placeholder="Search this page (e.g., REORGCHK, Jump Scan, num_quantiles)..." />
+        </div>
+        <button class="btn" id="printBtn" title="Print or save as PDF">Print / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <header class="hero" id="top">
+      <div class="kicker">
+        <span class="badge"><b>Db2</b> v12.1</span>
+        <span class="badge"><b>Course</b> CLA96G</span>
+        <span class="badge"><b>Part</b> 4</span>
+        <span class="badge"><b>Focus</b> Optimizer, Indexing, Explain, Stats</span>
+      </div>
+
+      <h1>Performance & Tuning Optimization</h1>
+      <p class="subtitle">
+        Practical guide for Relational DBAs: <b>when to REORG</b>, how to interpret <b>predicate typology</b> in access plans,
+        how to reveal <b>rewritten predicates</b>, and how Db2 uses <b>distribution statistics</b>
+        (<code>num_freqvalues</code>, <code>num_quantiles</code>) plus <b>column group statistics</b> to estimate selectivity.
+      </p>
+
+      <div class="pillrow" aria-label="Key topics">
+        <span class="pill">REORG decisioning</span>
+        <span class="pill">Predicate classification</span>
+        <span class="pill">Optimized / rewritten statement</span>
+        <span class="pill">Jump Scan / Skip Scan</span>
+        <span class="pill">Multi-index access (IXAND / IXOR)</span>
+        <span class="pill">RUNSTATS distribution</span>
+        <span class="pill">Column group statistics</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="hd">
+          <h2>Quick Reference</h2>
+          <span class="hint">Use as your “trainer talk track”</span>
+        </div>
+        <div class="bd">
+          <div class="kpi">
+            <div class="box">
+              <div class="label">Golden rule</div>
+              <div class="value">Stats → Plans</div>
+              <div class="desc">Bad statistics produce “perfectly wrong” access plans.</div>
+            </div>
+            <div class="box">
+              <div class="label">REORG trigger</div>
+              <div class="value">Physical drift</div>
+              <div class="desc">Overflow, low cluster ratio, pseudo-deletes, sparse pages.</div>
+            </div>
+            <div class="box">
+              <div class="label">Optimizer truth</div>
+              <div class="value">Rewrite first</div>
+              <div class="desc">Always analyze the optimized statement, not the original SQL.</div>
+            </div>
+          </div>
+
+          <div class="callout good">
+            <h3>Instructor best practice</h3>
+            <p>
+              Teach delegates to: <b>(1)</b> confirm statistics quality, <b>(2)</b> inspect the optimized statement,
+              <b>(3)</b> validate access path operators (TBSCAN/IXSCAN/IXAND/IXOR), then <b>(4)</b> adjust indexes/stats — and only then touch SQL.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card">
+        <div class="hd">
+          <h2>Table of Contents</h2>
+          <span class="hint"><a href="#appendix">Appendix</a></span>
+        </div>
+        <div class="bd">
+          <nav class="toc" aria-label="Page sections">
+            <a href="#reorg">
+              <span class="n">1</span>
+              <span class="t">When to REORG Tables & Indexes</span>
+              <span class="d">REORGCHK, catalog, rules</span>
+            </a>
+            <a href="#predicates">
+              <span class="n">2</span>
+              <span class="t">Predicate Typology & Stages</span>
+              <span class="d">SARGable, residual</span>
+            </a>
+            <a href="#rewrite">
+              <span class="n">3</span>
+              <span class="t">Reveal Rewritten Predicates</span>
+              <span class="d">db2exfmt, EXPLAIN</span>
+            </a>
+            <a href="#special">
+              <span class="n">4</span>
+              <span class="t">Jump/Skip Scan + Multi-Index</span>
+              <span class="d">IXAND/IXOR</span>
+            </a>
+            <a href="#stats">
+              <span class="n">5</span>
+              <span class="t">num_freqvalues & num_quantiles</span>
+              <span class="d">skew & histograms</span>
+            </a>
+            <a href="#colgroups">
+              <span class="n">6</span>
+              <span class="t">Column Group Statistics</span>
+              <span class="d">correlation</span>
+            </a>
+            <a href="#runbook">
+              <span class="n">7</span>
+              <span class="t">Operational Runbook</span>
+              <span class="d">production SOP</span>
+            </a>
+            <a href="#appendix">
+              <span class="n">8</span>
+              <span class="t">Appendix: Commands & Tables</span>
+              <span class="d">copy/paste</span>
+            </a>
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section class="card" id="reorg">
+      <div class="section-title">
+        <h2>1) Determining When to REORG Tables & Indexes</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          REORG is about restoring <b>physical organization</b> so Db2 can execute <b>logical access paths</b> efficiently.
+          When table rows drift away from index key order (or become fragmented), <b>IXSCAN</b> and range scans can degrade into random I/O storms.
+        </p>
+
+        <div class="cols">
+          <div>
+            <div class="callout">
+              <h3>What “physical drift” looks like</h3>
+              <p>
+                Overflow rows, sparse pages after deletes, pseudo-deleted index entries, low cluster ratio, and a growing gap between expected vs actual I/O.
+              </p>
+            </div>
+
+            <table aria-label="REORG decision indicators">
+              <thead>
+                <tr>
+                  <th>Signal</th>
+                  <th>Where you see it</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>Overflow rows</b> rising</td>
+                  <td>SYSSTAT.TABLES (overflow)</td>
+                  <td>Extra page reads + CPU to chase relocated rows</td>
+                </tr>
+                <tr>
+                  <td><b>Cluster ratio</b> low</td>
+                  <td>SYSSTAT.INDEXES (cluster_ratio)</td>
+                  <td>Range scans become random I/O instead of sequential</td>
+                </tr>
+                <tr>
+                  <td><b>Leaf density</b> poor</td>
+                  <td>Detailed index stats / REORGCHK</td>
+                  <td>More pages to scan → higher I/O</td>
+                </tr>
+                <tr>
+                  <td><b>Pseudo-deletes</b> accumulate</td>
+                  <td>Index stats / REORGCHK</td>
+                  <td>Wasted index space, deeper trees, longer traversals</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="codeblock" data-lang="CLP">
+              <div class="codebar">
+                <div class="lang">CLP · REORGCHK recommendations</div>
+                <button class="btn copyBtn" data-copy="reorgchk1">Copy</button>
+              </div>
+              <pre><code id="reorgchk1">db2 reorgchk current statistics on table &lt;schema&gt;.&lt;tabname&gt;
+db2 reorgchk current statistics on table &lt;schema&gt;.&lt;tabname&gt; and indexes all</code></pre>
+            </div>
+
+          </div>
+
+          <div>
+            <div class="callout warn">
+              <h3>Operational caution</h3>
+              <p>
+                REORG changes physical layout → can invalidate assumptions for access patterns and may impact concurrency.
+                Prefer online options where feasible and schedule around peak workload.
+              </p>
+            </div>
+
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Check key stats (catalog)</div>
+                <button class="btn copyBtn" data-copy="reorgsql1">Copy</button>
+              </div>
+              <pre><code id="reorgsql1">-- Table indicators
+SELECT tabschema, tabname, npages, fpages, overflow
+FROM sysstat.tables
+WHERE tabschema = '&lt;SCHEMA&gt;' AND tabname = '&lt;TABNAME&gt;';
+
+-- Index clustering indicator
+SELECT indschema, indname, cluster_ratio
+FROM sysstat.indexes
+WHERE tabschema = '&lt;SCHEMA&gt;' AND tabname = '&lt;TABNAME&gt;';</code></pre>
+            </div>
+
+            <div class="callout good">
+              <h3>Instructor decision heuristic</h3>
+              <p>
+                If your workload depends on range scans and cluster ratio drops below a practical threshold (often <b>&lt; ~80%</b> in OLTP),
+                REORG becomes a <b>business</b> decision: trade planned maintenance for unplanned performance incidents.
+              </p>
+            </div>
+
+            <div class="callout">
+              <h3>Link it back to the course</h3>
+              <p>
+                Part 4 emphasizes maintenance activities (RUNSTATS/REORG/REORGCHK) as core DBA tuning levers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="card" id="predicates">
+      <div class="section-title">
+        <h2>2) Predicate Typology & Access-Plan Stages</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          Predicate classification governs <b>where</b> (and how efficiently) Db2 can apply filters: early (Stage 1),
+          late (Stage 2 residual), and whether an index can be used for range delimiting.
+          This is a foundational concept in Part 4 Unit 1. :contentReference[oaicite:0]{index=0}
+        </p>
+
+        <table aria-label="Predicate typology summary">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Where evaluated</th>
+              <th>Typical impact</th>
+              <th>Common cause</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Index SARGable</b></td>
+              <td>Index Manager</td>
+              <td>Can drive <b>IXSCAN</b>, range delimiting</td>
+              <td>Predicate matches index key structure</td>
+            </tr>
+            <tr>
+              <td><b>Data SARGable</b></td>
+              <td>Data Manager (Stage 1)</td>
+              <td>Filters early, but might still require table access</td>
+              <td>Predicate format ok, but no suitable index</td>
+            </tr>
+            <tr>
+              <td><b>Residual (Stage 2)</b></td>
+              <td>RDS / after row fetch</td>
+              <td>Costs CPU + may require fetching non-qualifying rows</td>
+              <td>Non-sargable functions, complex expressions, subqueries</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>Trainer emphasis</h3>
+          <p>
+            Teach delegates: <b>include all predicates</b> even if residual — filtering in the application layer is a performance anti-pattern.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="card" id="rewrite">
+      <div class="section-title">
+        <h2>3) Tools to Reveal Rewritten Predicates (Optimized Statement)</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          Db2 rewrites SQL aggressively: subquery-to-join, predicate pushdown, transitive closure, OR expansion, constant folding, and more.
+          Therefore, analyze the <b>optimized statement</b> and access plan, not just the original SQL text. :contentReference[oaicite:1]{index=1}
+        </p>
+
+        <div class="cols">
+          <div>
+            <div class="callout good">
+              <h3>Primary workflow: EXPLAIN → db2exfmt</h3>
+              <p>
+                Use EXPLAIN to capture the plan, then render it with <b>db2exfmt</b> to view the optimized statement and predicate evaluation.
+              </p>
+            </div>
+
+            <div class="codeblock" data-lang="CLP">
+              <div class="codebar">
+                <div class="lang">CLP · EXPLAIN + format</div>
+                <button class="btn copyBtn" data-copy="explain1">Copy</button>
+              </div>
+              <pre><code id="explain1">-- 1) Ensure explain tables exist (one-time per DB)
+-- db2 -tvf EXPLAIN.DDL  (or use db2exmig)
+
+-- 2) Capture an explain for a statement
+EXPLAIN PLAN FOR
+SELECT * FROM &lt;schema&gt;.&lt;table&gt; WHERE &lt;predicate&gt;;
+
+-- 3) Format the explain output
+db2exfmt -d &lt;dbname&gt; -1 -o plan.txt</code></pre>
+            </div>
+
+            <div class="callout warn">
+              <h3>What to look for in db2exfmt</h3>
+              <p>
+                <b>Optimized Statement</b>, predicate stages, operators (TBSCAN/IXSCAN/IXAND/IXOR),
+                and estimated cardinalities vs filter factors.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <div class="callout">
+              <h3>Other useful explain surfaces</h3>
+              <p>
+                Depending on your environment and tooling choices, you may also use explain-from-section, packages,
+                and statement caches to validate rewritten predicates.
+              </p>
+            </div>
+
+            <table aria-label="Explain tools summary">
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Use</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>db2exfmt</b></td>
+                  <td>Readable access plan + optimized statement</td>
+                </tr>
+                <tr>
+                  <td><b>EXPLAIN FROM SECTION</b></td>
+                  <td>Explain executed sections (useful for packages/dynamic)</td>
+                </tr>
+                <tr>
+                  <td><b>EXPLAIN_ARGUMENT</b></td>
+                  <td>Extra metadata (e.g., DEGREE) and details</td>
+                </tr>
+                <tr>
+                  <td><b>Design Advisor (db2advis)</b></td>
+                  <td>Workload-driven index suggestions (lab aligns with Part 4 exercises)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout bad">
+              <h3>Common mistake</h3>
+              <p>
+                “The SQL looks fine.” — but the optimizer rewrote it, estimated selectivity wrong, and chose TBSCAN.
+                Always verify with explain output.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="card" id="special">
+      <div class="section-title">
+        <h2>4) Jump Scan, Skip Scan, and Multi-Index Access</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          Beyond basic index scans, Db2 can use special access paths when predicates do not perfectly align with
+          the leading index keys, or when multiple indexes can be combined to reduce table access.
+        </p>
+
+        <div class="cols">
+          <div>
+            <div class="callout">
+              <h3>Jump / Skip Scan (conceptual)</h3>
+              <p>
+                Used when a predicate targets a <b>non-leading</b> column of a composite index and the leading key has
+                <b>low cardinality</b>. Db2 can iterate distinct leading-key values and “jump” into the index for the secondary key.
+              </p>
+            </div>
+
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Non-leading predicate example</div>
+                <button class="btn copyBtn" data-copy="jump1">Copy</button>
+              </div>
+              <pre><code id="jump1">CREATE INDEX ix_orders ON orders(region, order_date);
+
+-- Predicate only on the non-leading key (order_date)
+SELECT *
+FROM orders
+WHERE order_date = DATE('2026-01-01');</code></pre>
+            </div>
+
+            <div class="callout warn">
+              <h3>What makes Jump/Skip Scan viable</h3>
+              <p>
+                Leading key has few distinct values; enough selectivity on the non-leading predicate; cost model prefers it over full index scan or TBSCAN.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <div class="callout good">
+              <h3>Multi-index access (IXAND / IXOR)</h3>
+              <p>
+                Db2 can combine multiple indexes on the same table by intersecting or unioning RID lists, then fetching only qualifying rows.
+                This is especially relevant when no single index matches all predicates.
+              </p>
+            </div>
+
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Multi-index access example</div>
+                <button class="btn copyBtn" data-copy="multi1">Copy</button>
+              </div>
+              <pre><code id="multi1">-- Suppose we have:
+-- CREATE INDEX ix_region ON orders(region);
+-- CREATE INDEX ix_status ON orders(status);
+
+SELECT *
+FROM orders
+WHERE region = 'EAST'
+  AND status = 'OPEN';</code></pre>
+            </div>
+
+            <table aria-label="Multi-index operators">
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>Meaning</th>
+                  <th>Typical predicate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>IXAND</b></td>
+                  <td>Intersect RID streams</td>
+                  <td>Predicates combined by AND</td>
+                </tr>
+                <tr>
+                  <td><b>IXOR</b></td>
+                  <td>Union RID streams</td>
+                  <td>Predicates combined by OR</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              <h3>Instructor note</h3>
+              <p>
+                When delegates see IXAND/IXOR in a plan, it’s a strong cue to evaluate index design (single composite index vs multiple simple indexes) and predicate selectivity assumptions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section class="card" id="stats">
+      <div class="section-title">
+        <h2>5) Distribution Statistics: num_freqvalues & num_quantiles</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          Db2 uses statistics to estimate <b>filter factors</b> (selectivity). When data is <b>skewed</b>, uniform assumptions fail.
+          Distribution statistics improve accuracy: <b>N most frequent values</b> and <b>M quantiles</b>. :contentReference[oaicite:2]{index=2}
+        </p>
+
+        <table aria-label="Frequency vs quantiles">
+          <thead>
+            <tr>
+              <th>Statistic</th>
+              <th>Best for</th>
+              <th>Helps with</th>
+              <th>Example predicate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>NUM_FREQVALUES</b> (N most frequent values)</td>
+              <td>Equality</td>
+              <td>Value skew (hot values)</td>
+              <td><code>status = 'ACTIVE'</code></td>
+            </tr>
+            <tr>
+              <td><b>NUM_QUANTILES</b> (M quantiles / histogram)</td>
+              <td>Ranges</td>
+              <td>Interval skew (dense ranges)</td>
+              <td><code>salary BETWEEN x AND y</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="cols">
+          <div>
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Set database defaults</div>
+                <button class="btn copyBtn" data-copy="cfg1">Copy</button>
+              </div>
+              <pre><code id="cfg1">-- Database-level defaults for distribution statistics
+UPDATE DB CFG USING num_freqvalues 20;
+UPDATE DB CFG USING num_quantiles 50;</code></pre>
+            </div>
+
+            <div class="callout warn">
+              <h3>Production tuning caution</h3>
+              <p>
+                Higher values increase RUNSTATS cost and catalog footprint. Use higher settings selectively on high-impact columns
+                (join keys, filter columns, partitioning keys).
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Per-column distribution (RUNSTATS)</div>
+                <button class="btn copyBtn" data-copy="rs1">Copy</button>
+              </div>
+              <pre><code id="rs1">RUNSTATS ON TABLE employee
+WITH DISTRIBUTION
+ON COLUMNS (
+  status NUM_FREQVALUES 50,
+  salary NUM_QUANTILES 100
+)
+AND INDEXES ALL;</code></pre>
+            </div>
+
+            <div class="callout good">
+              <h3>Instructor “why this matters” line</h3>
+              <p>
+                Accurate filter factors prevent the optimizer from choosing a TBSCAN when an index would be optimal — or choosing an index path that explodes into random I/O due to bad selectivity estimates.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section class="card" id="colgroups">
+      <div class="section-title">
+        <h2>6) Column Group Statistics (Correlation)</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          When predicates reference correlated columns, independence assumptions can cause severe misestimation.
+          Column group statistics capture <b>joint cardinality</b> so the optimizer estimates selectivity correctly. :contentReference[oaicite:3]{index=3}
+        </p>
+
+        <div class="cols">
+          <div>
+            <div class="callout">
+              <h3>Classic correlation example</h3>
+              <p>
+                Not all combinations exist in real data (e.g., only certain models for a manufacturer). Without column group stats,
+                Db2 may assume every model can pair with every manufacturer.
+              </p>
+            </div>
+
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · Collect column group statistics</div>
+                <button class="btn copyBtn" data-copy="cg1">Copy</button>
+              </div>
+              <pre><code id="cg1">RUNSTATS ON TABLE carmodels
+ON COLUMNS ((manufacturer, model))
+WITH DISTRIBUTION
+AND INDEXES ALL;</code></pre>
+            </div>
+          </div>
+
+          <div>
+            <div class="callout good">
+              <h3>Instructor tip</h3>
+              <p>
+                Teach delegates to find correlation candidates by scanning top queries:
+                multi-predicate WHERE clauses and join conditions across the same table are prime candidates for column groups.
+              </p>
+            </div>
+
+            <table aria-label="Correlation checklist">
+              <thead>
+                <tr>
+                  <th>Signal</th>
+                  <th>Example</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Frequent multi-column filters</td>
+                  <td><code>WHERE A=? AND B=?</code></td>
+                  <td>Create column group stats</td>
+                </tr>
+                <tr>
+                  <td>Join + local predicate together</td>
+                  <td><code>JOIN ... ON K</code> + <code>WHERE status=?</code></td>
+                  <td>Consider stats view / column group</td>
+                </tr>
+                <tr>
+                  <td>Plan instability</td>
+                  <td>Flips TBSCAN ↔ IXSCAN</td>
+                  <td>Improve distribution + correlation stats</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section class="card" id="runbook">
+      <div class="section-title">
+        <h2>7) Production Runbook (SOP) – What You Teach Delegates to Do</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <p class="lead">
+          This is a practical tuning SOP you can give learners as “how a real DBA works”.
+          It aligns with course emphasis: maintenance (RUNSTATS/REORG), explain, and indexing choices. :contentReference[oaicite:4]{index=4}
+        </p>
+
+        <ol>
+          <li><b>Confirm stats freshness:</b> RUNSTATS age, table volatility, and whether distribution/correlation stats exist.</li>
+          <li><b>Explain the statement:</b> capture and render with db2exfmt; focus on optimized statement + operators + cardinalities.</li>
+          <li><b>Validate predicate stages:</b> identify residual predicates and non-sargable expressions.</li>
+          <li><b>Inspect index suitability:</b> leading keys, clustering, and whether multi-index access is being used (IXAND/IXOR).</li>
+          <li><b>Decide: stats vs index vs REORG:</b>
+            <ul>
+              <li>Wrong selectivity → improve distribution/correlation stats</li>
+              <li>No efficient access path → adjust indexing</li>
+              <li>Good plan but high I/O → check clustering / overflow → REORG</li>
+            </ul>
+          </li>
+          <li><b>Re-test & compare:</b> measure with consistent inputs; document plan changes and reasons.</li>
+        </ol>
+
+        <div class="callout warn">
+          <h3>Common failure mode</h3>
+          <p>
+            Index added, but clustering is terrible — so plan looks good on paper but runtime I/O is terrible.
+            Always validate cluster ratio and physical drift before “blaming SQL”.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section class="card" id="appendix">
+      <div class="section-title">
+        <h2>8) Appendix – Copy/Paste Command Library</h2>
+        <div class="hint"><a href="#top">Back to top</a></div>
+      </div>
+      <div class="content">
+        <div class="cols">
+          <div>
+            <div class="codeblock" data-lang="CLP">
+              <div class="codebar">
+                <div class="lang">CLP · Explain + db2exfmt quick-run</div>
+                <button class="btn copyBtn" data-copy="ap1">Copy</button>
+              </div>
+              <pre><code id="ap1">-- EXPLAIN a query
+EXPLAIN PLAN FOR
+SELECT * FROM &lt;schema&gt;.&lt;tab&gt; WHERE &lt;predicate&gt;;
+
+-- Render latest explain
+db2exfmt -d &lt;dbname&gt; -1 -o plan.txt</code></pre>
+            </div>
+
+            <div class="codeblock" data-lang="CLP">
+              <div class="codebar">
+                <div class="lang">CLP · REORG (template)</div>
+                <button class="btn copyBtn" data-copy="ap2">Copy</button>
+              </div>
+              <pre><code id="ap2">-- Table REORG (example)
+db2 "REORG TABLE &lt;schema&gt;.&lt;tab&gt; INPLACE ALLOW READ ACCESS"
+
+-- Index REORG (example)
+db2 "REORG INDEXES ALL FOR TABLE &lt;schema&gt;.&lt;tab&gt; ALLOW READ ACCESS"</code></pre>
+            </div>
+          </div>
+
+          <div>
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · RUNSTATS profile pattern</div>
+                <button class="btn copyBtn" data-copy="ap3">Copy</button>
+              </div>
+              <pre><code id="ap3">-- Register a statistics profile (doesn't collect)
+RUNSTATS ON TABLE &lt;schema&gt;.&lt;tab&gt;
+  WITH DISTRIBUTION
+  AND SAMPLED DETAILED INDEXES ALL
+  SET PROFILE ONLY;
+
+-- Later: run using stored profile
+RUNSTATS ON TABLE &lt;schema&gt;.&lt;tab&gt; USE PROFILE;</code></pre>
+            </div>
+
+            <div class="codeblock" data-lang="SQL">
+              <div class="codebar">
+                <div class="lang">SQL · SYSSTAT quick checks</div>
+                <button class="btn copyBtn" data-copy="ap4">Copy</button>
+              </div>
+              <pre><code id="ap4">-- Tables
+SELECT tabschema, tabname, card, npages, fpages, overflow
+FROM sysstat.tables
+WHERE tabschema='&lt;SCHEMA&gt;' AND tabname='&lt;TABNAME&gt;';
+
+-- Indexes
+SELECT indschema, indname, firstkeycard, fullkeycard, cluster_ratio
+FROM sysstat.indexes
+WHERE tabschema='&lt;SCHEMA&gt;' AND tabname='&lt;TABNAME&gt;';</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div>© Course notes page • Designed for instructor-led delivery and delegate self-study.</div>
+          <div>Source alignment: CLA96G Part 4 materials :contentReference[oaicite:5]{index=5}</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Print button
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+    // Copy buttons for code blocks
+    document.querySelectorAll('.copyBtn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-copy');
+        const el = document.getElementById(id);
+        const text = el ? el.textContent : '';
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = btn.textContent;
+          btn.textContent = 'Copied ✓';
+          setTimeout(() => btn.textContent = old, 900);
+        } catch (e) {
+          alert('Copy failed (clipboard permissions). Select the text manually.');
+        }
+      });
+    });
+
+    // Simple in-page search highlighting
+    const searchBox = document.getElementById('searchBox');
+    const originalHTML = document.body.innerHTML;
+
+    function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    let lastQuery = '';
+    searchBox?.addEventListener('input', () => {
+      const q = (searchBox.value || '').trim();
+      if (q === lastQuery) return;
+      lastQuery = q;
+
+      // Remove previous highlights by resetting body content,
+      // then rebind listeners.
+      document.body.innerHTML = originalHTML;
+      // Rebind UI handlers after reset:
+      document.getElementById('printBtn').addEventListener('click', () => window.print());
+      document.querySelectorAll('.copyBtn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-copy');
+          const el = document.getElementById(id);
+          const text = el ? el.textContent : '';
+          try {
+            await navigator.clipboard.writeText(text);
+            const old = btn.textContent;
+            btn.textContent = 'Copied ✓';
+            setTimeout(() => btn.textContent = old, 900);
+          } catch (e) {
+            alert('Copy failed (clipboard permissions). Select the text manually.');
+          }
+        });
+      });
+
+      // Re-get searchBox reference:
+      const sb = document.getElementById('searchBox');
+      sb.value = q;
+      sb.focus({preventScroll:true});
+
+      if (!q) return;
+
+      const rx = new RegExp(escapeRegExp(q), 'gi');
+
+      // Highlight only within main content area to avoid breaking scripts/styles
+      const wrap = document.querySelector('.wrap');
+      if (!wrap) return;
+
+      const walker = document.createTreeWalker(wrap, NodeFilter.SHOW_TEXT, {
+        acceptNode(node){
+          if (!node.nodeValue || !node.nodeValue.match(rx)) return NodeFilter.FILTER_REJECT;
+          // Avoid highlighting inside code blocks (keeps copy/paste clean)
+          if (node.parentElement && (node.parentElement.closest('pre') || node.parentElement.closest('code'))) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+
+      nodes.forEach(tn => {
+        const span = document.createElement('span');
+        span.innerHTML = tn.nodeValue.replace(rx, m => `<mark>${m}</mark>`);
+        tn.parentNode.replaceChild(span, tn);
+      });
+    });
+  </script>
+</body>
+</html>
