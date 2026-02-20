@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
-<title>CLA93 – Part 2 | Database & Object Management</title>
+<title>CLA93 – Part 3 | Security & Concurrency</title>
 
 <style>
 :root {
@@ -187,11 +187,11 @@ footer {
 <body>
 
 <header>
-  <h1>Part 2 – Database & Object Management</h1>
+  <h1>Part 3 – Security & Concurrency</h1>
   <p>
-    Database creation, storage architecture, table space design,
-    object structures, configuration fundamentals,
-    and recovery foundations in IBM Db2 12.1.
+    Authentication, authorization, locking mechanisms,
+    isolation levels, encryption capabilities,
+    and workload management in IBM Db2 12.1.
   </p>
 </header>
 
@@ -211,57 +211,57 @@ footer {
 <div class="container">
 
   <section class="card">
-    <h2>Database Creation & Configuration</h2>
+    <h2>Authentication & Authorization</h2>
     <ul>
-      <li>CREATE DATABASE command options</li>
-      <li>Automatic storage vs manual storage</li>
-      <li>Database configuration parameters</li>
-      <li>Bufferpool sizing basics</li>
-      <li>Transaction log configuration (LOGPRIMARY / LOGSECOND)</li>
+      <li>Authentication types (SERVER, CLIENT, KERBEROS, LDAP)</li>
+      <li>Instance-level vs database-level security</li>
+      <li>Privileges vs authorities</li>
+      <li>Role-based access control</li>
+      <li>Grant and revoke strategies</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Table Space Design & Data Placement</h2>
+    <h2>Concurrency & Locking</h2>
     <ul>
-      <li>DMS vs SMS table spaces</li>
-      <li>Automatic storage management</li>
-      <li>Container allocation strategy</li>
-      <li>Large tables and performance considerations</li>
-      <li>Separation of data, index, and LOB table spaces</li>
+      <li>Lock types (Row, Page, Table)</li>
+      <li>Intent locks</li>
+      <li>Lock escalation</li>
+      <li>Deadlock detection</li>
+      <li>Monitoring lock waits</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Database Objects</h2>
+    <h2>Isolation Levels</h2>
     <ul>
-      <li>Tables and column definitions</li>
-      <li>Indexes and clustering</li>
-      <li>Views and materialized query tables</li>
-      <li>Temporary tables</li>
-      <li>Partitioned and column-organized tables</li>
+      <li>Uncommitted Read (UR)</li>
+      <li>Cursor Stability (CS)</li>
+      <li>Read Stability (RS)</li>
+      <li>Repeatable Read (RR)</li>
+      <li>Impact on performance and consistency</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Recovery & Logging Fundamentals</h2>
+    <h2>Encryption & Data Protection</h2>
     <ul>
-      <li>Active vs archive logging</li>
-      <li>Backup types (offline / online)</li>
-      <li>Rollforward recovery process</li>
-      <li>Log file management</li>
-      <li>Common recovery troubleshooting scenarios</li>
+      <li>Native encryption</li>
+      <li>Column-level encryption</li>
+      <li>SSL/TLS communication</li>
+      <li>Backup encryption</li>
+      <li>Security best practices</li>
     </ul>
   </section>
 
   <section>
     <h2>Key DBA Takeaways</h2>
     <ul>
-      <li>Design storage based on workload profile</li>
-      <li>Understand logging impact on recovery objectives</li>
-      <li>Separate logical object design from physical placement</li>
-      <li>Always validate configuration after database creation</li>
-      <li>Plan recovery before production deployment</li>
+      <li>Security configuration impacts performance</li>
+      <li>Isolation levels influence concurrency behavior</li>
+      <li>Lock monitoring is essential for OLTP environments</li>
+      <li>Encryption must be planned during database creation</li>
+      <li>Balance availability with protection</li>
     </ul>
   </section>
 
