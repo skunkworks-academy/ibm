@@ -1,212 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
-  <title>CLA93 – Part 2 | Databases & Data Placement</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
+<title>CLA93 – Part 2 | Database & Object Management</title>
 
-  <!-- 🐝 Bee Favicon -->
-  <link rel="icon" type="image/svg+xml" 
-  href='data:image/svg+xml,
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <text y="0.9em" font-size="90">🐝</text>
-  </svg>'>
+<style>
+:root {
+  --primary: #0f62fe;
+  --dark: #0a0f1c;
+  --card: #121a2b;
+  --text: #e6edf6;
+  --muted: #9aa8bd;
+  --border: rgba(255,255,255,0.08);
+}
 
-  <style>
-    :root {
-      --primary: #0f62fe;
-      --bg: #0b1220;
-      --card: #121a2b;
-      --text: #e6edf6;
-      --muted: #9aa8bd;
-      --border: rgba(255,255,255,0.08);
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+body {
+  background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
+  color: var(--text);
+  line-height: 1.6;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
+/* ================= HEADER ================= */
 
-    header {
-      padding: 60px 20px 30px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
+header {
+  padding: 60px 20px 30px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
 
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
 
-    header p {
-      color: var(--muted);
-      max-width: 650px;
-      margin: 0 auto;
-      font-size: 0.95rem;
-    }
+header p {
+  color: var(--muted);
+  max-width: 750px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
 
-    nav {
-      text-align: center;
-      padding: 15px 20px;
-      border-bottom: 1px solid var(--border);
-    }
+/* ================= NAVIGATION ================= */
 
-    nav a {
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      margin: 0 10px;
-    }
+nav {
+  text-align: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+nav a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin: 0 12px;
+}
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+nav a:hover {
+  text-decoration: underline;
+}
 
-    section {
-      margin-bottom: 50px;
-    }
+/* ================= PRINT BUTTON ================= */
 
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      border-left: 4px solid var(--primary);
-      padding-left: 10px;
-    }
+.print-actions {
+  text-align: center;
+  padding: 25px 20px;
+}
 
-    ul {
-      list-style: disc;
-      margin-left: 20px;
-    }
+button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
 
-    li {
-      margin-bottom: 8px;
-      color: var(--muted);
-    }
+button:hover {
+  opacity: 0.9;
+}
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-    }
+/* ================= CONTENT ================= */
 
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--border);
-      margin-top: 60px;
-    }
+.container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
 
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.4rem;
-      }
+section {
+  margin-bottom: 40px;
+}
 
-      h2 {
-        font-size: 1.05rem;
-      }
-    }
-  </style>
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+}
+
+ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 60px;
+}
+
+/* ================= PRINT MANUAL MODE ================= */
+
+@media print {
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  nav,
+  .print-actions,
+  footer {
+    display: none !important;
+  }
+
+  .card {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  h1 {
+    font-size: 22pt;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 16pt;
+    margin-top: 25px;
+    border-left: none;
+  }
+
+  li {
+    color: black;
+  }
+
+  @page {
+    size: A4;
+    margin: 25mm;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>Part 2 – Creating Databases & Data Placement</h1>
+  <h1>Part 2 – Database & Object Management</h1>
   <p>
-    Database architecture design, storage management models, 
-    table spaces, storage groups, and configuration best practices
-    for production Db2 environments.
+    Database creation, storage architecture, table space design,
+    object structures, configuration fundamentals,
+    and recovery foundations in IBM Db2 12.1.
   </p>
 </header>
 
 <nav>
   <a href="/ibm/cla93/">Home</a>
   <a href="/ibm/cla93/part-1">Part 1</a>
+  <a href="/ibm/cla93/part-2">Part 2</a>
   <a href="/ibm/cla93/part-3">Part 3</a>
   <a href="/ibm/cla93/part-4">Part 4</a>
   <a href="/ibm/cla93/assessment">Assessment</a>
 </nav>
 
+<div class="print-actions">
+  <button onclick="window.print()">Print to PDF (Manual Format)</button>
+</div>
+
 <div class="container">
 
   <section class="card">
-    <h2>Database Creation Fundamentals</h2>
+    <h2>Database Creation & Configuration</h2>
     <ul>
-      <li>CREATE DATABASE syntax and options</li>
-      <li>Automatic Storage vs DMS vs SMS</li>
-      <li>Database path vs storage paths</li>
-      <li>Code set, territory, collations</li>
-      <li>Default system table spaces created automatically</li>
+      <li>CREATE DATABASE command options</li>
+      <li>Automatic storage vs manual storage</li>
+      <li>Database configuration parameters</li>
+      <li>Bufferpool sizing basics</li>
+      <li>Transaction log configuration (LOGPRIMARY / LOGSECOND)</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Table Spaces & Storage Concepts</h2>
+    <h2>Table Space Design & Data Placement</h2>
     <ul>
-      <li>Table space, container, extent, page relationships</li>
-      <li>Page size impact on performance and limits</li>
-      <li>Regular vs Large table spaces</li>
-      <li>Round-robin extent allocation</li>
-      <li>High Water Mark (HWM) monitoring</li>
+      <li>DMS vs SMS table spaces</li>
+      <li>Automatic storage management</li>
+      <li>Container allocation strategy</li>
+      <li>Large tables and performance considerations</li>
+      <li>Separation of data, index, and LOB table spaces</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Storage Groups & Multi-Tier Design</h2>
+    <h2>Database Objects</h2>
     <ul>
-      <li>CREATE STOGROUP and ALTER STOGROUP</li>
-      <li>Hot / Warm / Cold storage strategy</li>
-      <li>Rebalancing table spaces</li>
-      <li>Monitoring storage usage (MON_GET_TABLESPACE)</li>
-      <li>ADMIN_GET_STORAGE_PATHS insights</li>
+      <li>Tables and column definitions</li>
+      <li>Indexes and clustering</li>
+      <li>Views and materialized query tables</li>
+      <li>Temporary tables</li>
+      <li>Partitioned and column-organized tables</li>
     </ul>
   </section>
 
   <section class="card">
-    <h2>Buffer Pools & Memory Strategy</h2>
+    <h2>Recovery & Logging Fundamentals</h2>
     <ul>
-      <li>IBMDEFAULTBP creation at database build</li>
-      <li>CREATE / ALTER BUFFERPOOL</li>
-      <li>Matching page size with table space</li>
-      <li>Isolation of workloads using multiple pools</li>
-      <li>Impact on I/O reduction and throughput</li>
+      <li>Active vs archive logging</li>
+      <li>Backup types (offline / online)</li>
+      <li>Rollforward recovery process</li>
+      <li>Log file management</li>
+      <li>Common recovery troubleshooting scenarios</li>
     </ul>
   </section>
 
   <section>
     <h2>Key DBA Takeaways</h2>
     <ul>
-      <li>Design storage before production rollout</li>
-      <li>Prefer Automatic Storage for modern environments</li>
-      <li>Use storage groups for workload tiering</li>
-      <li>Monitor table space growth proactively</li>
-      <li>Align buffer pool sizing with workload patterns</li>
+      <li>Design storage based on workload profile</li>
+      <li>Understand logging impact on recovery objectives</li>
+      <li>Separate logical object design from physical placement</li>
+      <li>Always validate configuration after database creation</li>
+      <li>Plan recovery before production deployment</li>
     </ul>
   </section>
 
 </div>
 
 <footer>
-  © 2026 Skunkworks Academy | IBM Db2 12.1 Foundation Training
+  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
 </footer>
 
 </body>
