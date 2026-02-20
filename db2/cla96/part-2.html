@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CLA96G – Part 2</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="part-4.html">Part 4</a>
+  <a href="assessment.html">Final Assessment</a>
+</nav>
+
+<header>
+  <h1>Part 2 – Data Management & Recovery</h1>
+  <p>Operational Mastery for Enterprise DBAs</p>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+<h2>Unit 1 – Data Movement & Loading</h2>
+<button onclick="toggle('u1')">Expand / Collapse</button>
+
+<div id="u1" style="display:none;margin-top:15px;">
+
+<h3>Core Concepts</h3>
+<ul>
+<li>INSERT vs LOAD vs IMPORT vs INGEST</li>
+<li>Table states (Load Pending, Set Integrity Pending)</li>
+<li>ADMIN_MOVE_TABLE online table movement</li>
+<li>Parallel insert & column-organized optimizations</li>
+<li>Utility monitoring (LIST UTILITIES, MON_GET_UTILITY)</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Use LOAD for high-volume bulk ingestion when concurrency is not required.</li>
+<li>Use INGEST when concurrency and restartability are required.</li>
+<li>Never ignore Set Integrity Pending state.</li>
+<li>Always examine .msg files post-load.</li>
+<li>Understand COPY YES vs NONRECOVERABLE implications.</li>
+</ul>
+
+<h3>Operational Warnings</h3>
+<ul>
+<li>LOAD REPLACE can truncate table on failure.</li>
+<li>NONRECOVERABLE loads eliminate rollforward ability.</li>
+<li>Do not tamper with LOAD temp files.</li>
+<li>Long-running small transactions can exhaust logs.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u1q1">
+<p>1. When should INGEST be used instead of LOAD?</p>
+<button onclick="answer('u1q1',true)">When concurrency is required</button>
+<button onclick="answer('u1q1',false)">When loading XML columns</button>
+<button onclick="answer('u1q1',false)">When IXF format is required</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Unit 2 – Backup & Recovery</h2>
+<button onclick="toggle('u2')">Expand / Collapse</button>
+
+<div id="u2" style="display:none;margin-top:15px;">
+
+<h3>Core Concepts</h3>
+<ul>
+<li>Crash vs Version vs Rollforward recovery</li>
+<li>LOGARCHMETH1, LOGFILSIZ, NEWLOGPATH</li>
+<li>Incremental and encrypted backups</li>
+<li>HADR multi-standby architecture</li>
+<li>Advanced Log Space Management (ALSM)</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Enable rollforward for recoverable production DBs.</li>
+<li>Test restore procedures regularly.</li>
+<li>Understand Rollforward Pending state implications.</li>
+<li>Use PIT recovery cautiously with RI relationships.</li>
+<li>Implement HADR with Pacemaker for automation.</li>
+</ul>
+
+<h3>Operational Warnings</h3>
+<ul>
+<li>Offline restore without rollforward causes pending state.</li>
+<li>Encrypted backup handling requires keystore readiness.</li>
+<li>LOB/XML recovery requires strategy alignment.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u2q1">
+<p>1. What causes Rollforward Pending state?</p>
+<button onclick="answer('u2q1',true)">Restoring online backup</button>
+<button onclick="answer('u2q1',false)">Running RUNSTATS</button>
+<button onclick="answer('u2q1',false)">Executing REORG</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Unit 3 – Maintenance & Monitoring</h2>
+<button onclick="toggle('u3')">Expand / Collapse</button>
+
+<div id="u3" style="display:none;margin-top:15px;">
+
+<h3>Core Concepts</h3>
+<ul>
+<li>RUNSTATS with distribution statistics</li>
+<li>REORG vs REORGCHK</li>
+<li>db2pd monitoring</li>
+<li>Autonomic utilities</li>
+<li>Event monitors</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Statistics drive optimizer decisions.</li>
+<li>Use REORGCHK before reorganization.</li>
+<li>Automate maintenance cautiously.</li>
+<li>Use db2pd for real-time diagnostics.</li>
+</ul>
+
+<h3>Operational Warnings</h3>
+<ul>
+<li>Excess ALTER operations can cause reorg pending state.</li>
+<li>Over-sampling statistics can skew estimates.</li>
+</ul>
+
+<h3>Mini Knowledge Check</h3>
+
+<div id="u3q1">
+<p>1. What is the primary purpose of RUNSTATS?</p>
+<button onclick="answer('u3q1',true)">Provide statistics to optimizer</button>
+<button onclick="answer('u3q1',false)">Backup data</button>
+<button onclick="answer('u3q1',false)">Compress tables</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Progress</h2>
+<div class="progress-bar"><span id="bar"></span></div>
+<div>Completion: <span id="percent">0%</span></div>
+</div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+let state=load(LMS_KEYS.part2)||{
+  totalQuestions:3,
+  answered:0,
+  correct:0
+};
+
+function answer(qid,correct){
+  const q=document.getElementById(qid);
+  if(q.dataset.answered) return;
+  q.dataset.answered=true;
+  state.answered++;
+  if(correct){
+    state.correct++;
+    q.querySelector(".result").innerHTML="<p style='color:var(--success)'>Correct</p>";
+  }else{
+    q.querySelector(".result").innerHTML="<p style='color:var(--danger)'>Incorrect – review material.</p>";
+  }
+  save(LMS_KEYS.part2,state);
+  updateProgress();
+}
+
+function updateProgress(){
+  const percent=percentage(state.answered,state.totalQuestions);
+  document.getElementById("percent").innerText=percent+"%";
+  document.getElementById("bar").style.width=percent+"%";
+  if(window.SCORM){
+    SCORM.update(percentage(state.correct,state.totalQuestions),percent);
+  }
+}
+
+updateProgress();
+</script>
+
+</body>
+</html>
