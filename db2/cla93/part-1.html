@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLA96G – Part 1</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Portal</a>
+  <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="part-4.html">Part 4</a>
+  <a href="assessment.html">Final Assessment</a>
+</nav>
+
+<header>
+  <h1>Part 1 – Db2 Foundations & Architecture</h1>
+  <p>Core Structural Understanding for Relational DBAs</p>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+<h2>Unit 1 – Db2 Architecture</h2>
+<button onclick="toggle('u1')">Expand / Collapse</button>
+
+<div id="u1" style="display:none;margin-top:15px;">
+
+<h3>Core Topics</h3>
+<ul>
+<li>Instance vs Database</li>
+<li>Memory architecture (bufferpools, sortheap)</li>
+<li>Process model (EDUs)</li>
+<li>System catalog usage</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Understand instance-level vs database-level configuration.</li>
+<li>Bufferpools directly impact performance.</li>
+<li>Catalog is the metadata brain of Db2.</li>
+</ul>
+
+<div id="u1q1">
+<p>1. What differentiates an instance from a database?</p>
+<button onclick="answer('u1q1',true)">Instance manages engine & multiple databases</button>
+<button onclick="answer('u1q1',false)">Database manages OS users</button>
+<button onclick="answer('u1q1',false)">Instance stores application data</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Unit 2 – Database Creation & Configuration</h2>
+<button onclick="toggle('u2')">Expand / Collapse</button>
+
+<div id="u2" style="display:none;margin-top:15px;">
+
+<h3>Core Topics</h3>
+<ul>
+<li>CREATE DATABASE</li>
+<li>Automatic storage</li>
+<li>Tablespaces</li>
+<li>Database configuration parameters</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Proper tablespace design prevents fragmentation.</li>
+<li>Log configuration impacts recoverability.</li>
+<li>Separate data and logs physically.</li>
+</ul>
+
+<div id="u2q1">
+<p>2. Why separate log files from data files?</p>
+<button onclick="answer('u2q1',true)">Improve performance and recovery reliability</button>
+<button onclick="answer('u2q1',false)">Reduce CPU usage</button>
+<button onclick="answer('u2q1',false)">Disable rollforward</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Unit 3 – Db2 Security & Authorization</h2>
+<button onclick="toggle('u3')">Expand / Collapse</button>
+
+<div id="u3" style="display:none;margin-top:15px;">
+
+<h3>Core Topics</h3>
+<ul>
+<li>Authorities vs Privileges</li>
+<li>SYSADM, DBADM, SECADM roles</li>
+<li>GRANT and REVOKE</li>
+<li>Separation of duties</li>
+</ul>
+
+<h3>DBA Takeaways</h3>
+<ul>
+<li>Principle of least privilege.</li>
+<li>SECADM should be separate from SYSADM.</li>
+<li>Audit privilege changes regularly.</li>
+</ul>
+
+<div id="u3q1">
+<p>3. Which authority controls security objects?</p>
+<button onclick="answer('u3q1',true)">SECADM</button>
+<button onclick="answer('u3q1',false)">DBADM</button>
+<button onclick="answer('u3q1',false)">SYSCTRL</button>
+<div class="result"></div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Progress</h2>
+<div class="progress-bar"><span id="bar"></span></div>
+<div>Completion: <span id="percent">0%</span></div>
+<div>Readiness: <span id="readiness">Developing</span></div>
+</div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+let state=load(LMS_KEYS.part1)||{
+  totalQuestions:3,
+  answered:0,
+  correct:0
+};
+
+function answer(qid,correct){
+  const q=document.getElementById(qid);
+  if(q.dataset.answered) return;
+  q.dataset.answered=true;
+  state.answered++;
+  if(correct){
+    state.correct++;
+    q.querySelector(".result").innerHTML="<p style='color:var(--success)'>Correct</p>";
+  }else{
+    q.querySelector(".result").innerHTML="<p style='color:var(--danger)'>Incorrect – Review fundamentals.</p>";
+  }
+  save(LMS_KEYS.part1,state);
+  updateProgress();
+}
+
+function updateProgress(){
+  const percent=percentage(state.answered,state.totalQuestions);
+  const score=percentage(state.correct,state.totalQuestions);
+
+  document.getElementById("percent").innerText=percent+"%";
+  document.getElementById("bar").style.width=percent+"%";
+
+  let readiness="Developing";
+  if(score>=90) readiness="Strong – Production Ready";
+  else if(score>=75) readiness="Ready – Light Supervision";
+  else if(score>=60) readiness="Operational with Guidance";
+
+  document.getElementById("readiness").innerText=readiness;
+
+  if(window.SCORM){
+    SCORM.update(score,percent);
+  }
+}
+
+logEvent("page_view",{page:"part-1"});
+updateProgress();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLA96G – Unified LMS Portal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="part-4.html">Part 4</a>
+  <a href="assessment.html">Final Assessment</a>
+  <a href="analytics.html">Analytics</a>
+</nav>
+
+<header>
+  <h1>CLA96G – Db2 Administration Enterprise LMS</h1>
+  <p>Foundation for Relational DBAs</p>
+</header>
+
+<div class="wrap">
+
+<div class="card">
+  <h2>Overall Course Progress</h2>
+
+  <div class="progress-bar">
+    <span id="overallBar"></span>
+  </div>
+
+  <div style="margin-top:12px;">
+    Completion: <strong id="completion">0%</strong><br>
+    Knowledge Score: <strong id="score">0%</strong><br>
+    Readiness: <strong id="readiness">Developing</strong>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Module Breakdown</h2>
+  <div id="moduleStats"></div>
+</div>
+
+<div class="card">
+  <button onclick="window.print()" class="primary">Print Executive Summary</button>
+  <button onclick="resetAll()" class="danger">Reset Entire Course</button>
+</div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+
+function computeOverall(){
+
+  let parts = ["part1","part2","part3","part4"];
+  let totalQuestions = 0;
+  let totalAnswered = 0;
+  let totalCorrect = 0;
+
+  let statsHTML = "";
+
+  parts.forEach(p=>{
+    let data = load(LMS_KEYS[p]);
+    if(!data) return;
+
+    totalQuestions += data.totalQuestions || 0;
+    totalAnswered += data.answered || 0;
+    totalCorrect += data.correct || 0;
+
+    let completion = percentage(data.answered, data.totalQuestions);
+    let score = percentage(data.correct, data.totalQuestions);
+
+    statsHTML += `
+      <div style="margin-bottom:10px;">
+        <strong>${p.toUpperCase()}</strong> —
+        Completion: ${completion}% |
+        Score: ${score}%
+      </div>
+    `;
+  });
+
+  let completion = percentage(totalAnswered,totalQuestions);
+  let score = percentage(totalCorrect,totalQuestions);
+
+  document.getElementById("completion").innerText = completion + "%";
+  document.getElementById("score").innerText = score + "%";
+  document.getElementById("overallBar").style.width = completion + "%";
+  document.getElementById("moduleStats").innerHTML = statsHTML;
+
+  let readiness="Developing";
+  if(score>=90) readiness="Strong – Production Ready";
+  else if(score>=75) readiness="Ready – Light Supervision";
+  else if(score>=60) readiness="Operational with Guidance";
+
+  document.getElementById("readiness").innerText=readiness;
+
+  if(window.SCORM){
+    SCORM.update(score,completion);
+  }
+}
+
+function resetAll(){
+  if(!confirm("Reset entire course progress?")) return;
+
+  Object.values(LMS_KEYS).forEach(k=>{
+    localStorage.removeItem(k);
+  });
+
+  location.reload();
+}
+
+logEvent("page_view",{page:"index"});
+computeOverall();
+
+</script>
+
+</body>
+</html>

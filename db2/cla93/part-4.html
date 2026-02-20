@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CLA96G – Part 4</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Page-level refinements (keeps consistency with your enterprise LMS look) */
+  .unitBody{display:none;margin-top:15px}
+  .unitActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .subhead{color:var(--muted);margin-top:6px}
+  .sectionTitle{margin-top:14px;margin-bottom:8px}
+  .result{margin-top:10px;font-weight:800}
+  .result small{display:block;font-weight:600;color:var(--muted);margin-top:6px;line-height:1.35}
+  .pill{
+    display:inline-flex;gap:8px;align-items:center;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.06);
+    color:var(--muted);font-size:12px
+  }
+  .pill strong{color:var(--text)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  @media print{
+    nav, button { display:none !important; }
+    .unitBody{display:block !important;}
+  }
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Portal</a>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="assessment.html">Final Assessment</a>
+  <a href="analytics.html">Analytics</a>
+</nav>
+
+<header>
+  <h1>Part 4 – Performance & Tuning Optimization</h1>
+  <p class="subhead">Statistics • Indexing • EXPLAIN • Monitoring — job-ready performance governance for Db2 LUW.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- Controls + Progress -->
+  <div class="card">
+    <div class="row">
+      <div class="kpis">
+        <span class="pill"><strong>Answered:</strong> <span id="answeredCount">0</span>/<span id="totalCount">0</span></span>
+        <span class="pill"><strong>Score:</strong> <span id="scorePct">0%</span></span>
+        <span class="pill"><strong>Completion:</strong> <span id="completionPct">0%</span></span>
+        <span class="pill"><strong>Readiness:</strong> <span id="readiness">Developing</span></span>
+      </div>
+
+      <div class="unitActions">
+        <button class="primary" id="btnPrint">Print / Export PDF</button>
+        <button id="btnExpand">Expand All</button>
+        <button id="btnCollapse">Collapse All</button>
+        <button class="danger" id="btnReset">Reset Part 4</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="progress-bar"><span id="bar"></span></div>
+      <div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35">
+        This section measures whether delegates can translate tuning theory into operational decisions:
+        statistics strategy, index design, plan analysis, and monitoring-based triage.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 1 ================= -->
+  <div class="card">
+    <h2>Unit 1 – Statistics and Query Optimization</h2>
+    <p class="subhead">
+      How Db2 uses statistics + selectivity to choose access paths; statistics profiles and AI optimizer concepts.
+    </p>
+    <button onclick="toggle('u1')">Expand / Collapse</button>
+
+    <div id="u1" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Predicate selectivity and why it drives access path choice (index vs table scan)</li>
+        <li>Phases of Db2 query optimization and plan selection</li>
+        <li>Statistics profiles (consistent, repeatable RUNSTATS strategy)</li>
+        <li>Evaluating optimizer outcomes before/after stats refresh</li>
+        <li>AI-assisted optimization concepts (recommendations, plan guidance)</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Performance regressions often start with <strong>statistics drift</strong> after bulk changes.</li>
+        <li>Use statistics profiles to standardize RUNSTATS across environments and maintenance windows.</li>
+        <li>After large LOAD/IMPORT or wide UPDATE/DELETE, plan for: <strong>RUNSTATS → validate plans → adjust indexes</strong>.</li>
+        <li>Always validate changes using comparable baselines (same bind options, same parameter markers, same workload slice).</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Outdated stats → wrong cardinality estimates → wrong join method/order.</li>
+        <li>Over-collecting high-cost stats on critical systems can increase maintenance overhead.</li>
+        <li>Changing stats can change plans: you need change control and rollback strategy.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u1q1">
+        <p><strong>1.</strong> Why do skewed data distributions matter to the optimizer?</p>
+        <button onclick="answer('u1q1',true,'Skew changes selectivity. Accurate distribution stats help Db2 estimate result sizes and choose better join/index strategies.')">
+          They affect selectivity estimates and access path decisions
+        </button>
+        <button onclick="answer('u1q1',false,'Incorrect. Data distribution impacts plan choice, not storage format.')">
+          They determine the tablespace page size
+        </button>
+        <button onclick="answer('u1q1',false,'Incorrect. HADR does not depend on column skew.')">
+          They enable HADR synchronization
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 2 ================= -->
+  <div class="card">
+    <h2>Unit 2 – Indexing for Performance Improvement</h2>
+    <p class="subhead">
+      Index types, strategy selection from query patterns, monitoring usage, multi-index strategies, and Design Advisor.
+    </p>
+    <button onclick="toggle('u2')">Expand / Collapse</button>
+
+    <div id="u2" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Index strategy from workload patterns (filters, joins, order by, grouping)</li>
+        <li>Composite indexes (key ordering matters) and covering indexes</li>
+        <li>Index usage monitoring (e.g., MON_GET_INDEX / db2pd patterns)</li>
+        <li>Multi-index strategies (index ORing, bitmap ANDing concepts)</li>
+        <li>Db2 Design Advisor for recommendation-based tuning</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Indexes are not “free”: every extra index adds write overhead and maintenance cost.</li>
+        <li>Design for the <strong>critical SQL paths</strong> (top N by elapsed time / frequency / business impact).</li>
+        <li>Use monitoring to prove whether an index is used; remove dead indexes cautiously (change control + evidence).</li>
+        <li>Prefer targeted, minimal index sets that satisfy core predicates and joins.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Over-indexing degrades INSERT/UPDATE/DELETE throughput.</li>
+        <li>Poor key order can prevent index matching and force scans.</li>
+        <li>Removing indexes without workload evidence can cause sudden regressions.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u2q1">
+        <p><strong>2.</strong> The most common symptom of over-indexing is:</p>
+        <button onclick="answer('u2q1',true,'Too many indexes increase write amplification: every change must also update indexes, slowing DML and increasing logging.')">
+          DML (insert/update/delete) becomes slower due to index maintenance
+        </button>
+        <button onclick="answer('u2q1',false,'Incorrect. Over-indexing does not increase bufferpool memory directly.')">
+          Bufferpools grow automatically
+        </button>
+        <button onclick="answer('u2q1',false,'Incorrect. Over-indexing does not prevent backups from running.')">
+          Backups fail immediately
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 3 ================= -->
+  <div class="card">
+    <h2>Unit 3 – Using EXPLAIN Tools for Query Optimization</h2>
+    <p class="subhead">
+      EXPLAIN tables, capturing and interpreting access plans (db2exfmt, explain utilities, activity event monitoring).
+    </p>
+    <button onclick="toggle('u3')">Expand / Collapse</button>
+
+    <div id="u3" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>EXPLAIN tables: what they store and why they must exist before capture</li>
+        <li>Capturing plans: static vs dynamic SQL considerations</li>
+        <li>Interpreting db2exfmt output: joins, sorts, scans, index access, cardinality</li>
+        <li>Using activity data/event monitoring to tie plans to runtime behavior</li>
+        <li>Comparing plans across environments (stats, schema, bind options, parameter markers)</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Plan analysis is your tuning starting point: fix <strong>root causes</strong> (stats, indexes, predicates).</li>
+        <li>Focus on the biggest operators: large scans, large sorts, expensive joins, repeated re-fetch.</li>
+        <li>Verify that predicates are sargable (search-argument-able) where possible.</li>
+        <li>Always compare plans using the same statement form and similar parameter values.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Misinterpreting plan output can lead to “tuning by superstition”.</li>
+        <li>Plan changes without workload validation can shift bottlenecks elsewhere.</li>
+        <li>Differences between static and dynamic SQL can change plan behavior and caching.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u3q1">
+        <p><strong>3.</strong> Before you can reliably capture EXPLAIN data for a statement, you must ensure:</p>
+        <button onclick="answer('u3q1',true,'EXPLAIN requires the explain tables to exist (in the target schema) to store plan metadata for formatting and analysis.')">
+          EXPLAIN tables exist and are maintained for the schema
+        </button>
+        <button onclick="answer('u3q1',false,'Incorrect. HADR is unrelated to capturing EXPLAIN output.')">
+          HADR is active on the database
+        </button>
+        <button onclick="answer('u3q1',false,'Incorrect. RUNSTATS is helpful but not a prerequisite for creating explain tables.')">
+          RUNSTATS has been run in the last hour
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 4 ================= -->
+  <div class="card">
+    <h2>Unit 4 – Monitoring Fundamentals</h2>
+    <p class="subhead">
+      Db2 monitoring architecture, table functions/views, db2pd & dmctop, and health evaluation (log/tablespace).
+    </p>
+    <button onclick="toggle('u4')">Expand / Collapse</button>
+
+    <div id="u4" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Monitoring architecture: metrics sources and collection approach</li>
+        <li>SQL-based monitoring: table functions and administrative views</li>
+        <li>Command-line tools: db2pd and dmctop for activity/perf snapshots</li>
+        <li>DMC dashboards: resource usage and performance indicators</li>
+        <li>Health metrics: log space consumption, tablespace utilization, lock waits</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Operational stability comes from <strong>trend + alert</strong> monitoring, not only incident response.</li>
+        <li>Correlate symptoms: CPU, IO wait, locks, log usage, tablespace growth, and query hotspots.</li>
+        <li>Use monitoring evidence to prioritize: top SQL, top waits, top objects.</li>
+        <li>Keep a standard “first 10 minutes” triage playbook for incidents.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Ignoring early log/tablespace signals can cause outages (log full, TS full).</li>
+        <li>High-frequency monitoring at scale can introduce overhead if misconfigured.</li>
+        <li>Monitoring without thresholds and ownership becomes noise.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u4q1">
+        <p><strong>4.</strong> A practical first indicator of “database health risk” is:</p>
+        <button onclick="answer('u4q1',true,'Rapidly increasing log usage or tablespace utilization often predicts incidents (log full/TS full) and should trigger immediate investigation.')">
+          Sustained log space growth / tablespace utilization trending to full
+        </button>
+        <button onclick="answer('u4q1',false,'Incorrect. A single SQL error is not a reliable health indicator by itself.')">
+          One isolated SQL error message
+        </button>
+        <button onclick="answer('u4q1',false,'Incorrect. User count alone does not indicate health without resource/latency context.')">
+          Number of connected users only
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+/* =========================================================
+   PART 4 LMS STATE + SCORM
+========================================================= */
+function toggle(id){
+  const el = document.getElementById(id);
+  el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+  logEvent("ui_toggle_unit", {part:"part-4", unit:id, open:(el.style.display==="block")});
+}
+
+const STATE_KEY = LMS_KEYS.part4; // "cla96g_part4"
+let state = load(STATE_KEY) || {
+  totalQuestions: 4,
+  answered: 0,
+  correct: 0,
+  answers: {}   // {u1q1:true/false, ...}
+};
+
+function answer(qid, isCorrect, why){
+  const q = document.getElementById(qid);
+  if(state.answers[qid] !== undefined) return; // already answered
+
+  state.answers[qid] = isCorrect;
+  state.answered++;
+  if(isCorrect) state.correct++;
+
+  const out = q.querySelector(".result");
+  if(isCorrect){
+    out.innerHTML = `<span style="color:var(--success)">Correct</span>
+                     <small>${escapeHtml(why||"")}</small>`;
+  } else {
+    out.innerHTML = `<span style="color:var(--danger)">Incorrect</span>
+                     <small>${escapeHtml(why||"Review the unit content above and retry in study mode.")}</small>`;
+  }
+
+  save(STATE_KEY, state);
+  logEvent("answer", {part:"part-4", qid, correct:isCorrect});
+  updateProgress();
+}
+
+function escapeHtml(str){
+  return String(str||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function readinessFromScore(score){
+  if(score >= 90) return "Strong – Production Ready";
+  if(score >= 75) return "Ready – Light Supervision";
+  if(score >= 60) return "Operational with Guidance";
+  return "Developing";
+}
+
+function updateProgress(){
+  const completion = percentage(state.answered, state.totalQuestions);
+  const score = percentage(state.correct, state.totalQuestions);
+
+  document.getElementById("answeredCount").innerText = state.answered;
+  document.getElementById("totalCount").innerText = state.totalQuestions;
+  document.getElementById("scorePct").innerText = score + "%";
+  document.getElementById("completionPct").innerText = completion + "%";
+  document.getElementById("bar").style.width = completion + "%";
+  document.getElementById("readiness").innerText = readinessFromScore(score);
+
+  // SCORM: score = correctness %, completion = answered %
+  if(window.SCORM){
+    SCORM.update(score, completion);
+  }
+}
+
+function restoreAnswered(){
+  Object.entries(state.answers || {}).forEach(([qid, val]) => {
+    const q = document.getElementById(qid);
+    if(!q) return;
+    const out = q.querySelector(".result");
+    if(val){
+      out.innerHTML = `<span style="color:var(--success)">Correct</span>
+                       <small>Restored from saved attempt.</small>`;
+    } else {
+      out.innerHTML = `<span style="color:var(--danger)">Incorrect</span>
+                       <small>Restored from saved attempt. Review the unit content above.</small>`;
+    }
+  });
+}
+
+document.getElementById("btnPrint").addEventListener("click", () => {
+  // expand all for printing
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="block");
+  logEvent("ui_print_pdf", {part:"part-4"});
+  window.print();
+});
+
+document.getElementById("btnExpand").addEventListener("click", () => {
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="block");
+  logEvent("ui_expand_all", {part:"part-4"});
+});
+
+document.getElementById("btnCollapse").addEventListener("click", () => {
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="none");
+  logEvent("ui_collapse_all", {part:"part-4"});
+});
+
+document.getElementById("btnReset").addEventListener("click", () => {
+  if(!confirm("Reset Part 4 progress (answers, score, completion)?")) return;
+  localStorage.removeItem(STATE_KEY);
+  logEvent("attempt_reset", {part:"part-4"});
+  location.reload();
+});
+
+// Boot
+logEvent("page_view", {part:"part-4"});
+restoreAnswered();
+updateProgress();
+</script>
+
+</body>
+</html>

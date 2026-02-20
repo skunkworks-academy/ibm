@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
+  <title>CLA93 – Final Assessment | Skunkworks Academy</title>
+
+  <style>
+    :root{
+      --primary:#0f62fe;
+      --dark:#0a0f1c;
+      --panel:#121a2b;
+      --panel2:#0f1726;
+      --text:#e6edf6;
+      --muted:#9aa8bd;
+      --border:rgba(255,255,255,0.10);
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,sans-serif; }
+    body{
+      background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
+      color:var(--text);
+      line-height:1.6;
+      min-height:100vh;
+    }
+
+    header{
+      padding:60px 20px 24px;
+      text-align:center;
+      border-bottom:1px solid var(--border);
+    }
+    header h1{ font-size:1.85rem; font-weight:650; margin-bottom:10px; }
+    header p{ color:var(--muted); max-width:820px; margin:0 auto; font-size:.95rem; }
+
+    nav{
+      text-align:center;
+      padding:16px 20px;
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      backdrop-filter: blur(10px);
+      background: rgba(10,15,28,.75);
+      z-index:10;
+    }
+    nav a{
+      color:var(--primary);
+      text-decoration:none;
+      font-size:.9rem;
+      margin:0 12px;
+    }
+    nav a:hover{ text-decoration:underline; }
+
+    .container{
+      max-width:980px;
+      margin:36px auto 80px;
+      padding:0 20px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      nav{ position:static; }
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:20px;
+    }
+    .card h2{
+      font-size:1.1rem;
+      margin-bottom:10px;
+      border-left:4px solid var(--primary);
+      padding-left:10px;
+    }
+    .muted{ color:var(--muted); }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    label{ display:block; margin-top:10px; font-size:.92rem; color:var(--muted); }
+    input[type="text"], input[type="email"]{
+      width:100%;
+      margin-top:6px;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(15,23,38,.6);
+      color:var(--text);
+      outline:none;
+    }
+    input[type="text"]:focus, input[type="email"]:focus{
+      border-color: rgba(15,98,254,.55);
+      box-shadow: 0 0 0 3px rgba(15,98,254,.18);
+    }
+
+    .btn{
+      background:var(--primary);
+      border:none;
+      color:white;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:.9rem;
+    }
+    .btn:hover{ opacity:.92; }
+    .btn.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+    }
+    .btn.secondary:hover{ border-color: rgba(15,98,254,.5); background: rgba(15,98,254,.10); opacity:1; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,23,38,.55);
+      color:var(--muted);
+      font-size:.82rem;
+    }
+
+    .progressWrap{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      overflow:hidden;
+      background: rgba(0,0,0,.18);
+      height:12px;
+    }
+    .progressBar{
+      height:12px;
+      width:0%;
+      background: linear-gradient(90deg, rgba(15,98,254,.9), rgba(15,98,254,.35));
+    }
+
+    .qmeta{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .qtitle{
+      font-weight:650;
+      font-size:1rem;
+    }
+    .qtag{
+      font-size:.8rem;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.12);
+      padding:4px 10px;
+      border-radius:999px;
+      background: rgba(15,23,38,.55);
+    }
+
+    .options{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .opt{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      padding:10px 12px;
+      background: rgba(15,23,38,.40);
+      cursor:pointer;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .opt:hover{ border-color: rgba(15,98,254,.45); background: rgba(15,98,254,.08); }
+    .opt input{ margin-top:2px; }
+    .opt span{ color: var(--text); }
+    .opt small{ color: var(--muted); display:block; margin-top:2px; }
+
+    .navBtns{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .sidebar h3{
+      margin:0 0 10px;
+      font-size:1rem;
+      border-left:4px solid var(--primary);
+      padding-left:10px;
+    }
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height: 420px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .qchip{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,38,.40);
+      cursor:pointer;
+      font-size:.9rem;
+      color: var(--text);
+    }
+    .qchip:hover{ border-color: rgba(15,98,254,.45); background: rgba(15,98,254,.08); }
+    .qchip .status{
+      font-size:.78rem;
+      color: var(--muted);
+      border:1px solid rgba(255,255,255,.12);
+      padding:2px 8px;
+      border-radius:999px;
+      background: rgba(15,23,38,.55);
+    }
+    .qchip.answered .status{ color: var(--good); border-color: rgba(34,197,94,.35); }
+    .qchip.flagged .status{ color: var(--warn); border-color: rgba(245,158,11,.35); }
+    .qchip.current{ outline: 2px solid rgba(15,98,254,.45); }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.10);
+      margin:14px 0;
+    }
+
+    .results{
+      display:none;
+    }
+    .scoreBig{
+      font-size:2rem;
+      font-weight:800;
+      margin-top:6px;
+    }
+    .badgePass{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,23,38,.55);
+      font-size:.85rem;
+      margin-top:10px;
+    }
+    .pass{ color: var(--good); border-color: rgba(34,197,94,.35); }
+    .fail{ color: var(--bad); border-color: rgba(239,68,68,.35); }
+
+    .review{
+      margin-top:14px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .review .rh{
+      padding:12px 14px;
+      background: rgba(255,255,255,.03);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-weight:650;
+    }
+    .review .rb{ padding:14px; }
+    .reviewItem{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      padding:12px;
+      background: rgba(15,23,38,.40);
+      margin-bottom:10px;
+    }
+    .reviewItem:last-child{ margin-bottom:0; }
+    .reviewItem .rt{ font-weight:650; }
+    .reviewItem .rd{ color: var(--muted); font-size:.9rem; margin-top:4px; }
+    .reviewItem .ok{ color: var(--good); }
+    .reviewItem .no{ color: var(--bad); }
+
+    footer{
+      text-align:center;
+      padding:30px 20px;
+      color:var(--muted);
+      font-size:.85rem;
+      border-top:1px solid var(--border);
+      margin-top:40px;
+    }
+
+    /* ================= PRINT (MANUAL PDF) ================= */
+    @media print{
+      body{
+        background:white !important;
+        color:black !important;
+        font-family: Georgia, "Times New Roman", serif !important;
+        font-size: 12pt !important;
+        line-height: 1.5 !important;
+      }
+      header, nav, footer, .no-print{ display:none !important; }
+      .container{ max-width:none; margin:0; padding:0; }
+      .card{ background:none !important; border:none !important; padding:0 !important; }
+      .grid{ display:block; }
+      #resultsCard{ display:block !important; }
+      #resultsCard .card{ page-break-inside: avoid; }
+      .review, .reviewItem{ border: 1px solid #ddd !important; background: #fff !important; }
+      .review .rh{ background:#f5f5f5 !important; color:#000 !important; }
+      .muted{ color:#333 !important; }
+      a::after{ content:""; }
+      @page{ size:A4; margin:25mm; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Final Assessment – IBM Db2 12.1 Foundation</h1>
+    <p>
+      Complete the full assessment to view your final score. Your <b>Print Results (PDF)</b> option will appear only after submission.
+      This assessment is designed for GitHub Pages (static hosting) with full offline compatibility.
+    </p>
+  </header>
+
+  <nav class="no-print">
+    <a href="/ibm/cla93/">Home</a>
+    <a href="/ibm/cla93/part-1">Part 1</a>
+    <a href="/ibm/cla93/part-2">Part 2</a>
+    <a href="/ibm/cla93/part-3">Part 3</a>
+    <a href="/ibm/cla93/part-4">Part 4</a>
+    <a href="/ibm/cla93/assessment">Assessment</a>
+  </nav>
+
+  <div class="container">
+    <!-- Candidate info + controls -->
+    <div class="card no-print" id="setupCard">
+      <h2>Candidate Details & Assessment Controls</h2>
+
+      <div class="row">
+        <div style="flex:1 1 260px;">
+          <label for="candidateName">Full Name (required)</label>
+          <input id="candidateName" type="text" placeholder="e.g., Jane Doe" autocomplete="name" />
+        </div>
+        <div style="flex:1 1 260px;">
+          <label for="candidateEmail">Email (optional)</label>
+          <input id="candidateEmail" type="email" placeholder="e.g., jane@example.com" autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:14px;">
+        <span class="pill" id="metaTotal">Questions: —</span>
+        <span class="pill" id="metaTime">Time limit: —</span>
+        <span class="pill" id="metaPass">Pass mark: —</span>
+        <span class="pill" id="metaAttempts">Attempts saved locally</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <button class="btn" id="startBtn">Start Assessment</button>
+        <button class="btn secondary" id="resumeBtn" title="Resume an in-progress attempt if found">Resume (if available)</button>
+        <button class="btn secondary" id="resetBtn" title="Clears local saved attempt">Reset Attempt</button>
+      </div>
+
+      <p class="muted" style="margin-top:12px;">
+        Notes: Your progress is stored in your browser via <code>localStorage</code>. This is a static site assessment (no server).
+      </p>
+    </div>
+
+    <!-- Assessment UI -->
+    <div class="grid no-print" id="assessmentUI" style="display:none;">
+      <div class="card" id="questionCard">
+        <div class="qmeta">
+          <div class="qtitle" id="qTitle">Question</div>
+          <div class="qtag" id="qTag">Part / Topic</div>
+        </div>
+
+        <div class="muted" id="qPrompt"></div>
+
+        <div class="options" id="qOptions"></div>
+
+        <div class="divider"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <div class="row">
+            <span class="pill" id="progressText">Progress</span>
+            <span class="pill" id="timerText">Timer</span>
+          </div>
+          <div class="row">
+            <button class="btn secondary" id="flagBtn">Flag</button>
+          </div>
+        </div>
+
+        <div class="progressWrap" aria-label="Progress">
+          <div class="progressBar" id="progressBar"></div>
+        </div>
+
+        <div class="navBtns">
+          <button class="btn secondary" id="prevBtn">Previous</button>
+          <button class="btn secondary" id="nextBtn">Next</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <button class="btn secondary" id="reviewBtn">Review Answers</button>
+          <button class="btn" id="submitBtn">Submit Assessment</button>
+        </div>
+
+        <p class="muted" style="margin-top:10px;">
+          Tip: You can jump to any question using the right-hand list.
+        </p>
+      </div>
+
+      <aside class="card sidebar" id="sidebarCard">
+        <h3>Question Navigator</h3>
+        <div class="list" id="qList"></div>
+
+        <div class="divider"></div>
+
+        <div class="muted" style="font-size:.9rem;">
+          <div class="row" style="gap:8px;">
+            <span class="pill">Answered</span>
+            <span class="pill">Flagged</span>
+            <span class="pill">Unanswered</span>
+          </div>
+          <p style="margin-top:8px;">
+            Flagged questions help you quickly revisit tricky topics before submission.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Results (printable) -->
+    <div class="results" id="resultsCard">
+      <div class="card">
+        <h2>Assessment Results</h2>
+        <p class="muted" id="resultSummary">—</p>
+        <div class="scoreBig" id="scoreBig">—</div>
+        <div class="badgePass" id="passBadge">—</div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <span class="pill" id="certId">Certificate ID: —</span>
+          <span class="pill" id="completedAt">Completed: —</span>
+          <span class="pill" id="durationUsed">Duration: —</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="review" id="breakdownBox">
+          <div class="rh">Section Breakdown</div>
+          <div class="rb" id="breakdown"></div>
+        </div>
+
+        <div class="review" id="missedBox" style="margin-top:14px;">
+          <div class="rh">Answer Review (Missed & Flagged)</div>
+          <div class="rb" id="missed"></div>
+        </div>
+
+        <!-- Print button ONLY visible after results show -->
+        <div class="no-print" style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="printBtn" style="display:none;">Print Results (PDF)</button>
+          <button class="btn secondary" id="exportBtn" style="display:none;">Export Results (JSON)</button>
+          <button class="btn secondary" id="newAttemptBtn" style="display:none;">Start New Attempt</button>
+        </div>
+
+        <p class="muted no-print" style="margin-top:10px;">
+          Printing uses a clean “manual-style” layout (A4, no site graphics). The PDF is suitable for evidence-of-completion.
+        </p>
+      </div>
+    </div>
+
+    <footer class="no-print">
+      © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
+    </footer>
+  </div>
+
+  <script>
+    /******************************************************************
+     * CONFIG
+     ******************************************************************/
+    const CONFIG = {
+      storageKey: "cla93_assessment_v1",
+      timeLimitMinutes: 60,          // change if you want
+      passMarkPercent: 70,           // change if you want
+      shuffleQuestions: true,
+      shuffleOptions: true,
+      showFullReviewInResults: false // if true, prints all Q review; default prints missed+flagged only
+    };
+
+    /******************************************************************
+     * QUESTION BANK (FULL SET)
+     * - 40 questions, balanced across Parts 1–4
+     * - Format supports multiple-choice single answer (radio)
+     ******************************************************************/
+    const QUESTION_BANK = [
+      // Part 1 – Architecture & Fundamentals
+      { id:"P1Q01", part:"Part 1", topic:"Architecture", prompt:"In Db2 terminology, what is an instance primarily responsible for?", options:[
+        "A logical container for schemas and tables only",
+        "A set of database manager processes, memory, and configuration controlling databases",
+        "A backup image repository for databases",
+        "A set of SQL functions packaged for an application"
+      ], answer:1, explain:"An instance is the database manager environment (processes/EDUs, shared memory, configuration) that manages databases." },
+
+      { id:"P1Q02", part:"Part 1", topic:"Processes/EDUs", prompt:"What are EDUs in Db2 most closely associated with?", options:[
+        "Disk container formats",
+        "SQL data types",
+        "Engine Dispatchable Units: threads/processes that perform DB2 work",
+        "Network adapters used for client connections"
+      ], answer:2, explain:"EDUs are worker threads/processes handling DB2 tasks (agent, db2sysc threads, etc.)." },
+
+      { id:"P1Q03", part:"Part 1", topic:"Configuration", prompt:"Which statement is most accurate about Db2 DBM CFG vs DB CFG?", options:[
+        "DBM CFG applies per-database; DB CFG applies per-instance",
+        "DBM CFG applies per-instance; DB CFG applies per-database",
+        "Both apply only to the operating system",
+        "They are identical and interchangeable"
+      ], answer:1, explain:"DBM CFG is instance-level; DB CFG is database-level." },
+
+      { id:"P1Q04", part:"Part 1", topic:"Memory", prompt:"Which Db2 memory area is most directly responsible for caching data pages read from disk?", options:[
+        "Sort heap",
+        "Bufferpool",
+        "Locklist",
+        "Package cache"
+      ], answer:1, explain:"Bufferpools cache table/index pages to reduce physical I/O." },
+
+      { id:"P1Q05", part:"Part 1", topic:"Startup/Shutdown", prompt:"Which command starts the Db2 database manager instance?", options:[
+        "db2start",
+        "db2 activate database",
+        "db2start database",
+        "db2 connect reset"
+      ], answer:0, explain:"db2start starts the instance (database manager)." },
+
+      { id:"P1Q06", part:"Part 1", topic:"Client/Server", prompt:"Which component typically listens for incoming client connections to Db2?", options:[
+        "The database manager configuration file only",
+        "The Db2 instance (server process/EDUs) using TCP/IP services",
+        "A tablespace container",
+        "An index leaf page"
+      ], answer:1, explain:"Db2 server-side instance processes handle listening/accepting client connections." },
+
+      { id:"P1Q07", part:"Part 1", topic:"Environment", prompt:"Why is the instance profile (e.g., db2profile) important?", options:[
+        "It encrypts the database automatically",
+        "It sets environment variables and PATH for Db2 commands and libraries",
+        "It generates EXPLAIN tables",
+        "It creates tablespaces"
+      ], answer:1, explain:"The profile sets the Db2 environment (PATH, library paths, instance vars)." },
+
+      { id:"P1Q08", part:"Part 1", topic:"Tools", prompt:"Which tool is commonly used to inspect Db2 diagnostic logs and messages?", options:[
+        "db2advis",
+        "db2diag",
+        "db2look",
+        "db2exfmt"
+      ], answer:1, explain:"db2diag (and the db2diag.log) is central to diagnostic review." },
+
+      // Part 2 – Database & Object Management
+      { id:"P2Q01", part:"Part 2", topic:"Database Creation", prompt:"Which statement best describes automatic storage in Db2?", options:[
+        "It forces all tables into a single SMS tablespace",
+        "It allows Db2 to manage container allocation across storage paths automatically",
+        "It disables tablespaces",
+        "It is only used for temporary tables"
+      ], answer:1, explain:"Automatic storage lets Db2 allocate containers across defined storage paths." },
+
+      { id:"P2Q02", part:"Part 2", topic:"Tablespaces", prompt:"Which is a recommended physical design practice for many OLTP systems?", options:[
+        "Place data, indexes, and LOBs in separate tablespaces where appropriate",
+        "Place everything in one tablespace to simplify backups",
+        "Avoid indexes to reduce maintenance",
+        "Disable logging to improve performance"
+      ], answer:0, explain:"Separating data/index/LOB can improve I/O management, maintenance, and performance." },
+
+      { id:"P2Q03", part:"Part 2", topic:"Logging", prompt:"LOGPRIMARY and LOGSECOND primarily control:", options:[
+        "Number of bufferpools available",
+        "Primary log files and secondary log files allocation limits",
+        "Number of schemas in a database",
+        "Extent sizes in tablespaces"
+      ], answer:1, explain:"These parameters govern active log file allocation and secondary logs." },
+
+      { id:"P2Q04", part:"Part 2", topic:"Recovery", prompt:"Which statement is true about rollforward recovery?", options:[
+        "It can only be used with offline backups",
+        "It replays logs to bring a restored database forward to a point-in-time",
+        "It deletes all log files after backup",
+        "It is the same as REORG"
+      ], answer:1, explain:"Rollforward applies log records after restore to a target time/LSN/end-of-logs." },
+
+      { id:"P2Q05", part:"Part 2", topic:"Objects", prompt:"A view is best described as:", options:[
+        "A physical copy of table data",
+        "A logical stored SELECT that presents data without storing it (unless materialized)",
+        "A type of tablespace",
+        "An index over multiple tables"
+      ], answer:1, explain:"A standard view stores definition only; MQTs materialize results." },
+
+      { id:"P2Q06", part:"Part 2", topic:"Indexes", prompt:"Which index property most directly impacts the efficiency of range scans?", options:[
+        "Cluster ratio / clustering effectiveness",
+        "Log file size",
+        "Authentication type",
+        "Deadlock interval"
+      ], answer:0, explain:"Good clustering keeps relevant rows near each other, reducing random I/O for range scans." },
+
+      { id:"P2Q07", part:"Part 2", topic:"IMPORT vs LOAD", prompt:"Why can LOAD be significantly faster than IMPORT for large datasets?", options:[
+        "LOAD always runs with UR isolation only",
+        "LOAD can bypass some SQL processing and insert paths, using bulk mechanisms",
+        "IMPORT automatically creates indexes",
+        "IMPORT is always parallelized but LOAD is not"
+      ], answer:1, explain:"LOAD is a bulk utility optimized for speed, often with different logging/constraints behavior." },
+
+      { id:"P2Q08", part:"Part 2", topic:"Table Types", prompt:"Which table type is designed for large analytic workloads with columnar storage in Db2?", options:[
+        "Row-organized table",
+        "Column-organized table",
+        "Temporary table only",
+        "Declared global temporary table only"
+      ], answer:1, explain:"Column-organized tables are designed for analytics and compression benefits." },
+
+      // Part 3 – Security & Concurrency
+      { id:"P3Q01", part:"Part 3", topic:"Security", prompt:"What is the difference between authorities and privileges in Db2?", options:[
+        "Privileges are instance-wide; authorities are object-specific",
+        "Authorities are higher-level administrative capabilities; privileges are object-level permissions",
+        "They are the same concept with different names",
+        "Authorities apply only to Linux, privileges only to Windows"
+      ], answer:1, explain:"Authorities (e.g., SYSADM/SECADM) grant broad capability; privileges are object-level." },
+
+      { id:"P3Q02", part:"Part 3", topic:"RBAC", prompt:"What is a primary benefit of roles in Db2?", options:[
+        "They replace encryption",
+        "They simplify permission management by grouping privileges",
+        "They disable locking",
+        "They automatically tune indexes"
+      ], answer:1, explain:"Roles group privileges and can be granted to users/groups for easier management." },
+
+      { id:"P3Q03", part:"Part 3", topic:"Locking", prompt:"Lock escalation refers to:", options:[
+        "Automatically upgrading row/page locks to a table lock when thresholds are met",
+        "Encrypting locks with TLS",
+        "Moving locks to a different tablespace",
+        "Deleting locks to improve throughput"
+      ], answer:0, explain:"Escalation reduces lock overhead but can increase contention." },
+
+      { id:"P3Q04", part:"Part 3", topic:"Deadlocks", prompt:"A deadlock occurs when:", options:[
+        "A query runs longer than 1 second",
+        "Two or more transactions wait on each other in a cycle",
+        "Locks are disabled",
+        "An index becomes fragmented"
+      ], answer:1, explain:"Deadlock is a cyclical wait; Db2 breaks it by rolling back a victim." },
+
+      { id:"P3Q05", part:"Part 3", topic:"Isolation", prompt:"Which isolation level allows reading uncommitted changes (dirty reads)?", options:[
+        "RR (Repeatable Read)",
+        "RS (Read Stability)",
+        "CS (Cursor Stability)",
+        "UR (Uncommitted Read)"
+      ], answer:3, explain:"UR permits dirty reads; higher levels increase consistency with potential contention." },
+
+      { id:"P3Q06", part:"Part 3", topic:"Isolation", prompt:"Which isolation level is generally the strictest in terms of repeatable reads and phantom avoidance?", options:[
+        "UR",
+        "CS",
+        "RS",
+        "RR"
+      ], answer:3, explain:"RR is strictest; it prevents non-repeatable reads and typically avoids phantoms." },
+
+      { id:"P3Q07", part:"Part 3", topic:"Encryption", prompt:"Native database encryption in Db2 primarily protects:", options:[
+        "Data at rest (including tablespace data and logs depending on configuration)",
+        "Only network traffic between clients and server",
+        "Only SQL statements in the package cache",
+        "Only user passwords"
+      ], answer:0, explain:"Native encryption focuses on data at rest; TLS protects data in transit." },
+
+      { id:"P3Q08", part:"Part 3", topic:"Best Practices", prompt:"Which is a sound security best practice for production Db2?", options:[
+        "Grant DBADM to all developers to speed up changes",
+        "Use least privilege and separate duties (e.g., SECADM vs DBADM) where possible",
+        "Disable auditing permanently",
+        "Store encryption keys inside application source code"
+      ], answer:1, explain:"Least privilege and separation of duties reduce risk and improve compliance posture." },
+
+      // Part 4 – Performance & Optimization
+      { id:"P4Q01", part:"Part 4", topic:"Statistics", prompt:"Which utility collects optimizer statistics such as cardinality and distribution?", options:[
+        "REORG",
+        "RUNSTATS",
+        "BACKUP",
+        "RESTORE"
+      ], answer:1, explain:"RUNSTATS collects statistics; REORG is physical reorganization." },
+
+      { id:"P4Q02", part:"Part 4", topic:"Explain", prompt:"What is the primary purpose of EXPLAIN in Db2?", options:[
+        "To encrypt tablespaces",
+        "To display how Db2 plans to access data for a query (access plan)",
+        "To rebuild indexes automatically",
+        "To compress tables"
+      ], answer:1, explain:"EXPLAIN provides the access plan and optimizer decisions." },
+
+      { id:"P4Q03", part:"Part 4", topic:"Explain Tools", prompt:"Which tool is commonly used to format and read Db2 explain output into a human-friendly report?", options:[
+        "db2look",
+        "db2exfmt",
+        "db2audit",
+        "db2move"
+      ], answer:1, explain:"db2exfmt renders explain data into a readable plan report." },
+
+      { id:"P4Q04", part:"Part 4", topic:"Predicates", prompt:"A SARGable predicate is important because it:", options:[
+        "Always forces a table scan",
+        "Can be used effectively with indexes and early filtering",
+        "Disables logging",
+        "Guarantees parallel execution"
+      ], answer:1, explain:"SARGable predicates enable index access and efficient filtering." },
+
+      { id:"P4Q05", part:"Part 4", topic:"Access Plans", prompt:"TBSCAN indicates:", options:[
+        "An index-only scan",
+        "A full table scan",
+        "An intersected RID scan",
+        "A log scan"
+      ], answer:1, explain:"TBSCAN means Db2 scans the table directly." },
+
+      { id:"P4Q06", part:"Part 4", topic:"Access Plans", prompt:"IXAND in an access plan typically means:", options:[
+        "Union of RID streams from multiple indexes",
+        "Intersection of RID streams from multiple indexes",
+        "An index rebuild",
+        "A temporary table"
+      ], answer:1, explain:"IXAND intersects RID lists from multiple index scans." },
+
+      { id:"P4Q07", part:"Part 4", topic:"Access Plans", prompt:"IXOR in an access plan typically means:", options:[
+        "Intersection of RID streams",
+        "Union of RID streams from multiple indexes",
+        "A direct table scan",
+        "A lock escalation"
+      ], answer:1, explain:"IXOR unions RID streams, often for OR predicates." },
+
+      { id:"P4Q08", part:"Part 4", topic:"REORG", prompt:"REORGCHK is used to:", options:[
+        "Back up databases",
+        "Recommend whether tables/indexes need reorganization based on statistics",
+        "Create new tablespaces",
+        "Change isolation levels"
+      ], answer:1, explain:"REORGCHK uses current statistics to recommend REORG needs." },
+
+      { id:"P4Q09", part:"Part 4", topic:"Distribution", prompt:"The parameter num_freqvalues is associated with:", options:[
+        "Most frequent values statistics to improve equality selectivity estimates",
+        "Number of log files in primary logs",
+        "Maximum number of DB2 users",
+        "Extent size for tablespaces"
+      ], answer:0, explain:"num_freqvalues controls collection of most frequent values to model skew." },
+
+      { id:"P4Q10", part:"Part 4", topic:"Distribution", prompt:"The parameter num_quantiles is most relevant to:", options:[
+        "Equality predicates",
+        "Range predicates and histogram/quantile distribution",
+        "Authentication methods",
+        "Index leaf compression"
+      ], answer:1, explain:"Quantiles improve estimation for range predicates." },
+
+      { id:"P4Q11", part:"Part 4", topic:"Correlation", prompt:"Column group statistics are most useful when:", options:[
+        "Columns are independent and uniformly distributed",
+        "Predicates include correlated columns where independence assumptions fail",
+        "The table has no indexes",
+        "The database uses UR isolation only"
+      ], answer:1, explain:"Column group stats capture joint distribution for correlated columns." },
+
+      { id:"P4Q12", part:"Part 4", topic:"Rewrite", prompt:"Why should DBAs inspect the optimized statement when tuning?", options:[
+        "Because Db2 may rewrite SQL/predicates before choosing an access plan",
+        "Because the original SQL is never executed",
+        "Because optimized statements disable indexes",
+        "Because it removes the need for statistics"
+      ], answer:0, explain:"Rewrite can change predicate form and access paths; the plan reflects optimized form." },
+
+      { id:"P4Q13", part:"Part 4", topic:"Index Strategy", prompt:"A poor cluster ratio most directly harms:", options:[
+        "Network throughput",
+        "Range scan efficiency (turning reads into random I/O)",
+        "Password hashing",
+        "SQL compilation time only"
+      ], answer:1, explain:"Poor clustering hurts range scans by increasing random page reads." },
+
+      { id:"P4Q14", part:"Part 4", topic:"Utilities", prompt:"Which statement about REORG is most accurate?", options:[
+        "REORG only improves SQL compilation speed",
+        "REORG restores physical order and can reclaim space, improving I/O patterns",
+        "REORG changes privileges and roles",
+        "REORG replaces RUNSTATS"
+      ], answer:1, explain:"REORG affects physical organization; it does not replace statistics collection." },
+
+      { id:"P4Q15", part:"Part 4", topic:"Index Access", prompt:"Jump/Skip scan strategies are most likely when:", options:[
+        "A composite index exists and predicates target non-leading keys while leading keys have low cardinality",
+        "No indexes exist on the table",
+        "The query has no WHERE clause",
+        "The database is in offline backup mode"
+      ], answer:0, explain:"Skip/jump scan can be used when non-leading column predicates can still be leveraged via low-cardinality leading column." },
+
+      // Extra breadth (mix across parts) to make it a “full set”
+      { id:"MXQ01", part:"Mixed", topic:"Monitoring", prompt:"In performance troubleshooting, which is a sound first step before changing SQL or indexes?", options:[
+        "Immediately REORG all tables in the database",
+        "Confirm statistics freshness and inspect the access plan for the optimized statement",
+        "Disable locking to increase throughput",
+        "Drop all indexes to simplify the plan"
+      ], answer:1, explain:"Best practice: validate stats + explain plan first, then decide actions." },
+
+      { id:"MXQ02", part:"Mixed", topic:"Recovery", prompt:"For point-in-time recovery, which combination is typically required?", options:[
+        "Only a table scan plan",
+        "A backup image plus logs needed for rollforward to the target time",
+        "Only RUNSTATS output",
+        "Only REORGCHK output"
+      ], answer:1, explain:"PITR requires backup + logs to roll forward." },
+
+      { id:"MXQ03", part:"Mixed", topic:"Concurrency", prompt:"Which condition is most likely to increase lock contention in OLTP systems?", options:[
+        "Short transactions and proper indexing",
+        "Long-running transactions that hold locks for extended periods",
+        "Use of UR isolation for reporting queries",
+        "Frequent COMMIT statements"
+      ], answer:1, explain:"Long transactions hold locks longer, increasing contention." },
+
+      { id:"MXQ04", part:"Mixed", topic:"Storage", prompt:"Separating indexes into a different tablespace can help primarily by:", options:[
+        "Reducing the number of columns per table",
+        "Allowing more flexible I/O placement and maintenance strategies",
+        "Disabling logging for indexes",
+        "Forcing all access to be index-only"
+      ], answer:1, explain:"Separate I/O patterns and maintenance control can improve performance and operations." },
+
+      { id:"MXQ05", part:"Mixed", topic:"Security", prompt:"TLS/SSL for Db2 primarily protects:", options:[
+        "Data in transit between client and server",
+        "Data at rest in tablespaces",
+        "Only log records on disk",
+        "Only index pages"
+      ], answer:0, explain:"TLS protects data in transit; data at rest is handled by native encryption and other controls." },
+
+      // Expand to 40 by adding targeted questions
+      { id:"P1Q09", part:"Part 1", topic:"Catalog", prompt:"Db2 system catalog tables are best described as:", options:[
+        "User-defined tables only",
+        "Metadata tables describing objects like tables, indexes, and privileges",
+        "Temporary tables created at runtime only",
+        "A backup format"
+      ], answer:1, explain:"Catalog stores metadata used by Db2 and the optimizer." },
+
+      { id:"P1Q10", part:"Part 1", topic:"Compilation", prompt:"The Db2 component most associated with caching compiled SQL access plans is:", options:[
+        "Bufferpool",
+        "Package cache",
+        "Locklist",
+        "Tablespace"
+      ], answer:1, explain:"Package cache (and statement cache concepts) store compiled SQL sections/plans." },
+
+      { id:"P2Q09", part:"Part 2", topic:"Backup", prompt:"An online backup generally requires:", options:[
+        "Archive logging enabled (to allow rollforward after restore)",
+        "Logging disabled",
+        "No active connections",
+        "A REORG on all tables"
+      ], answer:0, explain:"Online backups usually rely on archive logging so logs can be applied after restore." },
+
+      { id:"P2Q10", part:"Part 2", topic:"Objects", prompt:"Which object can improve performance by precomputing results for frequent complex queries (when designed appropriately)?", options:[
+        "Declared global temporary table only",
+        "Materialized Query Table (MQT)",
+        "A view (always materialized)",
+        "A lock escalation threshold"
+      ], answer:1, explain:"MQTs can store results and improve performance for matching queries." },
+
+      { id:"P3Q09", part:"Part 3", topic:"Lock Modes", prompt:"An intent lock is used to:", options:[
+        "Indicate a transaction’s intention to lock at a finer granularity",
+        "Encrypt locks for compliance",
+        "Disable row locks automatically",
+        "Force table scans"
+      ], answer:0, explain:"Intent locks coordinate hierarchical locking to avoid conflicts." },
+
+      { id:"P3Q10", part:"Part 3", topic:"Troubleshooting", prompt:"A best-practice way to reduce deadlocks is to:", options:[
+        "Randomly increase all lock timeouts",
+        "Access tables in a consistent order across transactions and keep transactions short",
+        "Disable indexes",
+        "Disable commits"
+      ], answer:1, explain:"Consistent ordering + shorter transactions reduces circular waits." },
+
+      { id:"P4Q16", part:"Part 4", topic:"RUNSTATS", prompt:"Why can skewed data cause the optimizer to choose a poor access path if distribution stats are missing?", options:[
+        "Because Db2 always ignores indexes on skewed columns",
+        "Because uniform distribution assumptions can badly misestimate selectivity and cardinality",
+        "Because skew eliminates the need for histograms",
+        "Because skew forces UR isolation"
+      ], answer:1, explain:"Without distribution stats, selectivity estimates can be far off." },
+
+      { id:"P4Q17", part:"Part 4", topic:"REORG", prompt:"Which symptom most strongly suggests index REORG may help?", options:[
+        "High pseudo-deletes / poor leaf density leading to extra index page reads",
+        "Too many schemas in the database",
+        "Too many users connected",
+        "A missing authority"
+      ], answer:0, explain:"Index fragmentation and pseudo-deletes can inflate I/O and depth." },
+
+      { id:"P4Q18", part:"Part 4", topic:"Predicate Stages", prompt:"Residual predicates are generally applied:", options:[
+        "Before any row access occurs",
+        "After rows are fetched (later stage), increasing CPU and potentially I/O",
+        "Only during backup operations",
+        "Only in UR isolation"
+      ], answer:1, explain:"Residual predicates are applied after fetch; they can increase work." },
+
+      { id:"MXQ06", part:"Mixed", topic:"Change Control", prompt:"In production DBA practice, tuning actions should be:", options:[
+        "Applied ad-hoc without documentation",
+        "Documented, tested, and rolled out with change control and rollback plans",
+        "Performed only by developers",
+        "Avoided entirely"
+      ], answer:1, explain:"Enterprise governance: test, document, control changes, and plan rollback." },
+
+      { id:"MXQ07", part:"Mixed", topic:"Index Design", prompt:"A composite index is often best when:", options:[
+        "Multiple predicates frequently reference the same leading columns in consistent patterns",
+        "You want to avoid any index maintenance",
+        "You never filter on the table",
+        "You only do inserts"
+      ], answer:0, explain:"Composite indexes are powerful when they match common filtering/join patterns." },
+
+      { id:"MXQ08", part:"Mixed", topic:"Maintenance", prompt:"A practical maintenance cycle for many environments includes:", options:[
+        "REORG daily for all tables, never RUNSTATS",
+        "Regular RUNSTATS, periodic REORG based on REORGCHK indicators, and monitoring",
+        "Only backups, no stats",
+        "Only stats, no backups"
+      ], answer:1, explain:"Balanced strategy: RUNSTATS + REORG when indicated + backups + monitoring." },
+
+      { id:"MXQ09", part:"Mixed", topic:"Explain Interpretation", prompt:"If the optimizer chooses TBSCAN unexpectedly, a strong next step is to:", options:[
+        "Immediately drop all indexes",
+        "Check statistics quality (including distribution/correlation) and verify predicate sargability",
+        "Disable logging",
+        "Reinstall Db2"
+      ], answer:1, explain:"TBSCAN may be justified or caused by wrong estimates or non-sargable predicates." },
+
+      { id:"MXQ10", part:"Mixed", topic:"Skunkworks Practical", prompt:"Your best 'DBA workflow' order is:", options:[
+        "SQL rewrite → indexes → stats → explain",
+        "Explain (optimized) → stats validation → physical organization → indexes → validate",
+        "REORG everything → hope for the best",
+        "Disable isolation → rerun"
+      ], answer:1, explain:"Explain + stats + physical + indexes + validation is the professional workflow." },
+
+      // Ensure we are at 40 total
+      { id:"P2Q11", part:"Part 2", topic:"Tablespaces", prompt:"Which tablespace design choice is often important for large LOB columns?", options:[
+        "Place LOB data in a dedicated LOB tablespace for I/O and maintenance control",
+        "Always store LOBs in the same tablespace as indexes",
+        "Disable logging for LOBs by default",
+        "Convert LOBs to integers"
+      ], answer:0, explain:"LOB placement can significantly affect I/O patterns and manageability." },
+
+      { id:"P3Q11", part:"Part 3", topic:"Privileges", prompt:"Which statement about GRANT/REVOKE is correct?", options:[
+        "They are used to assign or remove privileges on database objects",
+        "They modify table space extents",
+        "They collect statistics",
+        "They rebuild indexes"
+      ], answer:0, explain:"GRANT/REVOKE manages object-level permissions." }
+    ];
+
+    /******************************************************************
+     * STATE
+     ******************************************************************/
+    let questions = [];
+    let state = {
+      started: false,
+      startTimeMs: null,
+      endTimeMs: null,
+      currentIndex: 0,
+      answers: {},   // {questionId: selectedOptionIndex}
+      flagged: {},   // {questionId: true}
+      candidate: { name:"", email:"" },
+      seed: null,
+      submitted: false,
+      score: null,
+      certId: null
+    };
+
+    /******************************************************************
+     * HELPERS
+     ******************************************************************/
+    function nowMs(){ return Date.now(); }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function formatDuration(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const hh = Math.floor(s/3600);
+      const mm = Math.floor((s%3600)/60);
+      const ss = s%60;
+      if (hh>0) return `${hh}:${pad2(mm)}:${pad2(ss)}`;
+      return `${mm}:${pad2(ss)}`;
+    }
+
+    function formatDateTime(d){
+      const yyyy = d.getFullYear();
+      const mo = pad2(d.getMonth()+1);
+      const da = pad2(d.getDate());
+      const hh = pad2(d.getHours());
+      const mi = pad2(d.getMinutes());
+      return `${yyyy}-${mo}-${da} ${hh}:${mi}`;
+    }
+
+    function uid(){
+      // short deterministic-ish id (not cryptographic)
+      return "CLA93-" + Math.random().toString(36).slice(2,6).toUpperCase() + "-" + Math.random().toString(36).slice(2,6).toUpperCase();
+    }
+
+    function shuffleArray(arr, seed=null){
+      // Fisher-Yates shuffle. If seed is provided, use simple seeded PRNG.
+      const a = arr.slice();
+      let random = Math.random;
+      if (seed !== null){
+        let x = seed;
+        random = () => {
+          // LCG
+          x = (1103515245 * x + 12345) % 2147483647;
+          return x / 2147483647;
+        };
+      }
+      for (let i=a.length-1;i>0;i--){
+        const j = Math.floor(random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    function deepCopy(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function saveState(){
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify(state));
+    }
+    function loadState(){
+      const raw = localStorage.getItem(CONFIG.storageKey);
+      if (!raw) return null;
+      try{ return JSON.parse(raw); } catch { return null; }
+    }
+    function clearState(){
+      localStorage.removeItem(CONFIG.storageKey);
+    }
+
+    function answeredCount(){
+      return Object.keys(state.answers).length;
+    }
+
+    function timeRemainingMs(){
+      if (!state.started || !state.startTimeMs) return CONFIG.timeLimitMinutes*60*1000;
+      const elapsed = nowMs() - state.startTimeMs;
+      return (CONFIG.timeLimitMinutes*60*1000) - elapsed;
+    }
+
+    function isTimeUp(){
+      return timeRemainingMs() <= 0;
+    }
+
+    function getQuestionById(qid){
+      return questions.find(q => q.id === qid);
+    }
+
+    function setMeta(){
+      document.getElementById("metaTotal").textContent = `Questions: ${QUESTION_BANK.length}`;
+      document.getElementById("metaTime").textContent = `Time limit: ${CONFIG.timeLimitMinutes} minutes`;
+      document.getElementById("metaPass").textContent = `Pass mark: ${CONFIG.passMarkPercent}%`;
+    }
+
+    /******************************************************************
+     * BUILD QUESTIONS (shuffle + optional option shuffle)
+     ******************************************************************/
+    function buildQuestions(){
+      const seed = state.seed ?? Math.floor(Math.random()*1e9);
+      state.seed = seed;
+
+      let qb = deepCopy(QUESTION_BANK);
+
+      if (CONFIG.shuffleOptions){
+        qb = qb.map(q => {
+          const opts = q.options.map((txt, idx) => ({txt, idx}));
+          const shuffled = shuffleArray(opts, seed + q.id.split("").reduce((a,c)=>a+c.charCodeAt(0),0));
+          const newOptions = shuffled.map(o => o.txt);
+          const newAnswer = shuffled.findIndex(o => o.idx === q.answer);
+          return {...q, options: newOptions, answer: newAnswer};
+        });
+      }
+
+      if (CONFIG.shuffleQuestions){
+        qb = shuffleArray(qb, seed);
+      }
+
+      questions = qb;
+    }
+
+    /******************************************************************
+     * RENDERING
+     ******************************************************************/
+    function renderSidebar(){
+      const list = document.getElementById("qList");
+      list.innerHTML = "";
+
+      questions.forEach((q, idx) => {
+        const chip = document.createElement("div");
+        chip.className = "qchip";
+        if (state.answers[q.id] !== undefined) chip.classList.add("answered");
+        if (state.flagged[q.id]) chip.classList.add("flagged");
+        if (idx === state.currentIndex) chip.classList.add("current");
+
+        chip.innerHTML = `
+          <div>
+            <div style="font-weight:650;">Q${idx+1}</div>
+            <div style="color:var(--muted); font-size:.82rem;">${q.part} • ${q.topic}</div>
+          </div>
+          <div class="status">${
+            state.answers[q.id] !== undefined ? "Answered" :
+            (state.flagged[q.id] ? "Flagged" : "Unanswered")
+          }</div>
+        `;
+        chip.addEventListener("click", () => {
+          state.currentIndex = idx;
+          saveState();
+          renderQuestion();
+          renderSidebar();
+        });
+        list.appendChild(chip);
+      });
+    }
+
+    function renderQuestion(){
+      const q = questions[state.currentIndex];
+      if (!q) return;
+
+      document.getElementById("qTitle").textContent = `Q${state.currentIndex+1} of ${questions.length}`;
+      document.getElementById("qTag").textContent = `${q.part} • ${q.topic}`;
+      document.getElementById("qPrompt").innerHTML = `<div style="margin-top:6px; font-size:1rem; color:var(--text); font-weight:650;">${escapeHtml(q.prompt)}</div>`;
+
+      // options
+      const wrap = document.getElementById("qOptions");
+      wrap.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const optId = `${q.id}_opt_${idx}`;
+        const selected = state.answers[q.id] === idx;
+
+        const div = document.createElement("label");
+        div.className = "opt";
+        div.setAttribute("for", optId);
+        div.innerHTML = `
+          <input type="radio" id="${optId}" name="${q.id}" value="${idx}" ${selected ? "checked" : ""} />
+          <span>${escapeHtml(opt)}</span>
+        `;
+        div.addEventListener("click", (e) => {
+          // ensure clicking card selects radio
+          const input = div.querySelector("input");
+          if (input){
+            input.checked = true;
+            state.answers[q.id] = idx;
+            saveState();
+            renderSidebar();
+            updateProgress();
+          }
+        });
+
+        wrap.appendChild(div);
+      });
+
+      // flag state
+      document.getElementById("flagBtn").textContent = state.flagged[q.id] ? "Unflag" : "Flag";
+
+      // prev/next enable
+      document.getElementById("prevBtn").disabled = state.currentIndex === 0;
+      document.getElementById("nextBtn").disabled = state.currentIndex === questions.length-1;
+      document.getElementById("prevBtn").classList.toggle("secondary", true);
+      document.getElementById("nextBtn").classList.toggle("secondary", true);
+
+      updateProgress();
+      updateTimer();
+    }
+
+    function updateProgress(){
+      const answered = answeredCount();
+      const total = questions.length;
+      const pct = Math.round((answered/total)*100);
+      document.getElementById("progressText").textContent = `Answered: ${answered}/${total} (${pct}%)`;
+      document.getElementById("progressBar").style.width = `${pct}%`;
+    }
+
+    function updateTimer(){
+      const remaining = timeRemainingMs();
+      const tEl = document.getElementById("timerText");
+      if (!state.started){
+        tEl.textContent = `Timer: ${CONFIG.timeLimitMinutes}:00`;
+        return;
+      }
+      if (remaining <= 0){
+        tEl.textContent = "Timer: 00:00 (Time up)";
+        // autosubmit once
+        if (!state.submitted){
+          submitAssessment(true);
+        }
+        return;
+      }
+      tEl.textContent = `Timer: ${formatDuration(remaining)}`;
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    /******************************************************************
+     * START / RESUME / RESET
+     ******************************************************************/
+    function startAssessment(resume=false){
+      const name = document.getElementById("candidateName").value.trim();
+      const email = document.getElementById("candidateEmail").value.trim();
+
+      if (!resume){
+        if (!name){
+          alert("Please enter your Full Name to start the assessment.");
+          return;
+        }
+        state.candidate.name = name;
+        state.candidate.email = email;
+
+        state.started = true;
+        state.startTimeMs = nowMs();
+        state.endTimeMs = null;
+        state.currentIndex = 0;
+        state.answers = {};
+        state.flagged = {};
+        state.submitted = false;
+        state.score = null;
+        state.certId = null;
+
+        buildQuestions();
+        saveState();
+      } else {
+        // resume: load candidate fields from stored state
+        document.getElementById("candidateName").value = state.candidate.name || "";
+        document.getElementById("candidateEmail").value = state.candidate.email || "";
+        buildQuestions();
+      }
+
+      document.getElementById("setupCard").style.display = "none";
+      document.getElementById("assessmentUI").style.display = "grid";
+      document.getElementById("resultsCard").style.display = "none";
+
+      renderSidebar();
+      renderQuestion();
+      tickTimer();
+    }
+
+    function resumeIfAvailable(){
+      const loaded = loadState();
+      if (!loaded || !loaded.started || loaded.submitted) {
+        alert("No in-progress attempt found to resume.");
+        return;
+      }
+      state = loaded;
+      buildQuestions();
+      startAssessment(true);
+    }
+
+    function resetAttempt(){
+      if (!confirm("Reset will clear your saved attempt on this browser. Continue?")) return;
+      clearState();
+      state = {
+        started:false, startTimeMs:null, endTimeMs:null, currentIndex:0,
+        answers:{}, flagged:{},
+        candidate:{name:"", email:""},
+        seed:null, submitted:false, score:null, certId:null
+      };
+      alert("Saved attempt cleared.");
+      location.reload();
+    }
+
+    /******************************************************************
+     * SUBMISSION / SCORING / RESULTS
+     ******************************************************************/
+    function scoreAssessment(){
+      let correct = 0;
+      const perPart = {}; // {part: {correct, total}}
+      const perTopic = {}; // {topicKey: {correct,total}}
+
+      questions.forEach(q => {
+        const sel = state.answers[q.id];
+        const ok = (sel !== undefined && sel === q.answer);
+        if (ok) correct++;
+
+        // by part
+        perPart[q.part] = perPart[q.part] || {correct:0, total:0};
+        perPart[q.part].total++;
+        if (ok) perPart[q.part].correct++;
+
+        // by topic
+        const key = `${q.part} • ${q.topic}`;
+        perTopic[key] = perTopic[key] || {correct:0, total:0};
+        perTopic[key].total++;
+        if (ok) perTopic[key].correct++;
+      });
+
+      const total = questions.length;
+      const percent = Math.round((correct/total)*100);
+
+      return {correct, total, percent, perPart, perTopic};
+    }
+
+    function submitAssessment(auto=false){
+      if (state.submitted) return;
+
+      const unanswered = questions.filter(q => state.answers[q.id] === undefined).length;
+      if (!auto && unanswered > 0){
+        const proceed = confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`);
+        if (!proceed) return;
+      }
+
+      state.submitted = true;
+      state.endTimeMs = nowMs();
+      const sc = scoreAssessment();
+      state.score = sc;
+      state.certId = uid();
+      saveState();
+
+      showResults(sc);
+    }
+
+    function showResults(sc){
+      // hide assessment UI, show results
+      document.getElementById("assessmentUI").style.display = "none";
+      document.getElementById("resultsCard").style.display = "block";
+      document.querySelector(".results").style.display = "block";
+
+      const completed = new Date(state.endTimeMs || nowMs());
+      const duration = (state.endTimeMs || nowMs()) - (state.startTimeMs || nowMs());
+
+      const pass = sc.percent >= CONFIG.passMarkPercent;
+
+      document.getElementById("resultSummary").textContent =
+        `${state.candidate.name || "Candidate"} • ${sc.correct}/${sc.total} correct • Pass mark ${CONFIG.passMarkPercent}%`;
+
+      document.getElementById("scoreBig").textContent = `${sc.percent}%`;
+
+      const badge = document.getElementById("passBadge");
+      badge.className = "badgePass " + (pass ? "pass" : "fail");
+      badge.textContent = pass ? "PASS" : "FAIL";
+
+      document.getElementById("certId").textContent = `Certificate ID: ${state.certId}`;
+      document.getElementById("completedAt").textContent = `Completed: ${formatDateTime(completed)}`;
+      document.getElementById("durationUsed").textContent = `Duration: ${formatDuration(duration)}`;
+
+      // breakdown
+      const breakdown = document.getElementById("breakdown");
+      breakdown.innerHTML = "";
+
+      const partKeys = Object.keys(sc.perPart);
+      partKeys.sort((a,b)=>a.localeCompare(b));
+      partKeys.forEach(pk => {
+        const v = sc.perPart[pk];
+        const pct = Math.round((v.correct/v.total)*100);
+        const div = document.createElement("div");
+        div.className = "reviewItem";
+        div.innerHTML = `
+          <div class="rt">${escapeHtml(pk)}</div>
+          <div class="rd">${v.correct}/${v.total} correct (${pct}%)</div>
+        `;
+        breakdown.appendChild(div);
+      });
+
+      // missed + flagged (or full review)
+      const missed = document.getElementById("missed");
+      missed.innerHTML = "";
+
+      const items = [];
+      questions.forEach((q, idx) => {
+        const sel = state.answers[q.id];
+        const ok = (sel !== undefined && sel === q.answer);
+        const flagged = !!state.flagged[q.id];
+
+        const include = CONFIG.showFullReviewInResults ? true : (!ok || flagged);
+        if (!include) return;
+
+        const selText = (sel === undefined) ? "Unanswered" : q.options[sel];
+        const ansText = q.options[q.answer];
+
+        items.push({
+          idx, q, ok, flagged,
+          selText, ansText
+        });
+      });
+
+      if (items.length === 0){
+        const div = document.createElement("div");
+        div.className = "reviewItem";
+        div.innerHTML = `<div class="rt ok">All answers correct. No missed/flagged items.</div>`;
+        missed.appendChild(div);
+      } else {
+        items.forEach(it => {
+          const div = document.createElement("div");
+          div.className = "reviewItem";
+          div.innerHTML = `
+            <div class="rt">
+              Q${it.idx+1} • ${escapeHtml(it.q.part)} • ${escapeHtml(it.q.topic)}
+              ${it.flagged ? `<span class="qtag" style="margin-left:8px; border-color: rgba(245,158,11,.35); color: var(--warn);">Flagged</span>` : ""}
+            </div>
+            <div class="rd" style="margin-top:6px;"><b>${escapeHtml(it.q.prompt)}</b></div>
+            <div class="rd ${it.ok ? "ok" : "no"}" style="margin-top:8px;">
+              Your answer: ${escapeHtml(it.selText)}
+            </div>
+            <div class="rd" style="margin-top:4px;">
+              Correct answer: <b>${escapeHtml(it.ansText)}</b>
+            </div>
+            <div class="rd" style="margin-top:6px;">
+              Explanation: ${escapeHtml(it.q.explain || "—")}
+            </div>
+          `;
+          missed.appendChild(div);
+        });
+      }
+
+      // show print/export/new attempt buttons ONLY after results exist
+      document.getElementById("printBtn").style.display = "inline-block";
+      document.getElementById("exportBtn").style.display = "inline-block";
+      document.getElementById("newAttemptBtn").style.display = "inline-block";
+
+      // wire actions
+      document.getElementById("printBtn").onclick = () => window.print();
+      document.getElementById("exportBtn").onclick = exportResultsJson;
+      document.getElementById("newAttemptBtn").onclick = () => {
+        if (!confirm("Start a new attempt? This will reset current attempt in this browser.")) return;
+        clearState();
+        location.reload();
+      };
+    }
+
+    function exportResultsJson(){
+      const payload = {
+        course: "CLA93 – IBM Db2 12.1 Foundation",
+        candidate: state.candidate,
+        certId: state.certId,
+        startedAt: state.startTimeMs ? new Date(state.startTimeMs).toISOString() : null,
+        completedAt: state.endTimeMs ? new Date(state.endTimeMs).toISOString() : null,
+        durationMs: (state.endTimeMs && state.startTimeMs) ? (state.endTimeMs - state.startTimeMs) : null,
+        config: {
+          timeLimitMinutes: CONFIG.timeLimitMinutes,
+          passMarkPercent: CONFIG.passMarkPercent,
+          shuffled: CONFIG.shuffleQuestions
+        },
+        score: state.score,
+        answers: state.answers,
+        flagged: state.flagged,
+        questionSet: questions.map(q => ({id:q.id, part:q.part, topic:q.topic, prompt:q.prompt}))
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `CLA93_Assessment_Results_${(state.candidate.name||"Candidate").replaceAll(" ","_")}_${state.certId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    /******************************************************************
+     * REVIEW MODE (simple)
+     ******************************************************************/
+    function reviewAnswers(){
+      const unanswered = questions.filter(q => state.answers[q.id] === undefined).length;
+      const flagged = Object.keys(state.flagged).length;
+      alert(
+        `Review Summary\n\n` +
+        `Answered: ${answeredCount()}/${questions.length}\n` +
+        `Unanswered: ${unanswered}\n` +
+        `Flagged: ${flagged}\n\n` +
+        `Use the Question Navigator to jump to unanswered/flagged items.`
+      );
+    }
+
+    /******************************************************************
+     * TIMER TICK
+     ******************************************************************/
+    let timerInterval = null;
+    function tickTimer(){
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        updateTimer();
+        // persist occasionally
+        if (state.started && !state.submitted) saveState();
+      }, 1000);
+    }
+
+    /******************************************************************
+     * EVENT WIRING
+     ******************************************************************/
+    document.getElementById("startBtn").addEventListener("click", () => startAssessment(false));
+    document.getElementById("resumeBtn").addEventListener("click", resumeIfAvailable);
+    document.getElementById("resetBtn").addEventListener("click", resetAttempt);
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (state.currentIndex > 0){
+        state.currentIndex--;
+        saveState();
+        renderQuestion();
+        renderSidebar();
+      }
+    });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (state.currentIndex < questions.length-1){
+        state.currentIndex++;
+        saveState();
+        renderQuestion();
+        renderSidebar();
+      }
+    });
+    document.getElementById("flagBtn").addEventListener("click", () => {
+      const q = questions[state.currentIndex];
+      if (!q) return;
+      state.flagged[q.id] = !state.flagged[q.id];
+      saveState();
+      renderQuestion();
+      renderSidebar();
+    });
+    document.getElementById("reviewBtn").addEventListener("click", reviewAnswers);
+    document.getElementById("submitBtn").addEventListener("click", () => submitAssessment(false));
+
+    // Protect against accidental leaving (only during active attempt)
+    window.addEventListener("beforeunload", (e) => {
+      if (state.started && !state.submitted){
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
+    /******************************************************************
+     * BOOTSTRAP
+     ******************************************************************/
+    setMeta();
+
+    // show total count properly
+    document.getElementById("metaTotal").textContent = `Questions: ${QUESTION_BANK.length}`;
+    document.getElementById("metaTime").textContent = `Time limit: ${CONFIG.timeLimitMinutes} minutes`;
+    document.getElementById("metaPass").textContent = `Pass mark: ${CONFIG.passMarkPercent}%`;
+
+    // If there is a saved attempt, keep candidate fields for convenience
+    const loaded = loadState();
+    if (loaded){
+      state = loaded;
+      document.getElementById("candidateName").value = state.candidate?.name || "";
+      document.getElementById("candidateEmail").value = state.candidate?.email || "";
+
+      // If already submitted, show results immediately
+      if (state.submitted && state.score){
+        buildQuestions();
+        showResults(state.score);
+      }
+    }
+
+    // Ensure question set exists only when started/resumed
+    // (not built at load to avoid changing order while not started)
+  </script>
+</body>
+</html>
