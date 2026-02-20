@@ -1,102 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
-  <title>CLA93 – IBM Db2 Foundation | Skunkworks Academy</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="/ibm/cla93/favicon.ico" type="image/x-icon">
+<title>CLA93 – IBM Db2 12.1 Foundation | Skunkworks Academy</title>
 
-  <style>
-    :root {
-      --primary: #0f62fe;
-      --dark: #0a0f1c;
-      --card: #121a2b;
-      --text: #e6edf6;
-      --muted: #9aa8bd;
-      --border: rgba(255,255,255,0.08);
-    }
+<style>
+:root {
+  --primary: #0f62fe;
+  --dark: #0a0f1c;
+  --card: #121a2b;
+  --text: #e6edf6;
+  --muted: #9aa8bd;
+  --border: rgba(255,255,255,0.08);
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-    body {
-      background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
+body {
+  background: radial-gradient(circle at top left, #102042 0%, var(--dark) 60%);
+  color: var(--text);
+  line-height: 1.6;
+}
 
-    header {
-      padding: 60px 20px 40px;
-      text-align: center;
-    }
+/* ================= HEADER ================= */
 
-    header h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
+header {
+  padding: 70px 20px 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
 
-    header p {
-      color: var(--muted);
-      max-width: 650px;
-      margin: 0 auto;
-    }
+header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
 
-    .nav-container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-    }
+header p {
+  color: var(--muted);
+  max-width: 750px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
 
-    .nav-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 30px 20px;
-      text-align: center;
-      transition: all 0.25s ease;
-      text-decoration: none;
-      color: var(--text);
-    }
+/* ================= NAVIGATION ================= */
 
-    .nav-card:hover {
-      transform: translateY(-5px);
-      border-color: var(--primary);
-      box-shadow: 0 10px 30px rgba(15, 98, 254, 0.2);
-    }
+nav {
+  text-align: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
 
-    .nav-card h2 {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
+nav a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin: 0 12px;
+}
 
-    .nav-card p {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
+nav a:hover {
+  text-decoration: underline;
+}
 
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      border-top: 1px solid var(--border);
-      margin-top: 60px;
-    }
+/* ================= PRINT ACTION ================= */
 
-    .academy {
-      color: var(--primary);
-      font-weight: 500;
-    }
-  </style>
+.print-actions {
+  text-align: center;
+  padding: 25px 20px;
+}
+
+button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* ================= CONTENT ================= */
+
+.container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 10px 30px rgba(15, 98, 254, 0.2);
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 60px;
+}
+
+/* ================= PRINT MANUAL MODE ================= */
+
+@media print {
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  nav,
+  .print-actions,
+  footer,
+  .grid {
+    display: none !important;
+  }
+
+  header {
+    border: none;
+  }
+
+  header h1 {
+    font-size: 24pt;
+    margin-bottom: 20px;
+  }
+
+  header p {
+    color: black;
+  }
+
+  @page {
+    size: A4;
+    margin: 25mm;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -104,44 +187,61 @@
 <header>
   <h1>IBM Db2 12.1 – Foundation for Relational DBAs</h1>
   <p>
-    Enterprise-level training material curated and delivered by 
-    <span class="academy">Skunkworks Academy</span>.  
-    Navigate through each structured learning part below.
+    Comprehensive enterprise training curriculum covering Db2 architecture,
+    database creation, security, concurrency, performance optimization,
+    maintenance operations, and production DBA best practices.
+    Developed and delivered by Skunkworks Academy.
   </p>
 </header>
 
-<section class="nav-container">
+<nav>
+  <a href="/ibm/cla93/">Home</a>
+  <a href="/ibm/cla93/part-1">Part 1</a>
+  <a href="/ibm/cla93/part-2">Part 2</a>
+  <a href="/ibm/cla93/part-3">Part 3</a>
+  <a href="/ibm/cla93/part-4">Part 4</a>
+  <a href="/ibm/cla93/assessment">Assessment</a>
+</nav>
 
-  <a class="nav-card" href="https://skunkworks-academy.github.io/ibm/cla93/part-1">
-    <h2>📘 Part 1</h2>
-    <p>Essentials, Db2 architecture, instance management, installation fundamentals.</p>
-  </a>
+<div class="print-actions">
+  <button onclick="window.print()">Print Course Overview (PDF)</button>
+</div>
 
-  <a class="nav-card" href="https://skunkworks-academy.github.io/ibm/cla93/part-2">
-    <h2>🗄️ Part 2</h2>
-    <p>Database creation, data placement, objects, configuration and recovery basics.</p>
-  </a>
+<div class="container">
 
-  <a class="nav-card" href="https://skunkworks-academy.github.io/ibm/cla93/part-3">
-    <h2>🔐 Part 3</h2>
-    <p>Security, concurrency control, locking mechanisms, encryption and access control.</p>
-  </a>
+  <div class="grid">
 
-  <a class="nav-card" href="https://skunkworks-academy.github.io/ibm/cla93/part-4">
-    <h2>⚙️ Part 4</h2>
-    <p>Performance tuning, monitoring, utilities, production DBA operational practices.</p>
-  </a>
+    <a class="card" href="/ibm/cla93/part-1">
+      <h2>Part 1 – Architecture & Fundamentals</h2>
+      <p>Db2 architecture, instances, installation, configuration, and core engine components.</p>
+    </a>
 
-  <a class="nav-card" href="https://skunkworks-academy.github.io/ibm/cla93/assessment">
-    <h2>📝 Assessment</h2>
-    <p>Knowledge evaluation, review questions, practical lab validation and certification prep.</p>
-  </a>
+    <a class="card" href="/ibm/cla93/part-2">
+      <h2>Part 2 – Database & Object Management</h2>
+      <p>Database creation, storage design, table spaces, objects, recovery fundamentals.</p>
+    </a>
 
-</section>
+    <a class="card" href="/ibm/cla93/part-3">
+      <h2>Part 3 – Security & Concurrency</h2>
+      <p>Authentication, authorization, locking, isolation levels, encryption, and workload control.</p>
+    </a>
+
+    <a class="card" href="/ibm/cla93/part-4">
+      <h2>Part 4 – Performance & Optimization</h2>
+      <p>REORG strategy, statistics, optimizer behavior, explain plans, tuning methodology.</p>
+    </a>
+
+    <a class="card" href="/ibm/cla93/assessment">
+      <h2>Assessment & Certification Preparation</h2>
+      <p>Knowledge validation, scenario-based questions, and exam readiness evaluation.</p>
+    </a>
+
+  </div>
+
+</div>
 
 <footer>
-  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement  
-  Built for GitHub Pages Deployment
+  © 2026 Skunkworks Academy | IBM Db2 Technical Enablement Program
 </footer>
 
 </body>
