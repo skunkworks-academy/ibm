@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest 
+    identifier="CLA96G_LMS"
+    version="1.0"
+    xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+    xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.imsproject.org/xsd/imscp_rootv1p1p2 
+        imscp_rootv1p1p2.xsd
+        http://www.adlnet.org/xsd/adlcp_rootv1p2 
+        adlcp_rootv1p2.xsd">
+
+    <!-- ===================================================== -->
+    <!-- METADATA -->
+    <!-- ===================================================== -->
+    <metadata>
+        <schema>ADL SCORM</schema>
+        <schemaversion>1.2</schemaversion>
+    </metadata>
+
+    <!-- ===================================================== -->
+    <!-- ORGANIZATION STRUCTURE -->
+    <!-- ===================================================== -->
+    <organizations default="CLA96G_ORG">
+        <organization identifier="CLA96G_ORG">
+            <title>CLA96G – Db2 Administration Unified LMS</title>
+
+            <item identifier="CLA96G_ITEM_1" identifierref="CLA96G_RESOURCE">
+                <title>CLA96G Training Portal</title>
+            </item>
+
+        </organization>
+    </organizations>
+
+    <!-- ===================================================== -->
+    <!-- RESOURCES -->
+    <!-- ===================================================== -->
+    <resources>
+
+        <resource 
+            identifier="CLA96G_RESOURCE"
+            type="webcontent"
+            adlcp:scormtype="sco"
+            href="index.html">
+
+            <!-- Launch file -->
+            <file href="index.html"/>
+
+            <!-- Training modules -->
+            <file href="part-1.html"/>
+            <file href="part-2.html"/>
+            <file href="part-3.html"/>
+            <file href="part-4.html"/>
+
+            <!-- Assessment -->
+            <file href="assessment.html"/>
+
+            <!-- Analytics -->
+            <file href="analytics.html"/>
+
+            <!-- SCORM API wrapper -->
+            <file href="scorm-api.js"/>
+
+            <!-- Favicon -->
+            <file href="favicon.ico"/>
+
+        </resource>
+
+    </resources>
+
+</manifest>
