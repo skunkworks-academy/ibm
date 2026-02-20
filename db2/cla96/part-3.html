@@ -1,225 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>CLA96G – Part 3</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CLA96G – Part 3</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-
 <nav>
-  <a href="index.html">Home</a>
+  <a href="index.html">Portal</a>
   <a href="part-1.html">Part 1</a>
   <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
   <a href="part-4.html">Part 4</a>
   <a href="assessment.html">Final Assessment</a>
+  <a href="analytics.html">Analytics</a>
 </nav>
-
 <header>
-  <h1>Part 3 – Maintenance, Monitoring & Problem Determination</h1>
-  <p>Operational Stability & Performance Governance for Db2</p>
+  <h1>Part 3 – Locking, Concurrency, and Security</h1>
+  <p>Units 1–3. Concurrency control and enterprise access governance.</p>
 </header>
 
-<div class="wrap">
-
-<!-- ================= UNIT 1 ================= -->
-
-<div class="card">
-<h2>Unit 1 – Statistics & Optimizer Control</h2>
-<button onclick="toggle('u1')">Expand / Collapse</button>
-
-<div id="u1" style="display:none;margin-top:15px;">
-
-<h3>Core Concepts</h3>
-<ul>
-<li>Optimizer uses catalog statistics to determine access plans</li>
-<li>RUNSTATS collects cardinality, distribution & clustering stats</li>
-<li>Column group and frequency statistics improve estimation accuracy</li>
-<li>Statistics Profiles simplify recurring collection</li>
-<li>Automatic statistics collection vs manual governance</li>
-</ul>
-
-<h3>DBA Takeaways</h3>
-<ul>
-<li>Bad statistics = bad access plans.</li>
-<li>Always run RUNSTATS after major LOAD or bulk change.</li>
-<li>Use distribution stats for skewed columns.</li>
-<li>Leverage SET PROFILE for consistency.</li>
-<li>Understand impact before enabling auto_runstats in critical systems.</li>
-</ul>
-
-<h3>Operational Risks</h3>
-<ul>
-<li>Over-sampling may distort cost model.</li>
-<li>Missing multi-column stats can cause nested loop misestimates.</li>
-<li>Statistics drift impacts performance unpredictably.</li>
-</ul>
-
-<h3>Mini Knowledge Check</h3>
-
-<div id="u1q1">
-<p>1. What is the primary reason to collect column distribution statistics?</p>
-<button onclick="answer('u1q1',true)">Improve optimizer selectivity estimates</button>
-<button onclick="answer('u1q1',false)">Reduce disk size</button>
-<button onclick="answer('u1q1',false)">Enable HADR</button>
-<div class="result"></div>
-</div>
-
-</div>
-</div>
-
-<!-- ================= UNIT 2 ================= -->
-
-<div class="card">
-<h2>Unit 2 – REORG & Storage Optimization</h2>
-<button onclick="toggle('u2')">Expand / Collapse</button>
-
-<div id="u2" style="display:none;margin-top:15px;">
-
-<h3>Core Concepts</h3>
-<ul>
-<li>REORG reorganizes tables and indexes</li>
-<li>REORGCHK identifies candidates</li>
-<li>Online vs Offline REORG</li>
-<li>REORG RECLAIM EXTENTS (11.5+)</li>
-<li>Compression dictionary rebuild</li>
-</ul>
-
-<h3>DBA Takeaways</h3>
-<ul>
-<li>Always run REORGCHK before scheduling reorg.</li>
-<li>Use online reorg where availability is required.</li>
-<li>Resetdictionary when compression efficiency degrades.</li>
-<li>Monitor reorg pending state carefully.</li>
-</ul>
-
-<h3>Operational Risks</h3>
-<ul>
-<li>Excess ALTER operations may cause reorg pending.</li>
-<li>Offline reorg blocks access.</li>
-<li>Reorg without planning may exhaust temp space.</li>
-</ul>
-
-<h3>Mini Knowledge Check</h3>
-
-<div id="u2q1">
-<p>1. What does REORGCHK primarily help identify?</p>
-<button onclick="answer('u2q1',true)">Tables and indexes benefiting from reorganization</button>
-<button onclick="answer('u2q1',false)">Backup corruption</button>
-<button onclick="answer('u2q1',false)">Network latency</button>
-<div class="result"></div>
-</div>
-
-</div>
-</div>
-
-<!-- ================= UNIT 3 ================= -->
-
-<div class="card">
-<h2>Unit 3 – Monitoring & Diagnostics</h2>
-<button onclick="toggle('u3')">Expand / Collapse</button>
-
-<div id="u3" style="display:none;margin-top:15px;">
-
-<h3>Core Concepts</h3>
-<ul>
-<li>db2pd for real-time engine monitoring</li>
-<li>Event monitors for workload tracking</li>
-<li>db2diag log analysis</li>
-<li>PD_GET_DIAG_HIST function</li>
-<li>db2fodc & db2trc for problem capture</li>
-</ul>
-
-<h3>DBA Takeaways</h3>
-<ul>
-<li>db2pd is your first line diagnostic tool.</li>
-<li>Event monitors provide forensic-level tracking.</li>
-<li>Use db2trc only when deep engine-level capture is required.</li>
-<li>Always correlate logs with timestamps.</li>
-</ul>
-
-<h3>Operational Risks</h3>
-<ul>
-<li>Tracing can generate heavy overhead.</li>
-<li>Ignoring diagnostic warnings leads to outages.</li>
-<li>Improper log directory sizing impacts stability.</li>
-</ul>
-
-<h3>Mini Knowledge Check</h3>
-
-<div id="u3q1">
-<p>1. Which tool provides real-time database state without impacting workload heavily?</p>
-<button onclick="answer('u3q1',true)">db2pd</button>
-<button onclick="answer('u3q1',false)">db2trc</button>
-<button onclick="answer('u3q1',false)">REORG</button>
-<div class="result"></div>
-</div>
-
-</div>
-</div>
-
-<!-- ================= PROGRESS ================= -->
-
-<div class="card">
-<h2>Progress</h2>
-<div class="progress-bar"><span id="bar"></span></div>
-<div>Completion: <span id="percent">0%</span></div>
-<div>Readiness Indicator: <span id="readiness">Developing</span></div>
-</div>
-
-</div>
+<div class="wrap" id="content"></div>
 
 <script src="app.js"></script>
 <script src="scorm-api.js"></script>
+<script src="quiz-engine.js"></script>
+<script src="data/part3-data.js"></script>
 
 <script>
-function toggle(id){
-  const el=document.getElementById(id);
-  el.style.display=el.style.display==='none'?'block':'none';
-}
-
-let state=load(LMS_KEYS.part3)||{
-  totalQuestions:3,
-  answered:0,
-  correct:0
-};
-
-function answer(qid,correct){
-  const q=document.getElementById(qid);
-  if(q.dataset.answered) return;
-  q.dataset.answered=true;
-  state.answered++;
-  if(correct){
-    state.correct++;
-    q.querySelector(".result").innerHTML="<p style='color:var(--success)'>Correct</p>";
-  }else{
-    q.querySelector(".result").innerHTML="<p style='color:var(--danger)'>Incorrect – Review diagnostic procedures.</p>";
-  }
-  save(LMS_KEYS.part3,state);
-  updateProgress();
-}
-
-function updateProgress(){
-  const percent=percentage(state.answered,state.totalQuestions);
-  const score=percentage(state.correct,state.totalQuestions);
-
-  document.getElementById("percent").innerText=percent+"%";
-  document.getElementById("bar").style.width=percent+"%";
-
-  let readiness="Developing";
-  if(score>=90) readiness="Strong – Production Ready";
-  else if(score>=75) readiness="Ready – Needs Light Supervision";
-  else if(score>=60) readiness="Operational with Guidance";
-
-  document.getElementById("readiness").innerText=readiness;
-
-  if(window.SCORM){
-    SCORM.update(score,percent);
-  }
-}
-
-updateProgress();
+  LMS.renderPart({
+    partKey: "part3",
+    pageName: "part-3",
+    storageKey: LMS_KEYS.part3,
+    masteryThreshold: 75,
+    enableTimed: true,
+    defaultMinutes: 15
+  });
 </script>
-
 </body>
 </html>

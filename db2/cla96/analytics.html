@@ -1,21 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CLA96G – Analytics</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<nav>
+  <a href="index.html">Portal</a>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="part-4.html">Part 4</a>
+  <a href="assessment.html">Final Assessment</a>
+  <a href="analytics.html">Analytics</a>
+</nav>
+<header>
+  <h1>Session Analytics</h1>
+  <p>Local client-side tracking: page views, card toggles, answers, timed mode events, submissions.</p>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div>
+        <h2>KPIs</h2>
+        <p class="unitMeta">Export JSON for instructor review. (No server required.)</p>
+      </div>
+      <div class="row">
+        <button class="primary" id="btnExport">Export JSON</button>
+        <button class="danger" id="btnClear">Clear Analytics</button>
+      </div>
+    </div>
+
+    <div class="badges" style="margin-top:12px">
+      <span class="badge"><strong>Total events:</strong> <span id="kTotal">0</span></span>
+      <span class="badge"><strong>Answers:</strong> <span id="kAnswers">0</span></span>
+      <span class="badge"><strong>Submissions:</strong> <span id="kSubmits">0</span></span>
+      <span class="badge"><strong>Timed enabled:</strong> <span id="kTimed">0</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Recent Events (latest 200)</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="ev"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="app.js"></script>
 <script>
-const KEY="cla96g_analytics_v1";
+  const log = load(LMS_KEYS.analytics) || {events:[]};
+  const events = log.events || [];
+  document.getElementById("kTotal").textContent = events.length;
+  document.getElementById("kAnswers").textContent = events.filter(e=>e.type==="answer").length;
+  document.getElementById("kSubmits").textContent = events.filter(e=>String(e.type).includes("submit")).length;
+  document.getElementById("kTimed").textContent = events.filter(e=>String(e.type).includes("timed_enabled")).length;
 
-function getLog(){
-  try{ return JSON.parse(localStorage.getItem(KEY)||'{"events":[]}'); }
-  catch{ return {events:[]}; }
-}
+  const tbody = document.getElementById("ev");
+  events.slice(-200).reverse().forEach(e=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${esc(e.ts)}</td>
+      <td>${esc(e.type)}</td>
+      <td><code style="color:#b6c8ff">${esc(JSON.stringify(e.data||{}))}</code></td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-function render(){
-  const log=getLog();
-  const total=log.events.length;
-  const answers=log.events.filter(e=>e.type==="answer").length;
-  const timed=log.events.filter(e=>e.type==="timed_enabled").length;
+  document.getElementById("btnExport").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(log, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cla96g_analytics.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
-  document.getElementById("total").innerText=total;
-  document.getElementById("answers").innerText=answers;
-  document.getElementById("timed").innerText=timed;
-}
-
-render();
+  document.getElementById("btnClear").addEventListener("click", ()=>{
+    if(!confirm("Clear analytics log?")) return;
+    localStorage.removeItem(LMS_KEYS.analytics);
+    location.reload();
+  });
 </script>
+</body>
+</html>
