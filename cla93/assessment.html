@@ -1,1 +1,1155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLA96G – Delegate Knowledge Assessment</title>
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.55);
+      --line: rgba(255,255,255,.12);
+      --good: #35d07f;
+      --warn: #ffcc66;
+      --bad: #ff5c77;
+      --accent: #7aa7ff;
+      --accent2: #b6c8ff;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(122,167,255,.22), transparent 60%),
+        radial-gradient(800px 500px at 85% 30%, rgba(53,208,127,.18), transparent 60%),
+        radial-gradient(600px 400px at 60% 95%, rgba(255,204,102,.14), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      min-height:100vh;
+    }
+    a{color: var(--accent2)}
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 70px;
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin-bottom: 18px;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .title{
+      font-size: 26px;
+      font-weight: 750;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+    .subtitle{
+      color: var(--muted);
+      max-width: 62ch;
+      line-height: 1.45;
+    }
+    .pillrow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .pill strong{color: var(--text); font-weight: 650}
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+    .topgrid{
+      grid-template-columns: 1.4fr .6fr;
+      align-items:stretch;
+    }
+    @media (max-width: 980px){
+      .topgrid{grid-template-columns: 1fr;}
+      .pillrow{justify-content:flex-start}
+    }
+    .cardpad{padding: 16px;}
+    .cardpad2{padding: 18px;}
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+    }
+    @media (max-width: 680px){
+      .kpis{grid-template-columns: 1fr;}
+    }
+    .kpi{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .kpi .label{color: var(--muted2); font-size:12px}
+    .kpi .value{font-size:18px; font-weight:700; margin-top:6px}
+    .kpi .hint{color: var(--muted); font-size:12px; margin-top:6px; line-height:1.35}
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap}
+    button{
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 650;
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    }
+    button:hover{background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22)}
+    button:active{transform: translateY(1px)}
+    button.primary{
+      background: linear-gradient(135deg, rgba(122,167,255,.24), rgba(182,200,255,.12));
+      border-color: rgba(122,167,255,.35);
+    }
+    button.danger{
+      background: rgba(255,92,119,.12);
+      border-color: rgba(255,92,119,.35);
+    }
+    .progress{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      width: 100%;
+    }
+    .bar{
+      height: 10px;
+      flex: 1;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      overflow:hidden;
+    }
+    .bar > span{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(122,167,255,.9), rgba(53,208,127,.9));
+      border-radius: 999px;
+      transition: width .22s ease;
+    }
+    .progtxt{color: var(--muted); font-size: 12px; white-space:nowrap}
+    .sectionNav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .chip{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.active{
+      background: rgba(122,167,255,.16);
+      border-color: rgba(122,167,255,.35);
+      color: var(--text);
+    }
 
+    .qwrap{margin-top: 14px;}
+    .partHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .partHeader h2{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: .2px;
+    }
+    .partHeader .note{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-align:right;
+    }
+    .q{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .q:last-child{border-bottom:none}
+    .qhead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 12px;
+    }
+    .qnum{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted2);
+      margin-top:2px;
+      white-space:nowrap;
+    }
+    .qtext{
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 650;
+      margin: 0 0 10px 0;
+    }
+    .answers{
+      display:grid;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    label.opt{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+    }
+    label.opt:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
+    }
+    input[type="radio"]{margin-top: 2px; accent-color: var(--accent)}
+    input[type="text"], textarea{
+      width:100%;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      outline:none;
+      font-family: var(--sans);
+    }
+    textarea{min-height: 84px; resize: vertical}
+    .helper{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .results{
+      margin-top: 14px;
+      display:none;
+    }
+    .banner{
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .banner h3{
+      margin:0 0 6px 0;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .banner p{margin:0; color: var(--muted); line-height: 1.5}
+    .scoreline{
+      display:flex;
+      gap: 12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 10px;
+    }
+    .badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge strong{color: var(--text)}
+    .badge.good{border-color: rgba(53,208,127,.38); background: rgba(53,208,127,.12); color: rgba(255,255,255,.86)}
+    .badge.warn{border-color: rgba(255,204,102,.38); background: rgba(255,204,102,.12); color: rgba(255,255,255,.86)}
+    .badge.bad{border-color: rgba(255,92,119,.38); background: rgba(255,92,119,.12); color: rgba(255,255,255,.86)}
+    .breakdown{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    @media (max-width: 900px){
+      .breakdown{grid-template-columns: 1fr 1fr}
+    }
+    @media (max-width: 520px){
+      .breakdown{grid-template-columns: 1fr}
+    }
+    .bcard{
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+    .bcard .t{font-weight:700}
+    .bcard .s{color: var(--muted); font-size: 12px; margin-top: 4px; line-height:1.35}
+    .review{
+      margin-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      padding-top: 12px;
+    }
+    .review h4{margin: 0 0 10px 0}
+    details{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight: 700;
+      list-style:none;
+      outline:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .tag{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted2);
+      margin-left: 8px;
+    }
+    .ok{color: var(--good); font-weight: 750}
+    .no{color: var(--bad); font-weight: 750}
+    .exp{
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+    .corr{
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow:auto;
+      white-space: pre-wrap;
+    }
+    .footerNote{
+      margin-top: 16px;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height:1.45;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="title">CLA96G – Delegate Knowledge Assessment</div>
+        <div class="subtitle">
+          Short, job-readiness-focused check across Parts 1–4. Submit once; you’ll get a full breakdown with
+          correct answers and explanations to validate learning outcomes.
+        </div>
+      </div>
+      <div class="pillrow">
+        <div class="pill"><strong>Questions</strong><span id="pillCount">20</span></div>
+        <div class="pill"><strong>Parts</strong><span>1–4</span></div>
+        <div class="pill"><strong>Mode</strong><span>MCQ + Short Answer</span></div>
+      </div>
+    </header>
+
+    <div class="grid topgrid">
+      <section class="card cardpad2">
+        <div class="controls">
+          <div class="progress" aria-label="progress">
+            <div class="bar" aria-hidden="true"><span id="barFill"></span></div>
+            <div class="progtxt"><span id="answeredCount">0</span>/<span id="totalCount">20</span> answered</div>
+          </div>
+
+          <div class="btnrow">
+            <button class="primary" id="submitBtn">Submit & View Results</button>
+            <button id="saveBtn" title="Saves current progress in your browser">Save Progress</button>
+            <button id="loadBtn" title="Loads saved progress from your browser">Load Saved</button>
+            <button class="danger" id="resetBtn" title="Clears current answers">Reset</button>
+          </div>
+        </div>
+
+        <div class="sectionNav" id="sectionNav" aria-label="section navigation"></div>
+
+        <div class="footerNote">
+          Notes for delegates: answer from memory first (no notes), then use the feedback to identify gaps.
+          Notes for instructors: use part breakdown + question-level misses to tune delivery and labs.
+        </div>
+      </section>
+
+      <aside class="card cardpad2">
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Readiness Threshold</div>
+            <div class="value">≥ 75%</div>
+            <div class="hint">Recommended baseline for “ready to operate with light supervision”.</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Time Guidance</div>
+            <div class="value">15–25 min</div>
+            <div class="hint">This is not an exam—it's a learning outcome validation.</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Scoring</div>
+            <div class="value">1 pt / question</div>
+            <div class="hint">Short answers are graded by keyword match (transparent in feedback).</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <main class="qwrap card" id="quiz"></main>
+
+    <section class="results card cardpad2" id="results">
+      <div class="banner" id="banner"></div>
+
+      <div class="breakdown" id="breakdown"></div>
+
+      <div class="review">
+        <h4>Question Review (Correct Answer + Explanation)</h4>
+        <div id="reviewList"></div>
+
+        <div class="footerNote">
+          This assessment focuses on practical DBA readiness: edition/platform awareness, operational tooling,
+          safe data movement & recovery primitives, concurrency behaviors, and performance/tuning workflows.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Question bank (20 = 5 per Part)
+    // Types: "mcq" | "short"
+    // correct:
+    //  - mcq: option key (e.g., "B")
+    //  - short: array of acceptable keywords/phrases (case-insensitive contains)
+    // -----------------------------
+    const QUESTIONS = [
+      // ---------------- Part 1 (Essentials) ----------------
+      {
+        part: 1,
+        type: "mcq",
+        prompt: "Which Db2 platform/edition combination is the primary focus of this course (CLA96G Foundations for Relational DBAs)?",
+        options: {
+          A: "Db2 for z/OS (mainframe) only",
+          B: "Db2 for LUW (Linux/UNIX/Windows) on distributed servers",
+          C: "Db2 for i only",
+          D: "Any Db2 product is identical in admin workflows"
+        },
+        correct: "B",
+        why: "The course materials emphasize Db2 for LUW (distributed Db2 on Linux/AIX/Windows) rather than Db2 for z/OS or Db2 for i.",
+        tags: ["Part 1", "Platforms"]
+      },
+      {
+        part: 1,
+        type: "mcq",
+        prompt: "Db2 version numbering VRMF stands for Version.Release.Modification.Fixpack. What does the Fixpack level represent?",
+        options: {
+          A: "Major architecture changes",
+          B: "New features and enhancements (Mod Pack)",
+          C: "Defect + security vulnerability fixes in a Fix Pack",
+          D: "The database compatibility level"
+        },
+        correct: "C",
+        why: "In VRMF, the Fix Pack level indicates maintenance delivering defect fixes and security vulnerability fixes.",
+        tags: ["Part 1", "Maintenance/VRMF"]
+      },
+      {
+        part: 1,
+        type: "mcq",
+        prompt: "You need to run Db2 CLP commands and do basic remote administration from a client machine, but you do NOT need GUI tools. Which client is the most appropriate?",
+        options: {
+          A: "IBM Data Server Runtime Client",
+          B: "IBM Data Server Client (full client with extra tooling)",
+          C: "Db2 server only (no client needed)",
+          D: "Db2 Connect Server is mandatory"
+        },
+        correct: "A",
+        why: "Runtime Client provides CLP and basic client support without shipping the heavier GUI/developer tooling bundle.",
+        tags: ["Part 1", "Clients/Connectivity"]
+      },
+      {
+        part: 1,
+        type: "mcq",
+        prompt: "For connectivity to Db2 on z/OS or Db2 on IBM i, which statement is most accurate?",
+        options: {
+          A: "No license is needed; any driver can connect freely",
+          B: "A Db2 Connect entitlement/license is required (gateway or direct), because host connectivity is licensed",
+          C: "Only ODBC can be used; JDBC is unsupported",
+          D: "Only a Db2 server install can connect to host databases"
+        },
+        correct: "B",
+        why: "Host connectivity (Db2 for z/OS / Db2 for i) requires Db2 Connect licensing/entitlement; you can do gateway or direct.",
+        tags: ["Part 1", "Db2 Connect"]
+      },
+      {
+        part: 1,
+        type: "short",
+        prompt: "Short answer: Name the command used to validate prerequisites for a Db2 install (as used in the labs).",
+        placeholder: "Type the command name, e.g., db2xxxx",
+        correct: ["db2prereqcheck"],
+        why: "The install planning flow uses db2prereqcheck to verify OS/software/firmware prerequisites and generate a report.",
+        tags: ["Part 1", "Installation"]
+      },
+
+      // ---------------- Part 2 (Data Management & Recovery) ----------------
+      {
+        part: 2,
+        type: "mcq",
+        prompt: "Why is comparing IMPORT vs LOAD crucial for DBAs?",
+        options: {
+          A: "They are identical; it only changes syntax",
+          B: "LOAD can bypass much SQL overhead and is optimized for bulk movement, but changes table states and recovery handling",
+          C: "IMPORT always performs faster because it never logs",
+          D: "LOAD cannot be monitored or restarted"
+        },
+        correct: "B",
+        why: "LOAD is a utility optimized for bulk ingest (less SQL overhead), but it can introduce table states (e.g., Load Pending / Set Integrity Pending) and requires careful recovery/backup planning.",
+        tags: ["Part 2", "Data Movement"]
+      },
+      {
+        part: 2,
+        type: "mcq",
+        prompt: "After a LOAD (especially with constraints deferred), which command is typically required to bring a table out of Set Integrity Pending state?",
+        options: {
+          A: "RUNSTATS",
+          B: "REORG",
+          C: "SET INTEGRITY",
+          D: "BIND"
+        },
+        correct: "C",
+        why: "LOAD may leave tables in Set Integrity Pending (constraints not validated). SET INTEGRITY is used to validate and return to normal state.",
+        tags: ["Part 2", "LOAD States"]
+      },
+      {
+        part: 2,
+        type: "mcq",
+        prompt: "Which monitoring approach is appropriate to see active utility execution and details (e.g., LOAD progress)?",
+        options: {
+          A: "SELECT * FROM SYSCAT.TABLES only",
+          B: "LIST UTILITIES SHOW DETAIL or MON_GET_UTILITY",
+          C: "Only db2stop/db2start messages",
+          D: "There is no way to monitor utility phases"
+        },
+        correct: "B",
+        why: "Utilities can be monitored with LIST UTILITIES SHOW DETAIL and MON_GET_UTILITY (table function), among other options.",
+        tags: ["Part 2", "Monitoring Utilities"]
+      },
+      {
+        part: 2,
+        type: "mcq",
+        prompt: "In online LOAD with ALLOW READ ACCESS, what is the correct high-level behavior?",
+        options: {
+          A: "The table is fully locked for all reads and writes for the entire load",
+          B: "Reads can be allowed while load proceeds; commit/lock transitions still occur",
+          C: "Writes are always allowed concurrently without restriction",
+          D: "Online LOAD is impossible in Db2"
+        },
+        correct: "B",
+        why: "ALLOW READ ACCESS enables concurrent readers during load (subject to phases/lock behavior). Writes are not “always unrestricted”.",
+        tags: ["Part 2", "Online Load"]
+      },
+      {
+        part: 2,
+        type: "short",
+        prompt: "Short answer: Name ONE Db2 command that can show utility status/progress (exact spelling).",
+        placeholder: "Example: db2 LIST ... or MON_GET_...",
+        correct: ["list utilities", "mon_get_utility"],
+        why: "Db2 provides utility monitoring via LIST UTILITIES (command) and MON_GET_UTILITY (table function).",
+        tags: ["Part 2", "Monitoring Utilities"]
+      },
+
+      // ---------------- Part 3 (Security & Concurrency) ----------------
+      {
+        part: 3,
+        type: "mcq",
+        prompt: "Which Db2 isolation level allows reading uncommitted changes (dirty reads)?",
+        options: {
+          A: "CS (Cursor Stability)",
+          B: "RS (Read Stability)",
+          C: "RR (Repeatable Read)",
+          D: "UR (Uncommitted Read)"
+        },
+        correct: "D",
+        why: "UR allows seeing uncommitted changes (dirty reads), trading consistency for concurrency.",
+        tags: ["Part 3", "Isolation Levels"]
+      },
+      {
+        part: 3,
+        type: "mcq",
+        prompt: "What is the primary purpose of lock escalation in Db2?",
+        options: {
+          A: "To speed up logging by converting logs to binary",
+          B: "To prevent the lock list (locklist) memory from filling, by converting many row locks into a coarser lock when possible",
+          C: "To always improve concurrency by increasing lock granularity",
+          D: "To force deadlocks to resolve faster"
+        },
+        correct: "B",
+        why: "Lock escalation is a protective mechanism to reduce lock list usage by moving from many fine-grained locks to coarser locks (when possible).",
+        tags: ["Part 3", "Locking"]
+      },
+      {
+        part: 3,
+        type: "mcq",
+        prompt: "Why does Db2 use the U (Update) lock mode in some read-then-update patterns?",
+        options: {
+          A: "Because U locks are compatible with other U locks and avoid waits",
+          B: "To prevent the classic S→X deadlock scenario when two sessions read the same row and later both attempt to update it",
+          C: "To replace X locks entirely",
+          D: "Because U locks are only used for table spaces"
+        },
+        correct: "B",
+        why: "U locks help avoid deadlocks that can occur when both sessions hold S and then try to convert to X.",
+        tags: ["Part 3", "Deadlocks"]
+      },
+      {
+        part: 3,
+        type: "mcq",
+        prompt: "In Db2, what does 'Currently Committed' (MVCC-style) behavior mainly achieve under CS isolation when enabled/selected?",
+        options: {
+          A: "It makes all reads block writers until commit",
+          B: "It avoids reading uncommitted data using versioning (from logs) rather than row locks for read-only access",
+          C: "It disables logging entirely",
+          D: "It forces RR behavior for all queries"
+        },
+        correct: "B",
+        why: "Currently committed semantics can avoid row locking for readers under CS by using committed versions of data from logs (versioning).",
+        tags: ["Part 3", "MVCC/Currently Committed"]
+      },
+      {
+        part: 3,
+        type: "short",
+        prompt: "Short answer: Name ONE tool/command mentioned for investigating lock waits/deadlocks (exact spelling).",
+        placeholder: "Example: db2pd ...",
+        correct: ["db2pd"],
+        why: "db2pd can display active lock wait conditions and help diagnose deadlocks/lock contention.",
+        tags: ["Part 3", "Troubleshooting"]
+      },
+
+      // ---------------- Part 4 (Performance & Tuning) ----------------
+      {
+        part: 4,
+        type: "mcq",
+        prompt: "Which utility is used to collect table and index statistics that drive the optimizer’s access path choices?",
+        options: {
+          A: "RUNSTATS",
+          B: "REORGCHK",
+          C: "BIND",
+          D: "db2stop"
+        },
+        correct: "A",
+        why: "RUNSTATS collects statistics used by the optimizer for cost estimation and access path selection.",
+        tags: ["Part 4", "Statistics"]
+      },
+      {
+        part: 4,
+        type: "mcq",
+        prompt: "A predicate that Db2 can use to limit index navigation to a key interval is best described as:",
+        options: {
+          A: "Non-SARGable stage 2 residual predicate",
+          B: "Range-delimiting (index SARGable with suitable index support)",
+          C: "Always evaluated only by the application",
+          D: "Only valid for XQuery"
+        },
+        correct: "B",
+        why: "With suitable index support, predicates can be range-delimiting, allowing Db2 to scan only a key interval instead of the entire index.",
+        tags: ["Part 4", "Predicates/Access Paths"]
+      },
+      {
+        part: 4,
+        type: "mcq",
+        prompt: "When is an index-only access path possible?",
+        options: {
+          A: "Only when the table is empty",
+          B: "When all needed columns for predicate evaluation and result (and possibly ORDER BY/GROUP BY) are available in the index",
+          C: "Only when the index is unique",
+          D: "Only when REORG has recently run"
+        },
+        correct: "B",
+        why: "Index-only access avoids table I/O when the index contains everything needed for the query (predicate + select list and other requirements).",
+        tags: ["Part 4", "Indexes"]
+      },
+      {
+        part: 4,
+        type: "mcq",
+        prompt: "What is a Statistics Profile used for in Db2?",
+        options: {
+          A: "Encrypting the database using native encryption",
+          B: "Storing RUNSTATS options in the catalog for consistent future statistics collection",
+          C: "Scheduling backups and restores",
+          D: "Controlling isolation levels at bind time"
+        },
+        correct: "B",
+        why: "Statistics profiles simplify consistent RUNSTATS execution by storing collection options in the catalog for reuse.",
+        tags: ["Part 4", "RUNSTATS Profiles"]
+      },
+      {
+        part: 4,
+        type: "short",
+        prompt: "Short answer: What is the name of the catalog view used to investigate table-level statistics (e.g., CARD, NPAGES)?",
+        placeholder: "Example: SYSSTAT....",
+        correct: ["sysstat.tables"],
+        why: "SYSSTAT.TABLES exposes table-level statistics such as cardinality and page counts used by the optimizer and DBA analysis.",
+        tags: ["Part 4", "Catalog Stats"]
+      },
+    ];
+
+    const PART_META = {
+      1: { name: "Part 1 – Essentials", note: "Platforms, editions, install tooling, clients/connectivity, versioning" },
+      2: { name: "Part 2 – Data Mgmt & Recovery", note: "Data movement (IMPORT/LOAD), utility monitoring, table states" },
+      3: { name: "Part 3 – Security & Concurrency", note: "Isolation levels, locking behaviors, timeouts/deadlocks, diagnostics" },
+      4: { name: "Part 4 – Performance & Tuning", note: "RUNSTATS, predicates/selectivity, index access paths, profiles/catalog" },
+    };
+
+    const quizEl = document.getElementById("quiz");
+    const resultsEl = document.getElementById("results");
+    const bannerEl = document.getElementById("banner");
+    const breakdownEl = document.getElementById("breakdown");
+    const reviewListEl = document.getElementById("reviewList");
+    const answeredCountEl = document.getElementById("answeredCount");
+    const totalCountEl = document.getElementById("totalCount");
+    const pillCountEl = document.getElementById("pillCount");
+    const barFillEl = document.getElementById("barFill");
+    const sectionNavEl = document.getElementById("sectionNav");
+
+    const submitBtn = document.getElementById("submitBtn");
+    const resetBtn  = document.getElementById("resetBtn");
+    const saveBtn   = document.getElementById("saveBtn");
+    const loadBtn   = document.getElementById("loadBtn");
+
+    const STORAGE_KEY = "cla96g_assessment_v1";
+
+    totalCountEl.textContent = String(QUESTIONS.length);
+    pillCountEl.textContent = String(QUESTIONS.length);
+
+    // Render nav chips
+    function renderNav(activePart = 1){
+      sectionNavEl.innerHTML = "";
+      Object.keys(PART_META).forEach(k => {
+        const part = Number(k);
+        const chip = document.createElement("div");
+        chip.className = "chip" + (part === activePart ? " active" : "");
+        chip.textContent = PART_META[part].name;
+        chip.title = "Jump to this section";
+        chip.addEventListener("click", () => {
+          document.getElementById("part-" + part)?.scrollIntoView({behavior:"smooth", block:"start"});
+        });
+        sectionNavEl.appendChild(chip);
+      });
+    }
+
+    // Build quiz UI
+    function buildQuiz(){
+      quizEl.innerHTML = "";
+      renderNav(1);
+
+      const parts = [1,2,3,4];
+      let globalIndex = 0;
+
+      for(const part of parts){
+        const section = document.createElement("section");
+        section.id = "part-" + part;
+
+        const header = document.createElement("div");
+        header.className = "partHeader";
+        header.innerHTML = `
+          <div>
+            <h2>${PART_META[part].name}</h2>
+          </div>
+          <div class="note">${PART_META[part].note}</div>
+        `;
+        section.appendChild(header);
+
+        const qs = QUESTIONS.filter(q => q.part === part);
+        qs.forEach(q => {
+          globalIndex++;
+          const qId = "q_" + (globalIndex - 1);
+
+          const wrap = document.createElement("div");
+          wrap.className = "q";
+          wrap.dataset.part = String(part);
+          wrap.dataset.qindex = String(globalIndex - 1);
+
+          const head = document.createElement("div");
+          head.className = "qhead";
+          head.innerHTML = `
+            <div style="flex:1;">
+              <div class="qtext">${q.prompt}</div>
+            </div>
+            <div class="qnum">Q${globalIndex.toString().padStart(2,"0")}</div>
+          `;
+          wrap.appendChild(head);
+
+          const answers = document.createElement("div");
+          answers.className = "answers";
+
+          if(q.type === "mcq"){
+            Object.entries(q.options).forEach(([key, label]) => {
+              const optId = `${qId}_${key}`;
+              const lab = document.createElement("label");
+              lab.className = "opt";
+              lab.setAttribute("for", optId);
+              lab.innerHTML = `
+                <input type="radio" name="${qId}" id="${optId}" value="${key}" />
+                <div><strong style="font-family: var(--mono);">${key}.</strong> ${label}</div>
+              `;
+              answers.appendChild(lab);
+            });
+          } else {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = qId;
+            input.placeholder = q.placeholder || "Type your answer...";
+            input.autocomplete = "off";
+            answers.appendChild(input);
+
+            const helper = document.createElement("div");
+            helper.className = "helper";
+            helper.textContent = "Graded by keyword match (case-insensitive). Keep it short and specific.";
+            answers.appendChild(helper);
+          }
+
+          wrap.appendChild(answers);
+
+          const tags = document.createElement("div");
+          tags.className = "helper";
+          tags.innerHTML = `Tags: <span class="tag">${(q.tags || []).join(" · ")}</span>`;
+          wrap.appendChild(tags);
+
+          section.appendChild(wrap);
+        });
+
+        quizEl.appendChild(section);
+      }
+
+      attachChangeHandlers();
+      updateProgress();
+    }
+
+    function getAnswerForQuestion(qIndex){
+      const q = QUESTIONS[qIndex];
+      const qId = "q_" + qIndex;
+
+      if(q.type === "mcq"){
+        const checked = document.querySelector(`input[name="${qId}"]:checked`);
+        return checked ? checked.value : "";
+      } else {
+        const el = document.getElementById(qId);
+        return el ? (el.value || "").trim() : "";
+      }
+    }
+
+    function setAnswerForQuestion(qIndex, value){
+      const q = QUESTIONS[qIndex];
+      const qId = "q_" + qIndex;
+
+      if(q.type === "mcq"){
+        const radio = document.querySelector(`input[name="${qId}"][value="${value}"]`);
+        if(radio) radio.checked = true;
+      } else {
+        const el = document.getElementById(qId);
+        if(el) el.value = value || "";
+      }
+    }
+
+    function attachChangeHandlers(){
+      // update progress on any input change
+      document.querySelectorAll('input[type="radio"]').forEach(r => {
+        r.addEventListener("change", updateProgress);
+      });
+      document.querySelectorAll('input[type="text"], textarea').forEach(t => {
+        t.addEventListener("input", updateProgress);
+      });
+
+      // activate nav chip on scroll (lightweight)
+      window.addEventListener("scroll", () => {
+        const sections = [1,2,3,4].map(p => document.getElementById("part-" + p));
+        const y = window.scrollY + 120;
+        let active = 1;
+        for(const s of sections){
+          if(s && s.offsetTop <= y) active = Number(s.id.split("-")[1]);
+        }
+        // update chip active
+        [...sectionNavEl.children].forEach((chip, idx) => {
+          const part = idx + 1;
+          chip.classList.toggle("active", part === active);
+        });
+      }, {passive:true});
+    }
+
+    function updateProgress(){
+      let answered = 0;
+      for(let i=0;i<QUESTIONS.length;i++){
+        if(getAnswerForQuestion(i)) answered++;
+      }
+      answeredCountEl.textContent = String(answered);
+      const pct = Math.round((answered / QUESTIONS.length) * 100);
+      barFillEl.style.width = pct + "%";
+    }
+
+    function normalize(s){
+      return (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    function gradeQuestion(q, userAnswer){
+      if(q.type === "mcq"){
+        const isCorrect = userAnswer === q.correct;
+        return { isCorrect, expected: q.correct, matchDetail: isCorrect ? "Exact match" : "Selected option differs" };
+      } else {
+        // keyword match: all acceptable tokens are "any-of" match by substring
+        const ua = normalize(userAnswer);
+        if(!ua) return { isCorrect:false, expected:q.correct, matchDetail: "No answer" };
+
+        const accepted = q.correct.map(k => normalize(k));
+        const hit = accepted.some(k => ua.includes(k));
+        return {
+          isCorrect: hit,
+          expected: q.correct,
+          matchDetail: hit ? "Keyword match" : `Expected to include one of: ${q.correct.join(", ")}`
+        };
+      }
+    }
+
+    function readinessFromPct(pct){
+      if(pct >= 90) return { label:"Strong – job ready", cls:"good", msg:"Consistently understands core DBA concepts and operational trade-offs." };
+      if(pct >= 75) return { label:"Ready – light supervision", cls:"good", msg:"Meets baseline readiness; focus on weak sections below." };
+      if(pct >= 60) return { label:"Developing – needs practice", cls:"warn", msg:"Understands fundamentals but needs guided reps on missed areas." };
+      return { label:"Needs Support – revisit key units", cls:"bad", msg:"Significant gaps; repeat key topics + reinforce with labs and checklists." };
+    }
+
+    function partLabel(p){ return PART_META[p]?.name || ("Part " + p); }
+
+    function renderResults(){
+      const perQ = [];
+      let score = 0;
+
+      const partStats = {
+        1:{correct:0,total:0},
+        2:{correct:0,total:0},
+        3:{correct:0,total:0},
+        4:{correct:0,total:0},
+      };
+
+      for(let i=0;i<QUESTIONS.length;i++){
+        const q = QUESTIONS[i];
+        const ua = getAnswerForQuestion(i);
+        const g = gradeQuestion(q, ua);
+
+        partStats[q.part].total++;
+        if(g.isCorrect){
+          score++;
+          partStats[q.part].correct++;
+        }
+
+        perQ.push({ idx:i, q, ua, ...g });
+      }
+
+      const pct = Math.round((score / QUESTIONS.length) * 100);
+      const readiness = readinessFromPct(pct);
+
+      // Banner
+      bannerEl.innerHTML = `
+        <h3>Results</h3>
+        <p>${readiness.msg}</p>
+        <div class="scoreline">
+          <span class="badge ${readiness.cls}"><strong>${pct}%</strong> (${score}/${QUESTIONS.length})</span>
+          <span class="badge"><strong>Readiness</strong>: ${readiness.label}</span>
+          <span class="badge"><strong>Answered</strong>: ${document.getElementById("answeredCount").textContent}/${QUESTIONS.length}</span>
+        </div>
+      `;
+
+      // Breakdown by part
+      breakdownEl.innerHTML = "";
+      Object.keys(partStats).forEach(pk => {
+        const p = Number(pk);
+        const st = partStats[p];
+        const pPct = st.total ? Math.round((st.correct / st.total) * 100) : 0;
+
+        let tip = "";
+        if(pPct >= 80) tip = "Solid. Reinforce with 1–2 real-world scenarios.";
+        else if(pPct >= 60) tip = "Borderline. Revisit missed topics + do a lab walkthrough.";
+        else tip = "Gap. Re-teach key concepts; apply checklists and guided practice.";
+
+        const div = document.createElement("div");
+        div.className = "bcard";
+        div.innerHTML = `
+          <div class="t">${partLabel(p)}</div>
+          <div class="s"><strong>${pPct}%</strong> (${st.correct}/${st.total}) – ${tip}</div>
+        `;
+        breakdownEl.appendChild(div);
+      });
+
+      // Review list (per question)
+      reviewListEl.innerHTML = "";
+      perQ.forEach(item => {
+        const qNum = item.idx + 1;
+        const ok = item.isCorrect;
+
+        const uaDisplay = item.ua ? item.ua : "(no answer)";
+        const correctDisplay = item.q.type === "mcq"
+          ? `${item.expected}. ${item.q.options[item.expected]}`
+          : `${item.expected.join(" / ")}`;
+
+        const correctKeyOnly = item.q.type === "mcq" ? item.expected : item.expected.join(" / ");
+
+        const det = document.createElement("details");
+        det.open = false;
+        det.innerHTML = `
+          <summary>
+            <span>${ok ? "✅" : "❌"} Q${qNum.toString().padStart(2,"0")} – ${item.q.prompt}</span>
+            <span class="tag">${(item.q.tags || []).join(" · ")}</span>
+          </summary>
+          <div class="exp">
+            <div><strong>Your answer:</strong> <span class="${ok ? "ok" : "no"}">${escapeHtml(uaDisplay)}</span></div>
+            <div style="margin-top:6px;"><strong>Correct answer:</strong> <span class="ok">${escapeHtml(correctKeyOnly)}</span></div>
+            <div class="corr">${escapeHtml(correctDisplay)}</div>
+            <div class="exp"><strong>Why:</strong> ${escapeHtml(item.q.why)}</div>
+            ${item.q.type === "short" ? `<div class="exp"><strong>How it was graded:</strong> ${escapeHtml(item.matchDetail)}</div>` : ""}
+          </div>
+        `;
+        reviewListEl.appendChild(det);
+      });
+
+      resultsEl.style.display = "block";
+      resultsEl.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function resetAll(){
+      // clear inputs
+      for(let i=0;i<QUESTIONS.length;i++){
+        const q = QUESTIONS[i];
+        const qId = "q_" + i;
+        if(q.type === "mcq"){
+          document.querySelectorAll(`input[name="${qId}"]`).forEach(r => r.checked = false);
+        } else {
+          const el = document.getElementById(qId);
+          if(el) el.value = "";
+        }
+      }
+      resultsEl.style.display = "none";
+      updateProgress();
+    }
+
+    function saveProgress(){
+      const payload = {
+        savedAt: new Date().toISOString(),
+        answers: QUESTIONS.map((_, i) => getAnswerForQuestion(i))
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      toast("Saved progress to this browser.");
+    }
+
+    function loadProgress(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){
+        toast("No saved progress found in this browser.", true);
+        return;
+      }
+      try{
+        const payload = JSON.parse(raw);
+        if(!payload.answers || !Array.isArray(payload.answers)) throw new Error("Invalid payload");
+        payload.answers.forEach((ans, i) => setAnswerForQuestion(i, ans));
+        resultsEl.style.display = "none";
+        updateProgress();
+        toast("Loaded saved progress.");
+      } catch(e){
+        toast("Saved progress is corrupted or incompatible.", true);
+      }
+    }
+
+    function toast(msg, isWarn=false){
+      const t = document.createElement("div");
+      t.style.position = "fixed";
+      t.style.left = "18px";
+      t.style.bottom = "18px";
+      t.style.padding = "10px 12px";
+      t.style.borderRadius = "12px";
+      t.style.border = "1px solid rgba(255,255,255,.16)";
+      t.style.background = isWarn ? "rgba(255,204,102,.12)" : "rgba(53,208,127,.12)";
+      t.style.color = "rgba(255,255,255,.92)";
+      t.style.boxShadow = "0 10px 30px rgba(0,0,0,.35)";
+      t.style.zIndex = 9999;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    // Button handlers
+    submitBtn.addEventListener("click", () => {
+      // optional: require minimum answered? Here we allow submit anytime.
+      renderResults();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if(confirm("Reset all answers?")){
+        resetAll();
+      }
+    });
+
+    saveBtn.addEventListener("click", saveProgress);
+    loadBtn.addEventListener("click", loadProgress);
+
+    // Init
+    buildQuiz();
+  </script>
+</body>
+</html>
