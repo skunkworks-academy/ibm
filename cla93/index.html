@@ -1,623 +1,402 @@
-<!-- =========================================================
-  FILE: part-1.html
-  PATH: ibm/cla93/part-1.html
-
-  Requires these files in the same repo:
-    - styles.css
-    - app.js
-    - scorm-api.js
-    - data/part1-data.js
-
-  Enterprise features included:
-    ✅ Retractable unit cards (click header)
-    ✅ Mini-quizzes inside each unit
-    ✅ Save/Resume (localStorage)
-    ✅ Progress + Score + Readiness
-    ✅ Print/PDF export (Ctrl+P or button)
-    ✅ Optional timed exam mode (per Part 1)
-    ✅ Session analytics events (logEvent)
-    ✅ SCORM hook (score/completion)
-========================================================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CLA96G – Part 1</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* Part 1 page-specific enhancements */
-    .topbar{
-      display:flex; gap:12px; flex-wrap:wrap;
-      align-items:center; justify-content:space-between;
-      margin-bottom:16px;
-    }
-    .badges{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.06);
-      color:var(--muted);
-      font-size:12px;
-    }
-    .badge strong{color:var(--text)}
-    .grid{display:grid; gap:16px}
-    .cardHeader{
-      display:flex; align-items:center; justify-content:space-between;
-      cursor:pointer; user-select:none;
-      gap:12px;
-    }
-    .cardHeader h2{font-size:16px}
-    .tog{
-      width:34px;height:34px;display:grid;place-items:center;
-      border-radius:10px;border:1px solid var(--border);
-      background:rgba(255,255,255,.06);
-      color:var(--primary);
-      font-weight:800;
-      transition:transform .2s ease;
-    }
-    .unitMeta{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.45}
-    .cardContent{max-height:0; overflow:hidden; transition:max-height .35s ease}
-    .card.active .cardContent{max-height:7000px; margin-top:12px}
-    .card.active .tog{transform:rotate(45deg)}
-    .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
-    @media(max-width:900px){.cols{grid-template-columns:1fr}}
-    .panelMini{
-      border:1px solid var(--border);
-      border-radius:14px;
-      background:rgba(0,0,0,.18);
-      padding:12px;
-    }
-    .panelMini h3{font-size:13px;margin-bottom:8px;color:var(--text)}
-    ul{margin-left:18px;color:var(--muted);font-size:13px;line-height:1.45}
-    li{margin-bottom:6px}
-
-    /* Quiz */
-    .quiz{
-      margin-top:12px;
-      border:1px solid var(--border);
-      background:rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:12px;
-    }
-    .q{
-      padding:12px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:12px;
-      background:rgba(255,255,255,.04);
-      margin-bottom:10px;
-    }
-    .q:last-child{margin-bottom:0}
-    .q p{font-weight:700; font-size:13px; margin-bottom:10px}
-    .opt{
-      display:flex; gap:10px; align-items:flex-start;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.05);
-      cursor:pointer;
-      margin-bottom:8px;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .opt:hover{background:rgba(255,255,255,.08)}
-    .opt input{margin-top:2px; accent-color:var(--primary)}
-    .fb{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.45}
-    .fb.good{color:var(--success);font-weight:800}
-    .fb.bad{color:var(--danger);font-weight:800}
-
-    /* KPI */
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
-    @media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
-    @media(max-width:520px){.kpis{grid-template-columns:1fr}}
-    .kpi{
-      padding:12px;border-radius:14px;border:1px solid var(--border);
-      background:rgba(255,255,255,.05);
-    }
-    .kpi .k{color:rgba(255,255,255,.58);font-size:12px}
-    .kpi .v{margin-top:6px;font-size:18px;font-weight:800}
-    .kpi .h{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
-    .timerBox{
-      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      padding:6px 10px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(0,0,0,.18);
-      display:none;
-    }
-
-    /* Print */
-    @media print{
-      .topbar, .badge, .timerBox, nav {display:none !important;}
-      .cardContent{max-height:none !important; overflow:visible !important;}
-      .card{box-shadow:none !important;}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CLA96G – Part 4</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Page-level refinements (keeps consistency with your enterprise LMS look) */
+  .unitBody{display:none;margin-top:15px}
+  .unitActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .subhead{color:var(--muted);margin-top:6px}
+  .sectionTitle{margin-top:14px;margin-bottom:8px}
+  .result{margin-top:10px;font-weight:800}
+  .result small{display:block;font-weight:600;color:var(--muted);margin-top:6px;line-height:1.35}
+  .pill{
+    display:inline-flex;gap:8px;align-items:center;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.06);
+    color:var(--muted);font-size:12px
+  }
+  .pill strong{color:var(--text)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  @media print{
+    nav, button { display:none !important; }
+    .unitBody{display:block !important;}
+  }
+</style>
 </head>
 
 <body>
-  <nav>
-    <a href="index.html">Portal</a>
-    <a href="part-1.html">Part 1</a>
-    <a href="part-2.html">Part 2</a>
-    <a href="part-3.html">Part 3</a>
-    <a href="part-4.html">Part 4</a>
-    <a href="assessment.html">Final Assessment</a>
-    <a href="analytics.html">Analytics</a>
-  </nav>
 
-  <header>
-    <h1>CLA96G – Part 1 (Enterprise Study + Knowledge Checks)</h1>
-    <p>
-      Retractable unit cards with key topics, operational tips, and mini-quizzes to validate DBA readiness.
-      Use <strong>Print/PDF</strong> to export a delegate pack.
-    </p>
-  </header>
+<nav>
+  <a href="index.html">Portal</a>
+  <a href="part-1.html">Part 1</a>
+  <a href="part-2.html">Part 2</a>
+  <a href="part-3.html">Part 3</a>
+  <a href="assessment.html">Final Assessment</a>
+  <a href="analytics.html">Analytics</a>
+</nav>
 
-  <div class="wrap">
+<header>
+  <h1>Part 4 – Performance & Tuning Optimization</h1>
+  <p class="subhead">Statistics • Indexing • EXPLAIN • Monitoring — job-ready performance governance for Db2 LUW.</p>
+</header>
 
-    <!-- Controls -->
-    <div class="card">
-      <div class="topbar">
-        <div class="badges">
-          <span class="badge"><strong>Mode:</strong> <span id="modeLabel">Study</span></span>
-          <span class="badge"><strong>Answered:</strong> <span id="answeredCount">0</span>/<span id="totalCount">0</span></span>
-          <span class="badge"><strong>Score:</strong> <span id="scorePct">0%</span></span>
-          <span class="badge"><strong>Saved:</strong> <span id="savedState">—</span></span>
-          <span class="timerBox" id="timerBox">⏱ <span id="timerText">00:00</span></span>
-        </div>
+<div class="wrap">
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="primary" id="btnTimed">Enable Timed Mode</button>
-          <button id="btnPrint">Print / Export PDF</button>
-          <button id="btnExpand">Expand All</button>
-          <button id="btnCollapse">Collapse All</button>
-          <button class="danger" id="btnReset">Reset Part 1</button>
-        </div>
-      </div>
-
-      <div class="progress-bar" aria-label="Progress">
-        <span id="progressFill"></span>
-      </div>
-
+  <!-- Controls + Progress -->
+  <div class="card">
+    <div class="row">
       <div class="kpis">
-        <div class="kpi">
-          <div class="k">Readiness</div>
-          <div class="v" id="readiness">—</div>
-          <div class="h" id="readinessHint">Answer questions to compute readiness.</div>
-        </div>
-        <div class="kpi">
-          <div class="k">Attempt state</div>
-          <div class="v" id="attemptState">In progress</div>
-          <div class="h">Timed mode auto-submits when time expires.</div>
-        </div>
-        <div class="kpi">
-          <div class="k">Time on page</div>
-          <div class="v" id="timeOnPage">0m</div>
-          <div class="h">Local session duration (no server required).</div>
-        </div>
-        <div class="kpi">
-          <div class="k">Export</div>
-          <div class="v">PDF-ready</div>
-          <div class="h">Uses print styles (clean for handouts).</div>
-        </div>
+        <span class="pill"><strong>Answered:</strong> <span id="answeredCount">0</span>/<span id="totalCount">0</span></span>
+        <span class="pill"><strong>Score:</strong> <span id="scorePct">0%</span></span>
+        <span class="pill"><strong>Completion:</strong> <span id="completionPct">0%</span></span>
+        <span class="pill"><strong>Readiness:</strong> <span id="readiness">Developing</span></span>
+      </div>
+
+      <div class="unitActions">
+        <button class="primary" id="btnPrint">Print / Export PDF</button>
+        <button id="btnExpand">Expand All</button>
+        <button id="btnCollapse">Collapse All</button>
+        <button class="danger" id="btnReset">Reset Part 4</button>
       </div>
     </div>
 
-    <!-- Rendered units -->
-    <div id="units" class="grid"></div>
-
-    <footer style="text-align:center; color:rgba(255,255,255,.55); font-size:12px; padding:16px 0;">
-      © 2026 Skunkworks Academy | CLA96G Part 1
-    </footer>
-
+    <div style="margin-top:12px">
+      <div class="progress-bar"><span id="bar"></span></div>
+      <div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35">
+        This section measures whether delegates can translate tuning theory into operational decisions:
+        statistics strategy, index design, plan analysis, and monitoring-based triage.
+      </div>
+    </div>
   </div>
 
-  <!-- Dependencies -->
-  <script src="app.js"></script>
-  <script src="scorm-api.js"></script>
-  <script src="data/part1-data.js"></script>
+  <!-- ================= UNIT 1 ================= -->
+  <div class="card">
+    <h2>Unit 1 – Statistics and Query Optimization</h2>
+    <p class="subhead">
+      How Db2 uses statistics + selectivity to choose access paths; statistics profiles and AI optimizer concepts.
+    </p>
+    <button onclick="toggle('u1')">Expand / Collapse</button>
 
-  <script>
-    // =========================
-    // Part 1 Enterprise Engine
-    // =========================
-    const STORAGE_KEY = LMS_KEYS.part1; // "cla96g_part1"
-    const PART = window.CLA96G_PART1;
+    <div id="u1" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Predicate selectivity and why it drives access path choice (index vs table scan)</li>
+        <li>Phases of Db2 query optimization and plan selection</li>
+        <li>Statistics profiles (consistent, repeatable RUNSTATS strategy)</li>
+        <li>Evaluating optimizer outcomes before/after stats refresh</li>
+        <li>AI-assisted optimization concepts (recommendations, plan guidance)</li>
+      </ul>
 
-    if(!PART){
-      alert("Missing data/part1-data.js (window.CLA96G_PART1).");
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Performance regressions often start with <strong>statistics drift</strong> after bulk changes.</li>
+        <li>Use statistics profiles to standardize RUNSTATS across environments and maintenance windows.</li>
+        <li>After large LOAD/IMPORT or wide UPDATE/DELETE, plan for: <strong>RUNSTATS → validate plans → adjust indexes</strong>.</li>
+        <li>Always validate changes using comparable baselines (same bind options, same parameter markers, same workload slice).</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Outdated stats → wrong cardinality estimates → wrong join method/order.</li>
+        <li>Over-collecting high-cost stats on critical systems can increase maintenance overhead.</li>
+        <li>Changing stats can change plans: you need change control and rollback strategy.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u1q1">
+        <p><strong>1.</strong> Why do skewed data distributions matter to the optimizer?</p>
+        <button onclick="answer('u1q1',true,'Skew changes selectivity. Accurate distribution stats help Db2 estimate result sizes and choose better join/index strategies.')">
+          They affect selectivity estimates and access path decisions
+        </button>
+        <button onclick="answer('u1q1',false,'Incorrect. Data distribution impacts plan choice, not storage format.')">
+          They determine the tablespace page size
+        </button>
+        <button onclick="answer('u1q1',false,'Incorrect. HADR does not depend on column skew.')">
+          They enable HADR synchronization
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 2 ================= -->
+  <div class="card">
+    <h2>Unit 2 – Indexing for Performance Improvement</h2>
+    <p class="subhead">
+      Index types, strategy selection from query patterns, monitoring usage, multi-index strategies, and Design Advisor.
+    </p>
+    <button onclick="toggle('u2')">Expand / Collapse</button>
+
+    <div id="u2" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Index strategy from workload patterns (filters, joins, order by, grouping)</li>
+        <li>Composite indexes (key ordering matters) and covering indexes</li>
+        <li>Index usage monitoring (e.g., MON_GET_INDEX / db2pd patterns)</li>
+        <li>Multi-index strategies (index ORing, bitmap ANDing concepts)</li>
+        <li>Db2 Design Advisor for recommendation-based tuning</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Indexes are not “free”: every extra index adds write overhead and maintenance cost.</li>
+        <li>Design for the <strong>critical SQL paths</strong> (top N by elapsed time / frequency / business impact).</li>
+        <li>Use monitoring to prove whether an index is used; remove dead indexes cautiously (change control + evidence).</li>
+        <li>Prefer targeted, minimal index sets that satisfy core predicates and joins.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Over-indexing degrades INSERT/UPDATE/DELETE throughput.</li>
+        <li>Poor key order can prevent index matching and force scans.</li>
+        <li>Removing indexes without workload evidence can cause sudden regressions.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u2q1">
+        <p><strong>2.</strong> The most common symptom of over-indexing is:</p>
+        <button onclick="answer('u2q1',true,'Too many indexes increase write amplification: every change must also update indexes, slowing DML and increasing logging.')">
+          DML (insert/update/delete) becomes slower due to index maintenance
+        </button>
+        <button onclick="answer('u2q1',false,'Incorrect. Over-indexing does not increase bufferpool memory directly.')">
+          Bufferpools grow automatically
+        </button>
+        <button onclick="answer('u2q1',false,'Incorrect. Over-indexing does not prevent backups from running.')">
+          Backups fail immediately
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 3 ================= -->
+  <div class="card">
+    <h2>Unit 3 – Using EXPLAIN Tools for Query Optimization</h2>
+    <p class="subhead">
+      EXPLAIN tables, capturing and interpreting access plans (db2exfmt, explain utilities, activity event monitoring).
+    </p>
+    <button onclick="toggle('u3')">Expand / Collapse</button>
+
+    <div id="u3" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>EXPLAIN tables: what they store and why they must exist before capture</li>
+        <li>Capturing plans: static vs dynamic SQL considerations</li>
+        <li>Interpreting db2exfmt output: joins, sorts, scans, index access, cardinality</li>
+        <li>Using activity data/event monitoring to tie plans to runtime behavior</li>
+        <li>Comparing plans across environments (stats, schema, bind options, parameter markers)</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Plan analysis is your tuning starting point: fix <strong>root causes</strong> (stats, indexes, predicates).</li>
+        <li>Focus on the biggest operators: large scans, large sorts, expensive joins, repeated re-fetch.</li>
+        <li>Verify that predicates are sargable (search-argument-able) where possible.</li>
+        <li>Always compare plans using the same statement form and similar parameter values.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Misinterpreting plan output can lead to “tuning by superstition”.</li>
+        <li>Plan changes without workload validation can shift bottlenecks elsewhere.</li>
+        <li>Differences between static and dynamic SQL can change plan behavior and caching.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u3q1">
+        <p><strong>3.</strong> Before you can reliably capture EXPLAIN data for a statement, you must ensure:</p>
+        <button onclick="answer('u3q1',true,'EXPLAIN requires the explain tables to exist (in the target schema) to store plan metadata for formatting and analysis.')">
+          EXPLAIN tables exist and are maintained for the schema
+        </button>
+        <button onclick="answer('u3q1',false,'Incorrect. HADR is unrelated to capturing EXPLAIN output.')">
+          HADR is active on the database
+        </button>
+        <button onclick="answer('u3q1',false,'Incorrect. RUNSTATS is helpful but not a prerequisite for creating explain tables.')">
+          RUNSTATS has been run in the last hour
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UNIT 4 ================= -->
+  <div class="card">
+    <h2>Unit 4 – Monitoring Fundamentals</h2>
+    <p class="subhead">
+      Db2 monitoring architecture, table functions/views, db2pd & dmctop, and health evaluation (log/tablespace).
+    </p>
+    <button onclick="toggle('u4')">Expand / Collapse</button>
+
+    <div id="u4" class="unitBody">
+      <h3 class="sectionTitle">Core concepts</h3>
+      <ul>
+        <li>Monitoring architecture: metrics sources and collection approach</li>
+        <li>SQL-based monitoring: table functions and administrative views</li>
+        <li>Command-line tools: db2pd and dmctop for activity/perf snapshots</li>
+        <li>DMC dashboards: resource usage and performance indicators</li>
+        <li>Health metrics: log space consumption, tablespace utilization, lock waits</li>
+      </ul>
+
+      <h3 class="sectionTitle">DBA takeaways</h3>
+      <ul>
+        <li>Operational stability comes from <strong>trend + alert</strong> monitoring, not only incident response.</li>
+        <li>Correlate symptoms: CPU, IO wait, locks, log usage, tablespace growth, and query hotspots.</li>
+        <li>Use monitoring evidence to prioritize: top SQL, top waits, top objects.</li>
+        <li>Keep a standard “first 10 minutes” triage playbook for incidents.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Operational risks</h3>
+      <ul>
+        <li>Ignoring early log/tablespace signals can cause outages (log full, TS full).</li>
+        <li>High-frequency monitoring at scale can introduce overhead if misconfigured.</li>
+        <li>Monitoring without thresholds and ownership becomes noise.</li>
+      </ul>
+
+      <h3 class="sectionTitle">Mini knowledge check</h3>
+      <div id="u4q1">
+        <p><strong>4.</strong> A practical first indicator of “database health risk” is:</p>
+        <button onclick="answer('u4q1',true,'Rapidly increasing log usage or tablespace utilization often predicts incidents (log full/TS full) and should trigger immediate investigation.')">
+          Sustained log space growth / tablespace utilization trending to full
+        </button>
+        <button onclick="answer('u4q1',false,'Incorrect. A single SQL error is not a reliable health indicator by itself.')">
+          One isolated SQL error message
+        </button>
+        <button onclick="answer('u4q1',false,'Incorrect. User count alone does not indicate health without resource/latency context.')">
+          Number of connected users only
+        </button>
+        <div class="result"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="scorm-api.js"></script>
+
+<script>
+/* =========================================================
+   PART 4 LMS STATE + SCORM
+========================================================= */
+function toggle(id){
+  const el = document.getElementById(id);
+  el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+  logEvent("ui_toggle_unit", {part:"part-4", unit:id, open:(el.style.display==="block")});
+}
+
+const STATE_KEY = LMS_KEYS.part4; // "cla96g_part4"
+let state = load(STATE_KEY) || {
+  totalQuestions: 4,
+  answered: 0,
+  correct: 0,
+  answers: {}   // {u1q1:true/false, ...}
+};
+
+function answer(qid, isCorrect, why){
+  const q = document.getElementById(qid);
+  if(state.answers[qid] !== undefined) return; // already answered
+
+  state.answers[qid] = isCorrect;
+  state.answered++;
+  if(isCorrect) state.correct++;
+
+  const out = q.querySelector(".result");
+  if(isCorrect){
+    out.innerHTML = `<span style="color:var(--success)">Correct</span>
+                     <small>${escapeHtml(why||"")}</small>`;
+  } else {
+    out.innerHTML = `<span style="color:var(--danger)">Incorrect</span>
+                     <small>${escapeHtml(why||"Review the unit content above and retry in study mode.")}</small>`;
+  }
+
+  save(STATE_KEY, state);
+  logEvent("answer", {part:"part-4", qid, correct:isCorrect});
+  updateProgress();
+}
+
+function escapeHtml(str){
+  return String(str||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function readinessFromScore(score){
+  if(score >= 90) return "Strong – Production Ready";
+  if(score >= 75) return "Ready – Light Supervision";
+  if(score >= 60) return "Operational with Guidance";
+  return "Developing";
+}
+
+function updateProgress(){
+  const completion = percentage(state.answered, state.totalQuestions);
+  const score = percentage(state.correct, state.totalQuestions);
+
+  document.getElementById("answeredCount").innerText = state.answered;
+  document.getElementById("totalCount").innerText = state.totalQuestions;
+  document.getElementById("scorePct").innerText = score + "%";
+  document.getElementById("completionPct").innerText = completion + "%";
+  document.getElementById("bar").style.width = completion + "%";
+  document.getElementById("readiness").innerText = readinessFromScore(score);
+
+  // SCORM: score = correctness %, completion = answered %
+  if(window.SCORM){
+    SCORM.update(score, completion);
+  }
+}
+
+function restoreAnswered(){
+  Object.entries(state.answers || {}).forEach(([qid, val]) => {
+    const q = document.getElementById(qid);
+    if(!q) return;
+    const out = q.querySelector(".result");
+    if(val){
+      out.innerHTML = `<span style="color:var(--success)">Correct</span>
+                       <small>Restored from saved attempt.</small>`;
+    } else {
+      out.innerHTML = `<span style="color:var(--danger)">Incorrect</span>
+                       <small>Restored from saved attempt. Review the unit content above.</small>`;
     }
+  });
+}
+
+document.getElementById("btnPrint").addEventListener("click", () => {
+  // expand all for printing
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="block");
+  logEvent("ui_print_pdf", {part:"part-4"});
+  window.print();
+});
+
+document.getElementById("btnExpand").addEventListener("click", () => {
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="block");
+  logEvent("ui_expand_all", {part:"part-4"});
+});
+
+document.getElementById("btnCollapse").addEventListener("click", () => {
+  ["u1","u2","u3","u4"].forEach(id => document.getElementById(id).style.display="none");
+  logEvent("ui_collapse_all", {part:"part-4"});
+});
+
+document.getElementById("btnReset").addEventListener("click", () => {
+  if(!confirm("Reset Part 4 progress (answers, score, completion)?")) return;
+  localStorage.removeItem(STATE_KEY);
+  logEvent("attempt_reset", {part:"part-4"});
+  location.reload();
+});
+
+// Boot
+logEvent("page_view", {part:"part-4"});
+restoreAnswered();
+updateProgress();
+</script>
 
-    // Timed mode state
-    let timedMode = false;
-    let durationSec = 15 * 60;
-    let remainingSec = durationSec;
-    let timerHandle = null;
-
-    // Scoring state
-    let totalQuestions = 0;
-    let answered = 0;
-    let correct = 0;
-    let submitted = false;
-    const sessionStart = Date.now();
-
-    // UI refs
-    const unitsEl = document.getElementById("units");
-    const totalCountEl = document.getElementById("totalCount");
-    const answeredCountEl = document.getElementById("answeredCount");
-    const scorePctEl = document.getElementById("scorePct");
-    const progressFillEl = document.getElementById("progressFill");
-    const savedStateEl = document.getElementById("savedState");
-    const readinessEl = document.getElementById("readiness");
-    const readinessHintEl = document.getElementById("readinessHint");
-    const attemptStateEl = document.getElementById("attemptState");
-    const timeOnPageEl = document.getElementById("timeOnPage");
-    const modeLabelEl = document.getElementById("modeLabel");
-
-    const timerBoxEl = document.getElementById("timerBox");
-    const timerTextEl = document.getElementById("timerText");
-    const btnTimed = document.getElementById("btnTimed");
-
-    function computeReadiness(scorePct){
-      if(scorePct >= 90) return ["Strong – job ready", "Consistently understands Part 1 operational concepts and trade-offs."];
-      if(scorePct >= 75) return ["Ready – light supervision", "Meets baseline readiness; fix missed concepts and rerun labs."];
-      if(scorePct >= 60) return ["Developing", "Understands some fundamentals but needs guided repetition and checklists."];
-      return ["Needs Support", "Significant gaps; revisit units and redo guided exercises."];
-    }
-
-    function fmt(secs){
-      const m = Math.floor(secs/60);
-      const s = secs % 60;
-      return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
-    }
-
-    function startTimer(){
-      stopTimer();
-      timerTextEl.textContent = fmt(remainingSec);
-      timerHandle = setInterval(() => {
-        if(submitted) return;
-        remainingSec--;
-        timerTextEl.textContent = fmt(Math.max(0, remainingSec));
-        if(remainingSec <= 0) submitAttempt("time_expired");
-        saveProgress(false);
-      }, 1000);
-    }
-
-    function stopTimer(){
-      if(timerHandle){
-        clearInterval(timerHandle);
-        timerHandle = null;
-      }
-    }
-
-    function lockInputs(){
-      document.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = true);
-      btnTimed.disabled = true;
-    }
-
-    function submitAttempt(reason){
-      if(submitted) return;
-      submitted = true;
-      attemptStateEl.textContent = "Submitted (" + reason + ")";
-      timedMode = false;
-      modeLabelEl.textContent = "Study";
-      timerBoxEl.style.display = "none";
-      btnTimed.textContent = "Enable Timed Mode";
-      stopTimer();
-      lockInputs();
-      saveProgress(true);
-
-      logEvent("attempt_submitted", {
-        part: "part-1",
-        reason,
-        answered,
-        correct,
-        totalQuestions
-      });
-
-      // SCORM update (score + completion)
-      // Completion here is answered ratio. You can change to "score-based completion" if required.
-      const completion = totalQuestions ? Math.round((answered / totalQuestions) * 100) : 0;
-      const scorePct = totalQuestions ? Math.round((correct / totalQuestions) * 100) : 0;
-      if(window.SCORM) SCORM.update(scorePct, completion);
-    }
-
-    function updateUI(){
-      answeredCountEl.textContent = answered;
-      totalCountEl.textContent = totalQuestions;
-
-      const completionPct = totalQuestions ? Math.round((answered/totalQuestions)*100) : 0;
-      progressFillEl.style.width = completionPct + "%";
-
-      const score = totalQuestions ? Math.round((correct/totalQuestions)*100) : 0;
-      scorePctEl.textContent = score + "%";
-
-      const [r,h] = computeReadiness(score);
-      readinessEl.textContent = r;
-      readinessHintEl.textContent = h;
-
-      const mins = Math.max(0, Math.round((Date.now()-sessionStart)/60000));
-      timeOnPageEl.textContent = mins + "m";
-
-      // If timed mode and all answered -> submit
-      if(timedMode && answered === totalQuestions) submitAttempt("all_answered");
-    }
-
-    function saveProgress(finalSave){
-      const answers = {};
-      document.querySelectorAll(".q").forEach(q=>{
-        const name = q.getAttribute("data-name");
-        const checked = q.querySelector('input[type="radio"]:checked');
-        answers[name] = checked ? checked.value : "";
-      });
-
-      save(STORAGE_KEY, {
-        savedAt: new Date().toISOString(),
-        part: "part-1",
-        totalQuestions,
-        answered,
-        correct,
-        submitted,
-        timedMode,
-        durationSec,
-        remainingSec,
-        answers
-      });
-
-      savedStateEl.textContent = finalSave ? "Final" : "Saved";
-    }
-
-    function restoreProgress(){
-      const state = load(STORAGE_KEY);
-      if(!state) return;
-
-      // restore radios
-      if(state.answers){
-        Object.entries(state.answers).forEach(([name,val])=>{
-          if(!val) return;
-          const r = document.querySelector(`input[name="${name}"][value="${val}"]`);
-          if(r) r.checked = true;
-        });
-      }
-
-      // recompute answered/correct and show feedback
-      answered = 0; correct = 0;
-
-      document.querySelectorAll(".q").forEach(q=>{
-        const fb = q.querySelector(".fb");
-        const checked = q.querySelector('input[type="radio"]:checked');
-        if(!checked) return;
-
-        answered++;
-        const isCorrect = checked.value === "correct";
-        if(isCorrect) correct++;
-
-        const explain = checked.dataset.explain || "";
-        if(isCorrect){
-          fb.textContent = "Correct. " + explain;
-          fb.className = "fb good";
-        } else {
-          const cor = q.querySelector('input[value="correct"][data-explain]');
-          fb.textContent = "Incorrect. " + (cor ? cor.dataset.explain : "Review the unit content above.");
-          fb.className = "fb bad";
-        }
-      });
-
-      submitted = !!state.submitted;
-
-      timedMode = !!state.timedMode;
-      durationSec = state.durationSec || durationSec;
-      remainingSec = state.remainingSec || durationSec;
-
-      if(submitted){
-        attemptStateEl.textContent = "Submitted (restored)";
-        lockInputs();
-        stopTimer();
-        timerBoxEl.style.display = "none";
-        timedMode = false;
-      } else if(timedMode){
-        modeLabelEl.textContent = "Timed";
-        timerBoxEl.style.display = "inline-flex";
-        btnTimed.textContent = "Disable Timed Mode";
-        startTimer();
-      }
-
-      savedStateEl.textContent = "Restored";
-      updateUI();
-    }
-
-    function renderUnits(){
-      unitsEl.innerHTML = "";
-
-      PART.units.forEach((unit, uIdx) => {
-        const card = document.createElement("div");
-        card.className = "card active"; // start expanded by default (enterprise UX)
-        card.setAttribute("data-unit", unit.id);
-
-        // Header
-        const header = document.createElement("div");
-        header.className = "cardHeader";
-        header.innerHTML = `
-          <div>
-            <h2>${unit.title}</h2>
-            <div class="unitMeta">${unit.summary}</div>
-          </div>
-          <div class="tog">+</div>
-        `;
-        header.addEventListener("click", () => {
-          card.classList.toggle("active");
-          logEvent("ui_toggle_card", {part:"part-1", unit:unit.id, active:card.classList.contains("active")});
-        });
-
-        // Content
-        const content = document.createElement("div");
-        content.className = "cardContent";
-
-        const cols = document.createElement("div");
-        cols.className = "cols";
-        cols.innerHTML = `
-          <div class="panelMini">
-            <h3>Unit topics</h3>
-            <ul>${unit.topics.map(t=>`<li>${t}</li>`).join("")}</ul>
-          </div>
-          <div class="panelMini">
-            <h3>DBA takeaways (operational)</h3>
-            <ul>${unit.takeaways.map(t=>`<li>${t}</li>`).join("")}</ul>
-          </div>
-        `;
-
-        const quiz = document.createElement("div");
-        quiz.className = "quiz";
-        quiz.innerHTML = `<h3 style="font-size:13px;margin-bottom:10px;">Knowledge check (Unit ${uIdx+1})</h3>`;
-
-        unit.questions.forEach((q, qIdx) => {
-          const qName = `p1_u${unit.id}_q${qIdx+1}`;
-          totalQuestions++;
-
-          const qWrap = document.createElement("div");
-          qWrap.className = "q";
-          qWrap.setAttribute("data-name", qName);
-
-          qWrap.innerHTML = `
-            <p>Q${String(totalQuestions).padStart(2,"0")}. ${q.prompt}</p>
-            ${q.options.map(opt => `
-              <label class="opt">
-                <input type="radio" name="${qName}" value="${opt.correct ? "correct" : "wrong"}" data-explain="${(opt.explain||"").replaceAll('"','&quot;')}">
-                <div>${opt.label}</div>
-              </label>
-            `).join("")}
-            <div class="fb"></div>
-          `;
-
-          // Attach per-question behavior
-          qWrap.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener("change", () => {
-              if(submitted){
-                radio.checked = false;
-                return;
-              }
-
-              // If already answered, ignore (no re-answers)
-              const alreadyAnswered = qWrap.getAttribute("data-done") === "1";
-              if(alreadyAnswered) return;
-
-              qWrap.setAttribute("data-done","1");
-
-              const fb = qWrap.querySelector(".fb");
-              const isCorrect = radio.value === "correct";
-
-              answered++;
-              if(isCorrect){
-                correct++;
-                fb.textContent = "Correct. " + (radio.dataset.explain || "");
-                fb.className = "fb good";
-              } else {
-                const cor = qWrap.querySelector('input[value="correct"][data-explain]');
-                fb.textContent = "Incorrect. " + (cor ? cor.dataset.explain : "Review the unit content above.");
-                fb.className = "fb bad";
-              }
-
-              logEvent("answer", {
-                part:"part-1",
-                unit: unit.id,
-                q: qName,
-                correct: isCorrect
-              });
-
-              saveProgress(false);
-              updateUI();
-            });
-          });
-
-          quiz.appendChild(qWrap);
-        });
-
-        content.appendChild(cols);
-        content.appendChild(quiz);
-
-        card.appendChild(header);
-        card.appendChild(content);
-        unitsEl.appendChild(card);
-      });
-
-      // totals
-      totalCountEl.textContent = totalQuestions;
-    }
-
-    // =========================
-    // Controls
-    // =========================
-    document.getElementById("btnPrint").addEventListener("click", () => {
-      document.querySelectorAll(".card").forEach(c=>c.classList.add("active"));
-      logEvent("ui_print_pdf", {part:"part-1"});
-      window.print();
-    });
-
-    document.getElementById("btnExpand").addEventListener("click", () => {
-      document.querySelectorAll(".card").forEach(c=>c.classList.add("active"));
-      logEvent("ui_expand_all", {part:"part-1"});
-    });
-
-    document.getElementById("btnCollapse").addEventListener("click", () => {
-      document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
-      logEvent("ui_collapse_all", {part:"part-1"});
-    });
-
-    document.getElementById("btnReset").addEventListener("click", () => {
-      if(!confirm("Reset Part 1 progress (answers, score, timer)?")) return;
-      save(STORAGE_KEY, null);
-      localStorage.removeItem(STORAGE_KEY);
-      logEvent("attempt_reset", {part:"part-1"});
-      location.reload();
-    });
-
-    btnTimed.addEventListener("click", () => {
-      if(submitted){
-        alert("This attempt is already submitted. Reset Part 1 to start a new attempt.");
-        return;
-      }
-
-      timedMode = !timedMode;
-
-      if(timedMode){
-        const mins = parseInt(prompt("Timed duration in minutes (default 15):", "15") || "15", 10);
-        durationSec = (Number.isFinite(mins) && mins > 0) ? mins * 60 : 15 * 60;
-        remainingSec = durationSec;
-
-        modeLabelEl.textContent = "Timed";
-        timerBoxEl.style.display = "inline-flex";
-        btnTimed.textContent = "Disable Timed Mode";
-        attemptStateEl.textContent = "In progress (timed)";
-        logEvent("timed_enabled", {part:"part-1", minutes: durationSec/60});
-
-        saveProgress(false);
-        startTimer();
-      } else {
-        modeLabelEl.textContent = "Study";
-        timerBoxEl.style.display = "none";
-        btnTimed.textContent = "Enable Timed Mode";
-        attemptStateEl.textContent = "In progress";
-        logEvent("timed_disabled", {part:"part-1"});
-
-        stopTimer();
-        saveProgress(false);
-      }
-    });
-
-    // =========================
-    // Boot
-    // =========================
-    logEvent("page_view", {part:"part-1"});
-
-    // Render UI
-    renderUnits();
-
-    // restore after render so radios exist
-    restoreProgress();
-
-    // update periodically
-    updateUI();
-    setInterval(updateUI, 15000);
-  </script>
 </body>
 </html>
