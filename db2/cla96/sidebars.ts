@@ -29,6 +29,12 @@ const sidebars: SidebarsConfig = {
     },
     'incident-centre',
     'final-assessment',
+    {
+      type: 'category',
+      label: 'Reference toolkit',
+      collapsed: true,
+      items: ['command-library', 'glossary'],
+    },
     'next-steps',
   ],
 };
