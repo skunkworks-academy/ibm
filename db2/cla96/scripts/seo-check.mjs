@@ -40,8 +40,9 @@ if (htmlFiles.length === 0) {
 
 for (const file of htmlFiles) {
   const relative = path.relative(buildRoot, file).replaceAll(path.sep, '/');
+  const is404 = relative === '404.html';
   const html = fs.readFileSync(file, 'utf8');
-  const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '';
+  const title = html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '';
   const description = html.match(/<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1]
     ?? html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*name=["']description["'][^>]*>/i)?.[1]
     ?? '';
@@ -57,10 +58,11 @@ for (const file of htmlFiles) {
   if (normalizeSpace(title).length > 65) warnings.push(`${relative}: title is ${normalizeSpace(title).length} characters.`);
   if (!normalizeSpace(description)) errors.push(`${relative}: missing meta description.`);
   if (normalizeSpace(description).length > 180) warnings.push(`${relative}: meta description is ${normalizeSpace(description).length} characters.`);
-  if (!canonical) errors.push(`${relative}: missing canonical URL.`);
+  if (!is404 && !canonical) errors.push(`${relative}: missing canonical URL.`);
   if (!lang) errors.push(`${relative}: missing html[lang].`);
   if (h1Count !== 1) errors.push(`${relative}: expected exactly one <h1>, found ${h1Count}.`);
-  if (noindex) errors.push(`${relative}: contains noindex.`);
+  if (!is404 && noindex) errors.push(`${relative}: contains noindex.`);
+  if (is404 && !noindex) warnings.push(`${relative}: consider noindex on the not-found page.`);
 
   const images = [...html.matchAll(/<img\b[^>]*>/gi)].map((match) => match[0]);
   images.forEach((image, index) => {
