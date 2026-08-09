@@ -11,7 +11,7 @@ const config: Config = {
   projectName: 'ibm',
   trailingSlash: false,
   onBrokenLinks: 'throw',
-  favicon: undefined,
+  favicon: 'img/favicon.svg',
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
