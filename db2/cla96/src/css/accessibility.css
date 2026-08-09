@@ -12,7 +12,8 @@
 
 .eyebrow,
 .learning-card__cta,
-.terminal-suggestions button {
+.terminal-suggestions button,
+.command-sequence strong {
   color: var(--cla96-accent-text);
 }
 
