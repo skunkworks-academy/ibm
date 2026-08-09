@@ -1,0 +1,145 @@
+---
+title: Db2 DBA Glossary
+description: Plain-language definitions for IBM Db2 12.1 administration, recovery, security, concurrency, and performance terminology used throughout the CLA96G learning path.
+sidebar_position: 8
+keywords: [Db2 glossary, HADR, RPO, RTO, RCAC, LBAC, cardinality, selectivity, rollforward]
+---
+
+# Db2 DBA Glossary
+
+Use this glossary when a term interrupts your flow. Definitions are intentionally operational: each one explains why the concept matters to a DBA decision.
+
+## Availability and recovery
+
+**Archive log**  
+A transaction-log file retained after it is no longer active so Db2 can support rollforward recovery and other recovery objectives.
+
+**Backup image**  
+A point-in-time copy of database data and metadata used as an input to restore/recovery. A successful backup command does not by itself prove recoverability.
+
+**HADR — High Availability Disaster Recovery**  
+Db2 technology that maintains a standby database by shipping and replaying logs from a primary. Operational decisions depend on primary/standby role, synchronization state, peer behavior and takeover policy.
+
+**PIT recovery — Point-in-time recovery**  
+Recovery to a chosen point before the end of available logs, typically used after logical error or when a specific business recovery point is required.
+
+**Rollforward**  
+The recovery phase that applies transaction logs after a restore so the database reaches the intended recovery point.
+
+**Rollforward pending**  
+A database state indicating restore has not completed the full recovery chain and additional rollforward action is required.
+
+**RPO — Recovery Point Objective**  
+The maximum acceptable amount of data loss expressed as time. It influences logging, backup, replication and archival design.
+
+**RTO — Recovery Time Objective**  
+The maximum acceptable time to restore service after disruption. It must be validated through representative recovery tests, not assumed from backup completion.
+
+## Security and access
+
+**ACCESSCTRL**  
+A Db2 authority associated with granting and revoking access-related privileges. Treat it as a powerful administrative capability within separation-of-duties design.
+
+**DATAACCESS**  
+A broad data-access authority. Its convenience must be weighed against least-privilege and audit requirements.
+
+**DBADM**  
+Database administration authority. It provides broad administrative capability and should not be used as a default application/support permission.
+
+**LBAC — Label-Based Access Control**  
+A security model that uses security labels to control access to protected data according to defined policies.
+
+**RCAC — Row and Column Access Control**  
+Database-enforced row permissions and column masks that can present different data to different users without requiring separate physical tables.
+
+**Role**  
+A named collection of privileges/authorities that can be granted to users or groups. Roles make least-privilege access easier to govern than large sets of individual grants.
+
+**SECADM**  
+Security administration authority. It should remain separated from routine application support or object-maintenance duties unless the governance model explicitly requires otherwise.
+
+**Trusted context**  
+A mechanism for allowing controlled identity/privilege behavior when connections meet defined trusted conditions.
+
+## Concurrency
+
+**Deadlock**  
+A cycle in which two or more transactions wait for resources held by each other. Db2 resolves the cycle by selecting a victim transaction to roll back.
+
+**Isolation level**  
+A policy that determines how and when one transaction can see data changed by another. Stronger isolation generally trades concurrency for stronger consistency guarantees.
+
+**Lock escalation**  
+A process where many fine-grained locks are replaced by a coarser lock, potentially increasing contention and blast radius.
+
+**Lock timeout**  
+A wait that exceeds the configured limit and causes the waiting operation to fail rather than wait indefinitely.
+
+**Root blocker**  
+The transaction or application at the top of a blocking chain. Treating only downstream waiters often fails to resolve the causal problem.
+
+**Unit of work (UOW)**  
+The transactional scope between commit/rollback boundaries. Long-running UOWs can retain locks and log resources for significant periods.
+
+## Performance and optimization
+
+**Access plan**  
+The optimizer-selected execution strategy for SQL, including scans, joins, sorts, fetches and other operators.
+
+**Cardinality**  
+The number of rows an operator or predicate is expected to produce. Large estimated-versus-actual differences are a strong signal to investigate statistics and selectivity assumptions.
+
+**Clustering**  
+How closely physical row order matches an index or access pattern. Clustering can influence I/O cost and optimizer choices.
+
+**Design Advisor**  
+A Db2 facility that can recommend physical-design changes such as indexes based on workload evidence. Recommendations require validation before production implementation.
+
+**EXPLAIN**  
+Db2 capability for exposing optimizer access-plan decisions and cost/cardinality estimates. EXPLAIN predicts a plan; it does not by itself prove runtime behavior.
+
+**RUNSTATS**  
+The utility used to collect optimizer statistics for tables, columns and indexes. Statistics should reflect the workload and data distribution that the optimizer must reason about.
+
+**Selectivity**  
+The fraction of rows expected to satisfy a predicate. Highly selective predicates return a small fraction; low-selectivity predicates return many rows.
+
+**Statistics profile**  
+A reusable definition of how statistics should be collected for an object, supporting consistent RUNSTATS behavior.
+
+## Storage and utilities
+
+**Automatic storage**  
+Db2-managed storage using configured storage paths, reducing some manual tablespace-container management while still requiring capacity and failure-domain planning.
+
+**IMPORT**  
+A data-movement utility that processes input using SQL-style operations. Operational behavior differs from high-throughput LOAD.
+
+**LOAD**  
+A high-throughput bulk data-ingestion utility. DBAs must monitor utility and table state rather than rely solely on scheduler/client completion.
+
+**REORG**  
+A utility that physically reorganizes supported table or index structures. It has operational cost and should be scheduled based on evidence.
+
+**REORGCHK**  
+A statistics-driven indicator of potential reorganization need. It is a decision input, not a universal instruction to run REORG.
+
+**Tablespace**  
+A logical storage construct that contains database objects and maps them to storage. Tablespace design affects capacity, performance and recovery operations.
+
+## Operating discipline
+
+**Baseline**  
+The measured state before a change or incident intervention. Without a baseline, improvement and causality are difficult to prove.
+
+**Blast radius**  
+The scope of users, databases, applications or services that could be affected by an action or failure.
+
+**Evidence before intervention**  
+The CLA96G operating principle of capturing causal evidence before changing state whenever service impact allows.
+
+**Guardrail metric**  
+A metric that must not degrade beyond an accepted threshold while optimizing another target—for example, keeping write latency within bounds while tuning a read-heavy report.
+
+**Rollback**  
+A defined path for reversing a change if validation fails. Good change records preserve the exact prior state required to execute rollback safely.

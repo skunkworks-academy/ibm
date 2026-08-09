@@ -34,7 +34,7 @@ const config: Config = {
           ignorePatterns: ['/course/tags/**'],
         },
         theme: {
-          customCss: ['./src/css/custom.css', './src/css/accessibility.css'],
+          customCss: ['./src/css/custom.css', './src/css/accessibility.css', './src/css/learning-v2.css'],
         },
       } satisfies Preset.Options,
     ],
@@ -48,7 +48,7 @@ const config: Config = {
         '@type': 'Course',
         name: 'CLA96G — IBM Db2 12.1 Foundation for Relational DBAs: Self-Paced Learning Companion',
         description:
-          'An independent self-paced learning companion covering Db2 12.1 administration, utilities, recovery, security, concurrency, monitoring, and performance tuning.',
+          'An independent self-paced learning companion covering Db2 12.1 administration, utilities, recovery, security, concurrency, monitoring, performance tuning, and production-style incident response.',
         provider: {
           '@type': 'EducationalOrganization',
           name: 'Skunkworks Academy',
@@ -63,6 +63,7 @@ const config: Config = {
           'security and concurrency',
           'utilities and maintenance',
           'query optimization and monitoring',
+          'evidence-driven database incident response',
         ],
       }),
     },
@@ -72,12 +73,12 @@ const config: Config = {
       {
         name: 'description',
         content:
-          'Interactive self-paced CLA96G learning companion for IBM Db2 12.1 relational database administrators, with labs, scenarios, checks, progress tracking, and final assessment.',
+          'Interactive self-paced CLA96G learning companion for IBM Db2 12.1 relational database administrators, with persistent labs, incidents, progress tracking, and final assessment.',
       },
       {
         name: 'keywords',
         content:
-          'CLA96G, IBM Db2 12.1, Db2 DBA, database administration, backup recovery, HADR, RCAC, LBAC, RUNSTATS, REORG, EXPLAIN, Db2 performance',
+          'CLA96G, IBM Db2 12.1, Db2 DBA, database administration, backup recovery, HADR, RCAC, LBAC, RUNSTATS, REORG, EXPLAIN, Db2 performance, Db2 incident response',
       },
       {name: 'robots', content: 'index,follow,max-image-preview:large'},
     ],
@@ -87,9 +88,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     announcementBar: {
-      id: 'cla96g-self-paced-2026',
+      id: 'cla96g-learning-v2-2026',
       content:
-        '<strong>Self-paced edition</strong> · aligned to the current IBM Db2 12.1 CLA96G scope · 36-hour recommended path · progress is stored locally in your browser.',
+        '<strong>Learning experience v2</strong> · persistent checks and labs · new DBA Incident Centre · 36-hour guided path · browser-local progress.',
       backgroundColor: '#0f62fe',
       textColor: '#ffffff',
       isCloseable: true,
@@ -104,6 +105,7 @@ const config: Config = {
           position: 'left',
           label: 'Course',
         },
+        {to: '/course/incident-centre', label: 'Incident Centre', position: 'left'},
         {to: '/course/final-assessment', label: 'Assessment', position: 'left'},
         {to: '/course/next-steps', label: 'Next steps', position: 'left'},
         {
@@ -131,6 +133,7 @@ const config: Config = {
           title: 'Learn',
           items: [
             {label: 'Start course', to: '/course/intro'},
+            {label: 'DBA Incident Centre', to: '/course/incident-centre'},
             {label: 'Final assessment', to: '/course/final-assessment'},
             {label: 'Next steps', to: '/course/next-steps'},
           ],

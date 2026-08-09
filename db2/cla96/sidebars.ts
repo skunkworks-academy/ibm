@@ -27,7 +27,14 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: ['part-4'],
     },
+    'incident-centre',
     'final-assessment',
+    {
+      type: 'category',
+      label: 'Reference toolkit',
+      collapsed: true,
+      items: ['command-library', 'glossary'],
+    },
     'next-steps',
   ],
 };

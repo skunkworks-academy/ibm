@@ -1,0 +1,137 @@
+---
+title: Db2 DBA Command Library
+description: A practical reference for core IBM Db2 12.1 administration, recovery, utility, locking, statistics, EXPLAIN, and monitoring commands used throughout CLA96G.
+sidebar_position: 7
+keywords: [Db2 commands, db2pd, RUNSTATS, REORG, BACKUP DATABASE, ROLLFORWARD, EXPLAIN]
+---
+
+# Db2 DBA Command Library
+
+Use this as a **working reference**, not a copy-and-paste production runbook. Exact options, privileges, topology, edition, maintenance level, HADR role and change controls must be validated for the target environment.
+
+## Environment and configuration
+
+| Command | Primary purpose | Evidence to retain |
+|---|---|---|
+| `db2level` | Identify installed Db2 code/service level | Full release and informational tokens |
+| `db2 get dbm cfg` | Inspect database-manager configuration | Relevant current values and activation behavior |
+| `db2 get db cfg for <DB>` | Inspect database configuration | Baseline values relevant to the decision |
+| `db2 update db cfg for <DB> using <PARAM> <VALUE>` | Apply a controlled DB configuration change | Before/after values, scope, validation and rollback |
+| `db2 reset db cfg for <DB>` | Restore supported defaults | Change approval and exact values affected |
+| `db2 list db directory` | Review cataloged databases | Database aliases and target paths |
+
+## Data movement and utilities
+
+| Command | Primary purpose | Operational caution |
+|---|---|---|
+| `EXPORT` | Extract query results/data to an external representation | Protect sensitive output and verify row counts |
+| `IMPORT` | Insert/update data through SQL-style processing | Understand transaction/logging impact |
+| `LOAD` | High-throughput bulk ingestion | Monitor utility/table state; do not treat scheduler success as completion |
+| `db2 list utilities show detail` | Inspect utility state and progress | Capture state/messages before intervention |
+| `MON_GET_UTILITY` | Query utility monitoring data | Correlate member, utility ID and workload timing |
+| `LOAD QUERY TABLE <table>` | Inspect LOAD state/details | Use when table availability or pending state is unclear |
+
+## Backup and recovery
+
+```bash
+# Illustrative patterns only — validate syntax/options for the target environment.
+db2 backup db SAMPLE online to /backup include logs
+db2 restore db SAMPLE from /backup taken at <timestamp>
+db2 rollforward db SAMPLE to end of logs and stop
+```
+
+Before declaring recovery successful, retain:
+
+- backup timestamp/image identity;
+- restore destination and configuration;
+- archive-log chain used;
+- intended recovery point;
+- rollforward status;
+- application-level validation;
+- measured RPO/RTO outcome.
+
+## Locking and transaction evidence
+
+```bash
+db2pd -db SAMPLE -locks show detail
+db2pd -db SAMPLE -applications
+db2pd -db SAMPLE -transactions
+```
+
+Use these together to answer:
+
+1. Who is waiting?
+2. Who is holding the blocking lock?
+3. Which object and lock mode are involved?
+4. How old is the blocking unit of work?
+5. What SQL/business process owns it?
+6. What is the blast radius of commit, rollback or targeted termination?
+
+:::caution Evidence before restart
+A restart can clear contention, but it can also erase the strongest causal evidence and affect unrelated databases/applications. Capture state first whenever service impact allows.
+:::
+
+## Statistics and physical maintenance
+
+| Command | Purpose | Decision rule |
+|---|---|---|
+| `RUNSTATS` | Refresh optimizer statistics | Use after material distribution/change when evidence supports it |
+| `REORGCHK` | Evaluate statistical reorganization indicators | Candidate signal, not automatic authorization |
+| `REORG` | Physically reorganize supported table/index structures | Schedule based on evidence and maintenance cost |
+
+Illustrative pattern:
+
+```bash
+db2 "runstats on table APP.ORDERS with distribution and detailed indexes all"
+db2 reorgchk current statistics on table APP.ORDERS
+```
+
+## EXPLAIN and access-plan analysis
+
+```bash
+db2 "explain plan for select ..."
+db2exfmt -d SAMPLE -1 -o explain.txt
+```
+
+Ask these questions before changing indexes:
+
+- What access method is chosen?
+- Which predicates drive selectivity?
+- Are estimated cardinalities credible?
+- Are statistics current and representative?
+- Which operator dominates estimated cost?
+- Is the runtime symptom consistent with the plan?
+- What write/storage cost would a proposed index add?
+
+## Performance monitoring
+
+Useful evidence sources include:
+
+- `MON_GET_DATABASE`
+- `MON_GET_CONNECTION`
+- `MON_GET_ACTIVITY`
+- `MON_GET_PKG_CACHE_STMT`
+- `MON_GET_TABLE`
+- `MON_GET_BUFFERPOOL`
+- `db2pd`
+- administrative views and IBM Db2 Data Management Console where available
+
+A strong first-pass triage correlates **workload rate + response time + waits + top SQL + locks + I/O + logging + memory + recent changes** rather than tuning a single utilization metric in isolation.
+
+## Recovery-oriented command habit
+
+For every production command, record:
+
+```text
+Why am I running this?
+What scope can it affect?
+What evidence led here?
+What output proves the hypothesis?
+What could make it unsafe?
+What is the rollback/fallback?
+What post-change evidence proves success?
+```
+
+### Authoritative reference
+
+Validate exact syntax and supported options against the current Db2 12.1 documentation: `https://www.ibm.com/docs/en/db2/12.1`
