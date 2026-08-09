@@ -1,0 +1,7 @@
+node_modules/
+.docusaurus/
+build/
+.lighthouseci/
+lighthouse-results/
+npm-debug.log*
+.DS_Store
