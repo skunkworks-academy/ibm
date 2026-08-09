@@ -45,6 +45,7 @@ jobs:
         run: npm run seo:check
 
       - name: Setup Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
 
       - name: Lighthouse CI
