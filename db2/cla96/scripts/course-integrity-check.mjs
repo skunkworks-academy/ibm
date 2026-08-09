@@ -17,6 +17,11 @@ const parts = [1, 2, 3, 4].map((number) => read(`docs/part-${number}.mdx`));
 const unitIds = [...objectives.matchAll(/id:\s*'(p[1-4]u\d+)'/g)].map((match) => match[1]);
 if (unitIds.length !== 16 || new Set(unitIds).size !== 16) fail(`Expected 16 unique official unit IDs, found ${unitIds.length}/${new Set(unitIds).size}.`);
 
+const objectiveBlocks = [...objectives.matchAll(/objectives\('p[1-4]u\d+'\s*,\s*\[([\s\S]*?)\]\)/g)];
+const objectiveTotal = objectiveBlocks.reduce((sum, match) => sum + (match[1].match(/^\s*'/gm)?.length ?? 0), 0);
+if (objectiveBlocks.length !== 16) fail(`Expected 16 objective blocks, found ${objectiveBlocks.length}.`);
+if (objectiveTotal !== 76) fail(`Expected 76 source-aligned objectives, found ${objectiveTotal}.`);
+
 const questionMatches = [...assessment.matchAll(/q\('([^']+)'\s*,\s*'(part-[1-4])'\s*,\s*'(p[1-4]u\d+)'\s*,\s*'(p[1-4]u\d+-o\d+)'/g)];
 if (questionMatches.length !== 64) fail(`Expected 64 assessment questions, found ${questionMatches.length}.`);
 if (new Set(questionMatches.map((match) => match[1])).size !== questionMatches.length) fail('Assessment question IDs are not unique.');
@@ -47,5 +52,5 @@ for (const [partNumber, ids] of Object.entries(requiredChecks)) {
 }
 
 if (!process.exitCode) {
-  console.log(`CLA96G integrity OK: ${unitIds.length} official units, ${questionMatches.length} assessment questions, ${incidentIds.length} incidents, mastery IDs present.`);
+  console.log(`CLA96G integrity OK: ${objectiveTotal} objectives across ${unitIds.length} official units, ${questionMatches.length} assessment questions, ${incidentIds.length} incidents, mastery IDs present.`);
 }
