@@ -2,7 +2,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'CLA96G | IBM Db2 12.1 Foundation for Relational DBAs',
+  title: 'CLA96G',
+  titleDelimiter: '·',
   tagline: 'A practical, self-paced DBA learning path from Skunkworks Academy',
   url: 'https://ibm.skunkworksacademy.com',
   baseUrl: '/db2/cla96/',
@@ -33,7 +34,7 @@ const config: Config = {
           ignorePatterns: ['/course/tags/**'],
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: ['./src/css/custom.css', './src/css/accessibility.css'],
         },
       } satisfies Preset.Options,
     ],
