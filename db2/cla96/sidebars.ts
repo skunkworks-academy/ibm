@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: ['part-4'],
     },
+    'incident-centre',
     'final-assessment',
     'next-steps',
   ],
