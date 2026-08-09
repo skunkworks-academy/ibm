@@ -84,8 +84,9 @@ export function patchLearningState(patch: Partial<LearningState>) {
 }
 
 export function rememberLocation(pathname: string) {
-  if (!pathname || pathname.endsWith('/final-assessment')) return;
+  if (!pathname || !pathname.includes('/course/') || pathname.endsWith('/final-assessment')) return;
   const current = readLearningState();
+  if (current.lastLocation === pathname) return;
   writeLearningState({
     ...current,
     lastLocation: pathname,
