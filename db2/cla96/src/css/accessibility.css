@@ -1,0 +1,27 @@
+:root {
+  --cla96-accent-text: #0043ce;
+  --cla96-success-text: #0e6027;
+  --cla96-warning-text: #6f5200;
+}
+
+[data-theme='dark'] {
+  --cla96-accent-text: #78a9ff;
+  --cla96-success-text: #6fdc8c;
+  --cla96-warning-text: #f1c21b;
+}
+
+.eyebrow,
+.learning-card__cta,
+.terminal-suggestions button {
+  color: var(--cla96-accent-text);
+}
+
+.milestone--done,
+.terminal-input-row span {
+  color: var(--cla96-success-text);
+}
+
+.simulation-badge {
+  color: var(--cla96-warning-text);
+  border-color: var(--cla96-warning-text);
+}
