@@ -1,0 +1,81 @@
+---
+title: Part 1 theory · How Db2 fits together
+description: Build the mental model behind Db2 architecture, configuration scope, storage and data movement before beginning Part 1 practical work.
+keywords: [Db2 architecture theory, Db2 instance, database configuration, tablespace theory, data movement]
+---
+
+import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
+
+# Part 1 theory: think in layers, scope and state
+
+Before learning commands, build a model of **where Db2 state lives and how far a change can reach**. Most administration errors are not caused by forgetting syntax; they happen when the DBA changes the right-looking parameter at the wrong layer, assumes an object is isolated when it shares infrastructure, or treats storage and utilities as separate from recovery and performance.
+
+<ConceptStrip items={[
+  {label: 'Mental model', value: 'Host → installation → instance → database → object', note: 'Move from broad infrastructure scope toward narrow data-object scope.'},
+  {label: 'Core question', value: 'Where does this state live?', note: 'Configuration, privileges, logs, tablespaces and utilities each belong to a specific operational boundary.'},
+  {label: 'DBA habit', value: 'Scope before syntax', note: 'Identify blast radius, dependencies and rollback before choosing the command.'},
+]} />
+
+<TheoryVisual
+  kind="architecture"
+  title="Db2 is a hierarchy of operational boundaries"
+  caption="The higher the layer, the broader the potential blast radius. Diagnose the layer first; then choose the smallest intervention that matches it."
+/>
+
+## 1. Architecture is about boundaries, not boxes
+
+A Db2 environment is hierarchical. The operating system hosts one or more Db2 installations. An installation provides a particular code level. An instance provides the database manager runtime and can contain multiple databases. Each database contains schemas, table spaces and objects such as tables, indexes and views.
+
+That hierarchy determines **failure scope** and **change scope**. If an instance listener fails, several databases may become unreachable. If a database configuration parameter is incorrect, the effect is normally limited to that database. If a single index is ineffective, changing instance memory is usually too broad an intervention.
+
+<div className="theory-explain-grid">
+  <div className="theory-explain-card"><strong>Structure answers “where?”</strong><p>Where is the symptom located: host, installation, instance, database, storage, schema or object?</p></div>
+  <div className="theory-explain-card"><strong>Scope answers “how far?”</strong><p>How many databases, applications, users or recovery mechanisms could be affected by this change?</p></div>
+</div>
+
+## 2. Configuration is stored operational policy
+
+Configuration parameters are not just numbers. They encode decisions about memory, logging, communication, recovery and workload behaviour. A parameter therefore has four important properties:
+
+1. **scope** — instance, database, registry, operating system or application;
+2. **activation** — immediate, connection-time, database activation or restart-dependent;
+3. **interaction** — which other limits, resources or policies influence the result;
+4. **evidence** — what observation justifies changing it and what measurement will prove success.
+
+This is why experienced DBAs baseline before changing configuration. Without the starting value and a measurable hypothesis, a change may appear successful while simply moving the bottleneck somewhere else.
+
+## 3. Storage is part of database behaviour
+
+Logical database objects ultimately depend on physical storage. Table spaces organize how database pages are managed, while transaction logs record changes required for consistency and recovery. Backup images and archived logs serve different time horizons and operational purposes.
+
+A useful mental distinction is:
+
+- **data pages** represent current database state;
+- **transaction logs** represent the ordered history of change;
+- **backup images** represent recoverable snapshots;
+- **temporary space** supports intermediate work such as sorts and some query operations.
+
+Storage architecture therefore influences capacity, performance and recoverability at the same time. A database can have ample table-space capacity and still fail operationally because active logs, archive logs or temporary storage are exhausted.
+
+## 4. Data movement changes state at different costs
+
+`EXPORT`, `IMPORT` and `LOAD` all move data, but they do not represent the same operational mechanism. EXPORT extracts data. IMPORT applies rows through database operations. LOAD is optimized for high-volume ingestion and therefore has different logging, table-state and recoverability considerations.
+
+The theory to retain is that **throughput, recoverability and object state are coupled**. Faster bulk movement may require more deliberate monitoring and post-operation validation. A scheduler exit code cannot prove that the table is ready for application use.
+
+<div className="theory-recall">
+  <strong>Retrieval practice</strong>
+  Without looking back, explain why a DBA should identify the operational layer before changing configuration, and why transaction-log capacity belongs in both the storage and recovery conversations.
+</div>
+
+## What to carry into the practical part
+
+When Part 1 introduces commands, treat each command as an implementation of this mental model. Before running anything, ask:
+
+- Which layer am I observing or changing?
+- What is the blast radius?
+- What evidence describes the current state?
+- What dependent resource could become the next constraint?
+- How will I validate the outcome?
+
+[Continue to Part 1 practical →](./part-1)
