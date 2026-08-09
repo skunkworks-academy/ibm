@@ -1,0 +1,335 @@
+---
+title: Part 1 · Foundations, configuration, storage & data movement
+description: Build Db2 12.1 administration fundamentals across architecture, service levels, configuration, storage, objects, and data movement utilities.
+sidebar_position: 2
+keywords: [Db2 architecture, Db2 configuration, tablespaces, EXPORT, IMPORT, LOAD, RUNSTATS]
+---
+
+import {CourseProgress, Db2Terminal, KnowledgeCheck, LessonComplete, PracticeChecklist, ScenarioDecision} from '@site/src/components/LearningWidgets';
+
+# Part 1: foundations, configuration, storage & data movement
+
+**Recommended time:** 9 hours
+
+Part 1 establishes the operational model that every later recovery, security and performance decision depends on. The key skill is **scope awareness**: know whether a fact or change belongs to the operating system, Db2 installation, instance, database, schema or object layer before acting.
+
+<CourseProgress compact />
+
+## Unit 1 · Db2 12.1 architecture and service-level thinking
+
+A relational DBA needs a mental map of the runtime:
+
+```text
+Operating system / host
+└── Db2 installation / code level
+    └── Db2 instance (database manager runtime)
+        ├── database A
+        │   ├── schemas
+        │   ├── table spaces
+        │   ├── tables / indexes / views
+        │   └── logs / recovery history
+        └── database B
+```
+
+This hierarchy is not just terminology. It tells you the likely **blast radius** of a failure or change.
+
+- A listener or instance-start issue can affect several databases.
+- A database configuration change is normally scoped to one database.
+- A table privilege issue may affect one object or role path.
+- A storage-full condition can manifest as utility, logging or availability symptoms depending on the filesystem and object involved.
+
+### Service levels: avoid saying only “we run 12.1”
+
+Maintenance planning requires the precise installed level. IBM’s current CLA96G objectives explicitly include the Db2 versioning/service model. Record enough detail to distinguish the base version, maintenance level and the target being considered.
+
+Your change record should answer:
+
+1. What exact code level is installed?
+2. What is the target level?
+3. What prerequisites and operating-system compatibility apply?
+4. Is the change online, deferred or restart-dependent?
+5. What is the rollback or fallback position?
+6. Which databases and clients share the installation/instance?
+
+<Db2Terminal suggestions={['db2level', 'db2 get db cfg for SAMPLE', 'db2 "values current server"']} />
+
+<KnowledgeCheck
+  id="p1-service-level"
+  question="Why is 'Db2 12.1' insufficient as the only maintenance evidence?"
+  options={[
+    'Because database names must be globally unique',
+    'Because maintenance planning depends on the exact installed service level, prerequisites, compatibility and target level',
+    'Because Db2 does not support version numbers',
+    'Because only the schema version matters',
+  ]}
+  correctIndex={1}
+  explanation="A major/minor version identifies the family, not the exact maintenance state that determines defect fixes, prerequisites and change scope."
+/>
+
+## Unit 2 · Command-line discipline and configuration control
+
+The command-line processor is valuable because it is scriptable, reviewable and repeatable. Enterprise administration should favor commands that can be captured in change records and runbooks over undocumented GUI-only actions.
+
+### Baseline database configuration
+
+A typical inspection begins with:
+
+```bash
+db2 get db cfg for SAMPLE
+```
+
+Do not copy the entire output into a ticket without interpretation. Identify the parameters relevant to the decision, their current values, and whether they are automatic, dynamic or restart-sensitive in your exact environment.
+
+A controlled update pattern is:
+
+```bash
+# 1. Capture current value(s)
+db2 get db cfg for SAMPLE
+
+# 2. Apply one justified change
+db2 update db cfg for SAMPLE using <PARAMETER> <VALUE>
+
+# 3. Confirm effective configuration
+db2 get db cfg for SAMPLE
+
+# 4. Validate workload / health evidence
+# 5. Record rollback value and outcome
+```
+
+`RESET DB CFG` and `AUTOCONFIGURE` are not shortcuts around understanding. Treat automatic recommendations as inputs to a decision, not as an authorization to change production.
+
+### Scope checklist before changing configuration
+
+<div className="callout-grid">
+  <div className="callout-card"><strong>Scope</strong><p>Is this instance configuration, database configuration, registry, workload manager, operating system or application configuration?</p></div>
+  <div className="callout-card"><strong>Activation</strong><p>Does the value take effect immediately, on connection, on database activation, or after an instance restart?</p></div>
+  <div className="callout-card"><strong>Evidence</strong><p>Which metric, symptom or capacity model justifies the change, and what result would prove it helped?</p></div>
+</div>
+
+<ScenarioDecision
+  title="A memory parameter is blamed for slow SQL"
+  prompt="A colleague proposes increasing a memory-related database parameter by 4× because a report is slow. What is the strongest next action?"
+  options={[
+    {label: 'Apply the increase immediately', correct: false, feedback: 'A large configuration change without evidence can create memory pressure elsewhere and makes root-cause attribution difficult.'},
+    {label: 'Capture the current configuration, workload and wait evidence, inspect the SQL/access plan, then test the smallest justified change', correct: true, feedback: 'Performance changes should follow a causal hypothesis and measurable baseline.'},
+    {label: 'Restart the instance first', correct: false, feedback: 'Restarting changes state and may erase useful evidence without testing the hypothesis.'},
+    {label: 'Run REORG on every table', correct: false, feedback: 'Maintenance work unrelated to the evidence adds risk and noise.'},
+  ]}
+/>
+
+## Unit 3 · Instances, databases and operational lifecycle
+
+Instance lifecycle commands are simple; instance lifecycle **decisions** are not.
+
+Before `db2stop` or `db2start`, consider:
+
+- connected applications and in-flight work;
+- HADR or other availability roles;
+- automation that may reconnect or restart services;
+- filesystem, port and operating-system dependencies;
+- current diagnostic evidence;
+- the business impact and change approval.
+
+A restart can be a valid remediation, but it should not become the default diagnostic technique.
+
+### First-response evidence for an instance-level symptom
+
+```text
+1. Time and user-visible symptom
+2. db2level / instance identity
+3. process and instance state
+4. listener/service/port reachability
+5. recent OS, network or configuration changes
+6. db2diag and relevant operating-system logs
+7. impact across databases / clients
+8. action taken and validation result
+```
+
+## Unit 4 · Database creation, storage and table spaces
+
+Storage design affects performance, capacity, backup/recovery and operational risk.
+
+When creating or expanding a database, think in terms of **workload characteristics** rather than only initial size:
+
+- expected data growth;
+- transaction log generation rate;
+- backup image size and backup window;
+- archive-log throughput;
+- temporary workload peaks;
+- LOB or large-object growth;
+- storage latency and failure domains;
+- recovery time objectives.
+
+### Separate concerns where the platform allows
+
+Data, active logs, archived logs and backup images have different I/O and retention patterns. Separating them can reduce contention and reduce the chance that one full filesystem disables several recovery mechanisms at once.
+
+:::caution Capacity is a recovery control
+A database with adequate data space but no room for logs or archive logs can still suffer an outage. Capacity monitoring must include recovery-related storage, not only table-space utilization.
+:::
+
+### Table-space reasoning
+
+Know the answers to these questions for important databases:
+
+- Which table spaces hold critical application data?
+- Which are automatic storage vs explicitly managed?
+- Which objects are large or fast-growing?
+- What is the high-water mark and free-space trend?
+- Which storage paths are shared with logs, backups or other databases?
+- What would happen if one path became unavailable or full?
+
+<KnowledgeCheck
+  id="p1-storage"
+  question="Why do DBAs often separate transaction-log I/O from primary data I/O when infrastructure permits?"
+  options={[
+    'To change SQL syntax',
+    'To reduce competing I/O patterns and improve performance/recovery predictability',
+    'Because Db2 requires separate physical disks in all editions',
+    'To avoid taking backups',
+  ]}
+  correctIndex={1}
+  explanation="Data and log workloads have different I/O behavior. Separation can reduce contention and failure coupling, but the exact design depends on the storage platform."
+/>
+
+## Unit 5 · Database objects and least-surprise design
+
+Core objects include schemas, tables, indexes, views, sequences and temporary structures. A DBA should be able to explain both **what an object does** and **what operational cost it introduces**.
+
+### Schema strategy
+
+Use schemas to create understandable ownership and security boundaries. Avoid an environment where every team creates objects under arbitrary owners and privileges are granted individually without roles.
+
+### Index strategy
+
+Every index is a trade-off:
+
+**Potential benefits**
+- fewer rows/pages examined for selective access;
+- support for ordering, joins and uniqueness;
+- reduced response time for critical read paths.
+
+**Potential costs**
+- additional storage;
+- maintenance on INSERT/UPDATE/DELETE;
+- longer LOAD/maintenance operations;
+- more optimizer choices and governance overhead.
+
+Do not create indexes because a query “looks slow.” Use workload evidence and EXPLAIN later in Part 4.
+
+### Views as an interface
+
+Views can simplify application access and help expose curated columns/rows, but a view is not automatically a security control. Privileges, RCAC/LBAC and ownership rules still matter.
+
+## Unit 6 · Data movement: EXPORT, IMPORT and LOAD
+
+The public CLA96G objectives explicitly include `EXPORT`, `IMPORT` and load operations. The important distinction is the operational behavior and recovery implication of each method.
+
+### EXPORT
+
+Use EXPORT to extract data to a supported external representation. Before exporting production data, classify whether the output contains regulated, personal or confidential content and protect the file accordingly.
+
+Example learning pattern:
+
+```bash
+db2 "export to employees.del of del select empno, lastname, workdept from employee"
+```
+
+### IMPORT
+
+IMPORT processes input through SQL-style operations. It is often simpler operationally but may be slower for very large bulk movement than LOAD.
+
+```bash
+db2 "import from employees.del of del insert into employee_stage"
+```
+
+### LOAD
+
+LOAD is designed for high-throughput bulk ingestion and has table-state, logging and recoverability considerations that require deliberate monitoring.
+
+Do not treat this as fire-and-forget:
+
+```bash
+db2 "load from employees.del of del insert into employee_stage"
+db2 list utilities show detail
+```
+
+Depending on the operation and environment, inspect utility messages and table state before handing the database back to users.
+
+<Db2Terminal suggestions={['db2 list utilities show detail', 'db2 "select * from table(mon_get_utility(-2)) as t"', 'db2 load query table employee_stage']} />
+
+<ScenarioDecision
+  title="Overnight LOAD leaves the table unavailable"
+  prompt="The batch scheduler reports success, but application SQL against the target table fails in the morning. What is the best first DBA move?"
+  options={[
+    {label: 'Drop and recreate the table', correct: false, feedback: 'That destroys evidence and can create data loss before you know the table state.'},
+    {label: 'Inspect utility status, LOAD query/status, utility messages and table state before further changes', correct: true, feedback: 'Bulk utilities can leave pending states or require follow-up. Evidence establishes the safe recovery path.'},
+    {label: 'Increase LOGPRIMARY immediately', correct: false, feedback: 'Logging may be relevant in some cases, but it is not the first conclusion without utility-state evidence.'},
+    {label: 'Restart every application server', correct: false, feedback: 'Application restarts do not resolve a Db2 table utility state.'},
+  ]}
+/>
+
+## Unit 7 · RUNSTATS and REORG as maintenance tools, not rituals
+
+You will revisit performance in Part 4, but establish the maintenance distinction now:
+
+- **RUNSTATS** refreshes statistical metadata used by the optimizer.
+- **REORG** physically reorganizes table or index data structures under supported options.
+- **REORGCHK** helps identify candidates using statistical criteria; it is not a universal command to run before every performance incident.
+
+A maintenance calendar should be informed by change rate, workload behavior, object size and maintenance cost.
+
+```bash
+# Illustrative only — validate exact syntax/options for your environment
+db2 "runstats on table APP.ORDERS with distribution and detailed indexes all"
+db2 reorgchk current statistics on table APP.ORDERS
+```
+
+:::tip Think in evidence loops
+After large data change: refresh the statistics justified by the workload → inspect relevant access plans → measure runtime behavior → decide whether physical reorganization or index changes are warranted.
+:::
+
+<PracticeChecklist
+  title="Part 1 lab evidence"
+  items={[
+    'Captured exact Db2 service-level output and recorded the instance/database scope.',
+    'Captured a DB CFG baseline and identified at least five parameters relevant to recovery, memory or application behavior.',
+    'Mapped data, active logs, archive logs and backup locations for the lab database.',
+    'Created or reviewed a schema, table, view and index and documented the operational purpose of each.',
+    'Performed a safe EXPORT/IMPORT or equivalent data-movement exercise in the lab.',
+    'Monitored a utility and retained the status/message evidence.',
+    'Ran or reviewed RUNSTATS / REORGCHK behavior and recorded what each utility changes.',
+  ]}
+/>
+
+<KnowledgeCheck
+  id="p1-utility-monitor"
+  question="A bulk utility returns control to the scheduler. What additional evidence is most important before declaring the operation operationally complete?"
+  options={[
+    'Only the scheduler exit code',
+    'Utility status/messages and the resulting table/database state',
+    'The size of the application log',
+    'A restart of the host',
+  ]}
+  correctIndex={1}
+  explanation="Enterprise completion means the database object is in the expected usable state and utility messages do not indicate pending or corrective actions."
+/>
+
+## Part 1 review questions
+
+Before marking Part 1 complete, explain these without notes:
+
+1. What evidence tells you whether a symptom is instance-level or database/object-level?
+2. What must be recorded before and after a configuration change?
+3. How do data, logs, archive logs and backups differ operationally?
+4. Why does every index have a write and maintenance cost?
+5. When would you choose EXPORT/IMPORT vs a bulk LOAD workflow?
+6. What evidence proves that a utility has finished safely?
+7. What do RUNSTATS, REORG and REORGCHK each contribute?
+
+### Authoritative references
+
+- Db2 12.1 documentation: `https://www.ibm.com/docs/en/db2/12.1`
+- CLA96G public course description and objectives: `https://www.ibm.com/training/course/ibm-db2-12-foundation-for-relational-dbas-CLA96G`
+
+<LessonComplete lessonId="part-1" nextHref="/course/part-2" nextLabel="Start Part 2" />
