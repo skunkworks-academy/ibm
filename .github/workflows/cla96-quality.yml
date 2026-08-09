@@ -69,4 +69,5 @@ jobs:
           name: cla96-lighthouse-results
           path: db2/cla96/.lighthouseci
           if-no-files-found: warn
+          include-hidden-files: true
           retention-days: 7
