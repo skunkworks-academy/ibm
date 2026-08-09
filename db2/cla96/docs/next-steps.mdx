@@ -1,0 +1,75 @@
+---
+title: Next steps · Turn course knowledge into operating capability
+description: Convert CLA96G learning into DBA runbooks, lab evidence, deeper security/performance skills and production readiness.
+sidebar_position: 7
+keywords: [Db2 DBA roadmap, CLA93G, CLA94G, CLA95G, Db2 skills]
+---
+
+import {CourseProgress, PracticeChecklist} from '@site/src/components/LearningWidgets';
+
+# Next steps: turn knowledge into operating capability
+
+<CourseProgress compact />
+
+Finishing the course is the beginning of operational competence. The strongest next move is to turn each learning domain into **repeatable runbooks, tested recovery procedures and measurable performance/security controls**.
+
+## Build your DBA evidence portfolio
+
+Create a small repository or controlled internal knowledge base containing:
+
+1. **Environment baseline** — Db2 level, instance/database topology, storage/log/archive layout and key configuration.
+2. **Start/stop runbook** — dependencies, impact checks, commands, validation and rollback/escalation.
+3. **Backup/recovery runbook** — RPO/RTO, backup cadence, log chain, restore/rollforward steps and application validation.
+4. **Utility runbook** — LOAD/IMPORT/EXPORT monitoring, table states, message evidence and failure handling.
+5. **Lock-triage runbook** — holder/waiter evidence, SQL context, escalation criteria and prevention review.
+6. **Access-control matrix** — roles, authorities, object privileges, security ownership and review cadence.
+7. **Performance triage** — workload baseline, waits, top SQL, EXPLAIN evidence, experiment template and rollback criteria.
+8. **Maintenance calendar** — statistics, REORG decisions, backup tests, certificate/key review and capacity thresholds.
+
+<PracticeChecklist
+  title="Production-readiness evidence"
+  items={[
+    'I can prove a restore/recovery test against a documented RPO/RTO.',
+    'I have a 10-minute incident evidence checklist before service restart.',
+    'I can explain the effective authorization path for a user, role and administrative task.',
+    'I can identify a blocking chain and distinguish wait, timeout, deadlock and escalation.',
+    'I can compare EXPLAIN estimates with runtime evidence and form a tuning hypothesis.',
+    'I can justify an index or configuration change with baseline, guardrails and rollback.',
+    'I have documented which Db2 actions require change approval in my organization.',
+  ]}
+/>
+
+## Suggested deeper learning path
+
+### Security & concurrency depth
+
+Use the current IBM **CLA93G — Db2 12.1 Security and Concurrency for Relational DBAs** skill scope to deepen locking, isolation, authority hierarchy, RCAC, LBAC, trusted contexts, auditing and encryption.
+
+### Performance foundations
+
+Use **CLA94G — Db2 12.1 Performance and Tuning Optimization for Relational DBAs** to deepen statistics profiles, index design, Design Advisor, EXPLAIN, monitoring table functions and Data Management Console workflows.
+
+### Advanced performance
+
+Use **CLA95G — Db2 12.1 Advanced Performance and Tuning Optimization for Relational DBAs** for advanced index strategy, statistical views, optimizer controls/profiles, activity/event analysis and deeper diagnostic tooling.
+
+## 30-day practice plan
+
+| Week | Focus | Deliverable |
+|---|---|---|
+| 1 | Baseline + configuration | Environment map and configuration-change template |
+| 2 | Recovery + utilities | Timed restore/rollforward test and utility monitoring runbook |
+| 3 | Security + concurrency | Role/access matrix and lock-triage exercise |
+| 4 | Performance | One full tuning experiment from baseline to validated result |
+
+## Final operating principle
+
+> **Evidence before intervention. Scope before command. Recovery before risk. Validation before closure.**
+
+Use that sequence consistently and individual Db2 commands become easier to learn, safer to apply and simpler to audit.
+
+### Official references
+
+- IBM CLA96G: `https://www.ibm.com/training/course/ibm-db2-12-foundation-for-relational-dbas-CLA96G`
+- IBM Db2 12.1 documentation: `https://www.ibm.com/docs/en/db2/12.1`
+- IBM Db2 tutorials: `https://www.ibm.com/products/db2/tutorials`

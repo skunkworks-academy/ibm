@@ -1,0 +1,267 @@
+---
+title: Part 2 · Recovery, utilities, maintenance & availability
+description: Build Db2 12.1 recovery judgment across backup, restore, rollforward, advanced recovery, HADR, utility monitoring and maintenance.
+sidebar_position: 3
+keywords: [Db2 backup, restore, rollforward, HADR, LOAD, MON_GET_UTILITY, recovery]
+---
+
+import {CourseProgress, Db2Terminal, KnowledgeCheck, LessonComplete, PracticeChecklist, ScenarioDecision} from '@site/src/components/LearningWidgets';
+
+# Part 2: recovery, utilities, maintenance & availability
+
+**Recommended time:** 8 hours
+
+Recovery is a service capability, not a backup command. A DBA should be able to connect business recovery objectives to log configuration, backup design, restore mechanics, validation and high-availability architecture.
+
+<CourseProgress compact />
+
+## Unit 1 · Start with RPO and RTO
+
+Two service objectives frame the technical design:
+
+- **Recovery Point Objective (RPO):** how much committed data the service can tolerate losing.
+- **Recovery Time Objective (RTO):** how long the service can tolerate being unavailable or degraded before recovery is complete.
+
+A nightly offline backup may be technically successful and still be unacceptable if the business RPO is 15 minutes.
+
+### Translate objectives into controls
+
+<div className="callout-grid">
+  <div className="callout-card"><strong>RPO controls</strong><p>Archive logging, backup frequency, log retention, replication/standby strategy and application consistency.</p></div>
+  <div className="callout-card"><strong>RTO controls</strong><p>Backup/restore throughput, image accessibility, runbook quality, automation, standby readiness and validation time.</p></div>
+  <div className="callout-card"><strong>Proof</strong><p>Timed restore/recovery exercises using representative data volume and application validation — not only a successful BACKUP return code.</p></div>
+</div>
+
+<KnowledgeCheck
+  id="p2-proof"
+  question="Which evidence gives the strongest recovery assurance?"
+  options={[
+    'The backup image exists',
+    'The backup command returned SQLCODE 0',
+    'A representative restore and recovery test met the documented RPO/RTO and application validation criteria',
+    'Archive logging is enabled',
+  ]}
+  correctIndex={2}
+  explanation="Backups are inputs to recovery. The service objective is proven when the restore, log application and application validation process works within required time and data-loss bounds."
+/>
+
+## Unit 2 · Backup strategy and evidence
+
+A backup plan should define:
+
+- backup type and cadence;
+- online/offline behavior;
+- image location and protection;
+- retention and lifecycle policy;
+- archive-log dependencies;
+- encryption requirements;
+- restore target(s);
+- validation procedure;
+- ownership and alerting.
+
+Illustrative command patterns:
+
+```bash
+# Exact options vary by environment; validate against Db2 12.1 documentation.
+db2 backup db SAMPLE online to /backup/db2 include logs
+
+db2 list history backup all for SAMPLE
+```
+
+Capture the timestamp, image location, database alias, backup type and associated log requirements in your evidence note.
+
+:::warning Security and backup media
+Backup images can contain the entire logical dataset. Apply the same or stronger access, encryption, retention and disposal controls as the source database.
+:::
+
+## Unit 3 · Restore and rollforward as a recovery chain
+
+Think of recovery as a chain:
+
+<div className="command-sequence">
+  <div><strong>01 · Select image</strong><span>Confirm source database, timestamp, image integrity and intended target.</span></div>
+  <div><strong>02 · Restore</strong><span>Restore the image to the correct database/storage layout.</span></div>
+  <div><strong>03 · Apply logs</strong><span>Roll forward through the required log chain to the chosen recovery point.</span></div>
+  <div><strong>04 · End recovery</strong><span>Complete rollforward at end-of-logs or a governed point in time.</span></div>
+  <div><strong>05 · Validate</strong><span>Check database state, application objects, consistency and business acceptance criteria.</span></div>
+</div>
+
+A restore may complete successfully while the database remains **rollforward pending**. That is not an instruction to restart randomly; it is a state indicating recovery is incomplete.
+
+<Db2Terminal suggestions={['db2 restore db SAMPLE from /backup/db2', 'db2 rollforward db SAMPLE to end of logs and stop', 'db2 get db cfg for SAMPLE']} />
+
+<ScenarioDecision
+  title="Restore succeeds; database is not usable"
+  prompt="The restore command completes, but connections fail because the database is rollforward pending. What is the best interpretation?"
+  options={[
+    {label: 'The backup image must be corrupt', correct: false, feedback: 'A successful restore followed by rollforward pending commonly means more recovery work is expected, not that the image is corrupt.'},
+    {label: 'Apply the required logs to the intended recovery point and explicitly complete rollforward', correct: true, feedback: 'Restore and rollforward are separate phases. Recovery is not complete until the database reaches the intended consistent state.'},
+    {label: 'Run REORG on the catalog', correct: false, feedback: 'REORG does not complete a pending rollforward recovery.'},
+    {label: 'Recreate the instance', correct: false, feedback: 'Instance recreation is not a normal response to rollforward pending.'},
+  ]}
+/>
+
+## Unit 4 · Point-in-time recovery and log-chain thinking
+
+Point-in-time recovery is a governed choice to stop before end-of-logs. The DBA must know:
+
+- the requested business recovery timestamp;
+- timezone and clock assumptions;
+- which backup image provides the recovery base;
+- whether all required archived/active logs are available;
+- the consequence for transactions after the chosen point;
+- how applications and downstream systems will reconcile the recovered state.
+
+A technically correct database can still be operationally inconsistent with message queues, files, caches or external systems. Treat point-in-time recovery as an application-service decision, not only a database command.
+
+## Unit 5 · Redirected restore and storage re-mapping
+
+Redirected restore is useful when the target storage layout differs from the source — for example, a disaster-recovery host, migration, or lab recovery validation.
+
+The reasoning sequence is:
+
+1. establish the source image and target database;
+2. inspect the source table-space/container layout;
+3. define target storage paths with sufficient capacity and correct ownership;
+4. perform the redirected restore steps for your Db2 level;
+5. apply logs as required;
+6. validate object state and application access;
+7. document differences from the source topology.
+
+:::caution Use current syntax
+Redirected restore syntax and supported storage patterns are configuration-sensitive. Use this course for the workflow model and IBM Db2 12.1 documentation for the exact command sequence in your environment.
+:::
+
+## Unit 6 · Advanced recovery patterns
+
+The current public CLA96G objectives call out advanced scenarios such as schema-level logical backup/restore, redirected restore and split-mirror copies. Treat these as **design patterns with prerequisites**, not generic replacements for database backups.
+
+### Logical/schema-scoped movement
+
+A logical export/restore approach can be appropriate when the recovery requirement is object/schema scoped rather than full physical database recovery. Evaluate referential dependencies, routines, privileges, sequences, data volume and application consistency.
+
+### Split-mirror or storage-assisted copies
+
+Storage-assisted copies can reduce backup windows and accelerate recovery, but only when Db2 and storage coordination guarantees a recoverable image. DBA and storage teams must share a runbook for quiesce/suspend/resume or the supported integration pattern.
+
+## Unit 7 · HADR fundamentals
+
+High Availability Disaster Recovery (HADR) maintains a primary/standby relationship using log shipping/replay. The DBA should understand at least:
+
+- primary vs standby roles;
+- synchronization mode and latency implications;
+- log shipping and replay health;
+- peer state and disconnect behavior;
+- takeover procedures;
+- client reroute/application reconnect expectations;
+- monitoring and alert thresholds;
+- the difference between high availability and backup/recovery.
+
+A standby does **not** replace backups. Replication can faithfully reproduce an application error, unwanted delete or logical corruption.
+
+<KnowledgeCheck
+  id="p2-hadr-backup"
+  question="Why does an HADR standby not eliminate the need for backups?"
+  options={[
+    'Because HADR cannot use transaction logs',
+    'Because replication can propagate logical mistakes or corruption, while backups support recovery to independent points and scenarios',
+    'Because standby databases are read-only in every configuration',
+    'Because backups are required only for performance',
+  ]}
+  correctIndex={1}
+  explanation="High availability and historical recovery solve different failure modes. A standby improves service continuity but may receive the same unwanted logical change as the primary."
+/>
+
+## Unit 8 · Utility monitoring and table states
+
+Data movement and maintenance operations can have states that affect application availability. Your runbook should never end at “command submitted.”
+
+Use the tools appropriate to your version and operation, including the current public CLA96G objective set:
+
+```text
+LIST UTILITIES
+MON_GET_UTILITY
+LOAD_QUERY
+utility message files / diagnostic messages
+table state inspection
+```
+
+<Db2Terminal suggestions={['db2 list utilities show detail', 'db2 "select * from table(mon_get_utility(-2)) as t"', 'db2 load query table APP.BIG_STAGE']} />
+
+A utility evidence bundle should include:
+
+- operation type and start time;
+- object/database target;
+- current phase/state;
+- progress metrics if available;
+- messages/warnings;
+- pending states or follow-up actions;
+- completion timestamp;
+- validation query or application check.
+
+## Unit 9 · RUNSTATS, REORG and maintenance windows
+
+Maintenance must be connected to a condition:
+
+- large data change may justify statistics refresh;
+- poor clustering or physical organization may justify REORG;
+- object growth may change utility duration and log/temporary-space demand;
+- an online option may reduce outage but increase runtime/overhead.
+
+Avoid “weekly REORG everything” as a substitute for evidence.
+
+### Maintenance change record
+
+```text
+Object(s):
+Reason / evidence:
+Utility and options:
+Estimated duration:
+Expected locks / availability effect:
+Temporary/log/storage requirement:
+Monitoring command:
+Abort / rollback condition:
+Post-maintenance validation:
+```
+
+<PracticeChecklist
+  title="Part 2 recovery lab"
+  items={[
+    'Mapped a business RPO/RTO example to backup, log and validation controls.',
+    'Captured backup-history evidence for the lab database.',
+    'Performed or walked through a restore and identified when rollforward is required.',
+    'Documented the log chain and recovery point used in the exercise.',
+    'Reviewed a redirected-restore design for a target with different storage paths.',
+    'Explained why HADR and backup/recovery address different failure modes.',
+    'Monitored a utility and documented its final object/table state.',
+    'Produced a maintenance record for a RUNSTATS or REORG activity.',
+  ]}
+/>
+
+<ScenarioDecision
+  title="Log filesystem approaches capacity during batch"
+  prompt="Active/archive log storage is approaching its threshold during a large batch. Which response is strongest?"
+  options={[
+    {label: 'Delete archive logs immediately', correct: false, feedback: 'Uncontrolled deletion can break the recovery chain. Retention must follow recovery policy and verified backup/log requirements.'},
+    {label: 'Measure log generation and archive throughput, protect the recovery chain, relieve capacity safely, then tune sizing/batch design', correct: true, feedback: 'The response preserves recoverability while addressing both immediate capacity and the underlying workload/configuration cause.'},
+    {label: 'Disable archive logging', correct: false, feedback: 'That changes the recovery model and is not an incident shortcut.'},
+    {label: 'Increase bufferpool memory', correct: false, feedback: 'Bufferpool size does not directly solve a log filesystem capacity incident.'},
+  ]}
+/>
+
+## Part 2 review questions
+
+1. What technical controls determine your achievable RPO and RTO?
+2. Why can a successful restore still leave a database unusable?
+3. What makes point-in-time recovery an application-service decision?
+4. When is redirected restore useful, and what must be revalidated?
+5. What failure modes does HADR reduce, and which does it not?
+6. What evidence proves a LOAD or other utility has completed safely?
+7. Why are RUNSTATS and REORG decisions different?
+
+### Authoritative references
+
+- Db2 12.1 documentation: `https://www.ibm.com/docs/en/db2/12.1`
+- CLA96G objectives: `https://www.ibm.com/training/course/ibm-db2-12-foundation-for-relational-dbas-CLA96G`
+
+<LessonComplete lessonId="part-2" nextHref="/course/part-3" nextLabel="Start Part 3" />

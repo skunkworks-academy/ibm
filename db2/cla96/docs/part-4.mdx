@@ -1,0 +1,363 @@
+---
+title: Part 4 · Statistics, optimization, monitoring & performance
+description: Learn evidence-driven Db2 12.1 performance tuning using statistics, indexes, EXPLAIN, Design Advisor, monitoring, diagnostics and AI-assisted optimization.
+sidebar_position: 5
+keywords: [Db2 RUNSTATS, EXPLAIN, Design Advisor, db2pd, Db2 AI Query Optimizer, performance tuning]
+---
+
+import {CourseProgress, Db2Terminal, KnowledgeCheck, LessonComplete, PracticeChecklist, ScenarioDecision} from '@site/src/components/LearningWidgets';
+
+# Part 4: statistics, optimization, monitoring & performance
+
+**Recommended time:** 8 hours
+
+Performance work is an evidence discipline. The objective is not to make every metric “low” or every query “use an index.” The objective is to identify the dominant cost, understand why Db2 chose the observed access path, and improve service outcomes without shifting the bottleneck elsewhere.
+
+<CourseProgress compact />
+
+## Unit 1 · Begin with workload and waits, not configuration guesses
+
+A useful performance baseline describes both demand and response:
+
+- transactions/requests per second;
+- response-time percentiles, not only averages;
+- active connections and concurrency;
+- CPU utilization and run queue;
+- storage latency/throughput;
+- bufferpool activity;
+- sort and temporary-space behavior;
+- logging rate and archive throughput;
+- lock waits/deadlocks/timeouts;
+- top SQL by total time, CPU, rows read or execution count;
+- recent changes in application, data distribution, configuration or infrastructure.
+
+### The 10-minute triage sequence
+
+<div className="command-sequence">
+  <div><strong>01 · Impact</strong><span>Which service, users and time window are affected? What changed?</span></div>
+  <div><strong>02 · Demand</strong><span>Did workload volume, concurrency or data size change?</span></div>
+  <div><strong>03 · Waits</strong><span>CPU, I/O, locks, logging, sorts or network — which domain dominates?</span></div>
+  <div><strong>04 · Top work</strong><span>Identify SQL or utilities contributing the most total cost.</span></div>
+  <div><strong>05 · Hypothesis</strong><span>Choose one causal mechanism and collect the evidence needed to test it.</span></div>
+</div>
+
+<ScenarioDecision
+  title="A report slowed down after month-end data growth"
+  prompt="The report now takes 12 minutes instead of 90 seconds. CPU is moderate, rows read increased dramatically, and the table grew 8×. What is the strongest first tuning path?"
+  options={[
+    {label: 'Increase every memory parameter', correct: false, feedback: 'Rows-read growth points to access-path/selectivity or workload change. Broad memory changes do not test that mechanism.'},
+    {label: 'Capture the SQL and current plan, verify statistics/cardinality estimates and predicate selectivity, then evaluate index/design changes', correct: true, feedback: 'The evidence points toward access-path efficiency. Validate estimates before changing structures.'},
+    {label: 'Restart Db2', correct: false, feedback: 'A restart will not explain why the query now reads much more data.'},
+    {label: 'Disable logging', correct: false, feedback: 'Logging is unrelated to the described read-heavy access path and would create recovery risk.'},
+  ]}
+/>
+
+## Unit 2 · Optimizer statistics are a model of the data
+
+The optimizer estimates the cost of candidate plans using metadata about table cardinality, indexes, data distribution and other factors. If the model is stale or does not capture relevant skew/correlation, a plan can be reasonable for the model and poor for the real data.
+
+### RUNSTATS decision questions
+
+Before collecting more statistics, ask:
+
+1. Has the table or index changed materially since the last collection?
+2. Did distribution/skew change, or only row count?
+3. Which predicates and joins are sensitive to selectivity estimates?
+4. Are distribution statistics justified for the workload?
+5. Is a statistics profile used to standardize collection?
+6. What is the cost of collecting the requested detail on this object?
+
+Illustrative pattern:
+
+```sql
+RUNSTATS ON TABLE APP.ORDERS
+  WITH DISTRIBUTION
+  AND DETAILED INDEXES ALL;
+```
+
+Do not copy this pattern blindly. On large objects, statistics detail has collection cost. Use the options that answer the workload’s estimation problem.
+
+### Statistics profiles
+
+Statistics profiles can standardize how statistics are collected for an object so recurring maintenance uses consistent options. The current CLA96G public objective set explicitly includes configuring and managing statistics profiles.
+
+A profile becomes part of your operating standard: document why it exists, when it should be refreshed and what workload it supports.
+
+<KnowledgeCheck
+  id="p4-stats"
+  question="After a large data redistribution, estimated cardinality is far below actual rows returned. What should you investigate before adding indexes?"
+  options={[
+    'Statistics freshness and whether the collected statistics represent skew/selectivity',
+    'Whether the backup image is compressed',
+    'Whether all users have DBADM',
+    'Whether HADR is enabled',
+  ]}
+  correctIndex={0}
+  explanation="A large estimated-vs-actual gap suggests the optimizer’s model may not represent the current data distribution or predicate behavior."
+/>
+
+## Unit 3 · Index design is a workload trade-off
+
+An index can reduce read cost while increasing:
+
+- storage;
+- INSERT/UPDATE/DELETE maintenance;
+- LOAD and maintenance work;
+- backup size;
+- optimizer search choices;
+- governance complexity.
+
+### Evaluate an index candidate
+
+For each candidate, record:
+
+```text
+Target SQL / workload:
+Predicates and joins supported:
+Expected selectivity:
+Current access path:
+Expected new access path:
+Read benefit:
+Write/LOAD cost:
+Storage estimate:
+Overlap with existing indexes:
+Validation workload:
+Rollback/drop criteria:
+```
+
+Avoid creating near-duplicate indexes. Compare key columns, include columns, ordering and usage across the workload.
+
+## Unit 4 · Design Advisor: recommendation, not authorization
+
+Db2 Design Advisor can analyze workload information and propose physical design improvements such as indexes. The current CLA96G scope calls out using Design Advisor to obtain and implement index recommendations.
+
+The DBA still owns the decision:
+
+1. Is the workload representative?
+2. What benefit is estimated?
+3. Does the recommendation duplicate or overlap existing indexes?
+4. What is the write/storage/maintenance cost?
+5. Can it be tested on production-like data?
+6. What metrics establish success?
+7. What is the rollback path?
+
+<ScenarioDecision
+  title="Design Advisor recommends six indexes"
+  prompt="A captured workload produces six index recommendations and a high estimated read benefit. What is the strongest production response?"
+  options={[
+    {label: 'Create all six immediately', correct: false, feedback: 'Advisor output does not account for every operational cost or workload outside the captured sample.'},
+    {label: 'Review overlap and workload representativeness, test the candidates, measure read/write impact, then implement the justified subset through change control', correct: true, feedback: 'This converts recommendation evidence into a governed production decision.'},
+    {label: 'Drop all existing indexes first', correct: false, feedback: 'That creates unnecessary outage/performance risk and removes the baseline.'},
+    {label: 'Ignore advisor output because automated tools are never useful', correct: false, feedback: 'Advisor output can be valuable evidence when validated against representative workload and operational costs.'},
+  ]}
+/>
+
+## Unit 5 · EXPLAIN: understand the selected access plan
+
+EXPLAIN captures the access plan Db2 selects for an explainable statement. The statement is analyzed without being executed when using the standard EXPLAIN form.
+
+Use EXPLAIN to answer questions such as:
+
+- table scan or index access?
+- join order and join method?
+- estimated cardinality at each stage?
+- predicates applied early or late?
+- sort operations?
+- estimated cost and row flow?
+- whether a candidate index changes the plan as expected?
+
+Common tooling includes SQL EXPLAIN tables plus utilities such as `db2exfmt` and `db2expln`, depending on the question and environment.
+
+<Db2Terminal suggestions={['db2exfmt -d SAMPLE -1 -o explain.txt', 'db2expln -d SAMPLE -q "select * from APP.ORDERS where CUSTOMER_ID = 42"', 'db2 "explain plan for select * from APP.ORDERS where CUSTOMER_ID = 42"']} />
+
+### Estimated vs actual is a diagnostic signal
+
+If EXPLAIN expects 100 rows and runtime monitoring consistently processes millions, investigate:
+
+- stale/incomplete statistics;
+- data skew;
+- correlated predicates;
+- parameter sensitivity;
+- expressions/functions reducing sargability;
+- implicit data-type conversion;
+- missing or unsuitable indexes.
+
+<KnowledgeCheck
+  id="p4-explain-gap"
+  question="What does a very large gap between estimated and actual cardinality most directly tell you?"
+  options={[
+    'The optimizer model or predicate assumptions deserve investigation',
+    'The database must be restored',
+    'The instance owner password has expired',
+    'Every query needs a new index',
+  ]}
+  correctIndex={0}
+  explanation="Cardinality drives plan costing. Large estimate errors are diagnostic evidence about statistics, selectivity or query behavior, not proof of one specific fix."
+/>
+
+## Unit 6 · SQL design signals
+
+Before changing infrastructure, inspect query mechanics:
+
+- are predicates selective and sargable?
+- are data types aligned across comparisons/joins?
+- is the query requesting unnecessary columns or rows?
+- are joins logically correct and supported by suitable indexes?
+- are sorts or repeated scalar functions dominating cost?
+- can result sets be reduced earlier?
+- is the workload executing the same expensive query far more often than expected?
+
+A small application/query change can outperform a large infrastructure change when the dominant cost is unnecessary work.
+
+## Unit 7 · Monitoring with SQL table functions and administrative views
+
+The current CLA96G objectives include using SQL-based table functions and administrative views to retrieve real-time and historical monitoring data.
+
+Design your monitoring queries around questions, not “collect everything.” Examples:
+
+- Which statements consume the most total time?
+- Where is lock wait time concentrated?
+- Which utilities are currently active?
+- Which table spaces are approaching capacity?
+- Which applications have the oldest units of work?
+- Are log/archive rates approaching configured or storage limits?
+
+### Operational dashboard principle
+
+Every dashboard tile should have:
+
+- an owner;
+- a threshold or expected range;
+- a response playbook;
+- enough context to avoid false alarms;
+- a retention window appropriate to the decision.
+
+Monitoring without ownership becomes noise.
+
+## Unit 8 · db2pd, diagnostics and support evidence
+
+`db2pd` is useful for low-overhead runtime inspection across areas such as applications, locks, memory and database state. Diagnostic tools such as `db2diag` and support collections are valuable when escalation is required.
+
+Order matters:
+
+1. capture lightweight, time-critical state first;
+2. preserve diagnostic timestamps and identifiers;
+3. avoid interventions that erase the condition before evidence is captured;
+4. collect deeper support bundles when the initial domain is known or vendor escalation requires it.
+
+A support bundle without a timeline is less valuable than a smaller evidence set tied to the incident window.
+
+## Unit 9 · Db2 Data Management Console
+
+A graphical console can accelerate correlation and communication by showing workload, resource and SQL behavior over time. Use it to support — not replace — the ability to explain the underlying metrics and SQL evidence.
+
+When a chart shows a spike, be able to answer:
+
+- what metric is being calculated?
+- what interval/aggregation is used?
+- which database member/service class/workload is represented?
+- what changed at the same time?
+- can the signal be reproduced with SQL/admin views or command-line evidence?
+
+## Unit 10 · Db2 AI Query Optimizer
+
+IBM’s current Db2 12.1 learning material includes AI-assisted query optimization. Treat AI-derived recommendations as another **decision signal**, subject to the same production controls as human recommendations.
+
+A governed evaluation loop is:
+
+```text
+representative workload
+→ baseline plan and performance
+→ AI/advisor recommendation
+→ controlled test
+→ compare response time, resource cost and plan behavior
+→ accept, reject or refine
+→ document outcome
+```
+
+Do not let the word “AI” bypass change governance.
+
+IBM published current operational guidance indicating that AI Query Optimizer model training consumes measurable CPU/memory during discovery/training. That reinforces the need to schedule and observe AI-assisted optimization like any other workload-affecting maintenance activity.
+
+<KnowledgeCheck
+  id="p4-ai"
+  question="How should an AI-generated optimizer recommendation be handled in production?"
+  options={[
+    'Apply it automatically because the model is authoritative',
+    'Use it as evidence, validate on representative workload, measure side effects and implement through normal change control',
+    'Ignore it because automated recommendations cannot help',
+    'Use it instead of collecting statistics',
+  ]}
+  correctIndex={1}
+  explanation="AI assistance can improve decision quality, but it does not remove the need for baselines, validation, governance and rollback."
+/>
+
+## Unit 11 · Build a performance experiment, not a tuning session
+
+Use this template for every meaningful tuning action:
+
+```text
+Problem statement:
+User/service impact:
+Baseline window:
+Workload volume/concurrency:
+Dominant wait/cost signal:
+Target SQL/object:
+Current plan:
+Hypothesis:
+Proposed change:
+Expected metric change:
+Guardrail metrics:
+Test window:
+Result:
+Decision:
+Rollback / follow-up:
+```
+
+The guardrails matter. A query that improves 5× while batch write throughput collapses may not be a net improvement.
+
+<PracticeChecklist
+  title="Part 4 performance lab"
+  items={[
+    'Captured a baseline containing workload rate, response time and at least three resource/wait signals.',
+    'Selected one expensive SQL statement and recorded its current access plan.',
+    'Compared estimated cardinality with available runtime evidence.',
+    'Reviewed RUNSTATS options and identified which statistics are justified by the workload.',
+    'Evaluated one index candidate including read benefit and write/storage cost.',
+    'Explained how Design Advisor output would be validated before production implementation.',
+    'Built a 10-minute performance triage checklist for the lab environment.',
+    'Documented how an AI-assisted recommendation would enter the normal change-governance process.',
+  ]}
+/>
+
+<ScenarioDecision
+  title="A tuning change helps one query but hurts the workload"
+  prompt="A new index makes the target report 6× faster, but write latency rises 35% during peak transaction periods. What should the DBA conclude?"
+  options={[
+    {label: 'The index is successful because the report improved', correct: false, feedback: 'Single-query success is not enough; the production decision must evaluate the whole workload and service objectives.'},
+    {label: 'Evaluate net workload impact and alternatives; keep the index only if the overall service benefit and guardrails justify the write cost', correct: true, feedback: 'Performance tuning is an optimization across competing costs, not a contest to minimize one query runtime.'},
+    {label: 'Add more indexes until writes improve', correct: false, feedback: 'Additional indexes usually add write maintenance, not reduce it.'},
+    {label: 'Disable transaction logging', correct: false, feedback: 'Logging is a recovery mechanism and not a valid way to compensate for index write cost.'},
+  ]}
+/>
+
+## Part 4 review questions
+
+1. What belongs in a useful performance baseline?
+2. Why are wait domains often more actionable than raw utilization percentages?
+3. How do statistics influence optimizer decisions?
+4. What does a large estimated/actual cardinality gap tell you?
+5. What are the full costs of an index?
+6. How should Design Advisor recommendations be governed?
+7. What questions can EXPLAIN answer, and what can it not prove by itself?
+8. Why should monitoring dashboards have owners and response playbooks?
+9. What evidence should be captured before a restart during a performance incident?
+10. How should AI-assisted optimization fit into production change control?
+
+### Authoritative references
+
+- Db2 12.1 EXPLAIN: `https://www.ibm.com/docs/en/db2/12.1?topic=statements-explain`
+- CLA96G public course objectives: `https://www.ibm.com/training/course/ibm-db2-12-foundation-for-relational-dbas-CLA96G`
+- CLA94G performance objectives: `https://www.ibm.com/training/course/ibm-db2-121-performance-and-tuning-optimization-for-relational-dbas-CLA94G`
+
+<LessonComplete lessonId="part-4" nextHref="/course/final-assessment" nextLabel="Take final assessment" />

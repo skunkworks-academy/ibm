@@ -1,0 +1,34 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node scripts/serve-build.mjs",
+      "startServerReadyPattern": "CLA96G preview ready",
+      "startServerReadyTimeout": 15000,
+      "url": [
+        "http://127.0.0.1:4173/db2/cla96/",
+        "http://127.0.0.1:4173/db2/cla96/course/intro",
+        "http://127.0.0.1:4173/db2/cla96/course/part-4",
+        "http://127.0.0.1:4173/db2/cla96/course/final-assessment"
+      ],
+      "numberOfRuns": 2,
+      "settings": {
+        "preset": "desktop",
+        "chromeFlags": "--headless --no-sandbox --disable-dev-shm-usage"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", {"minScore": 0.9}],
+        "categories:accessibility": ["error", {"minScore": 0.95}],
+        "categories:best-practices": ["error", {"minScore": 0.95}],
+        "categories:seo": ["error", {"minScore": 0.95}],
+        "color-contrast": "error",
+        "document-title": "error",
+        "html-has-lang": "error",
+        "meta-description": "error",
+        "viewport": "error",
+        "errors-in-console": "error"
+      }
+    }
+  }
+}

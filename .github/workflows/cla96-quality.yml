@@ -1,0 +1,73 @@
+name: CLA96G Docusaurus Quality
+
+on:
+  pull_request:
+    paths:
+      - 'db2/cla96/**'
+      - '.github/workflows/cla96-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'db2/cla96/**'
+      - '.github/workflows/cla96-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Build · SEO · Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: db2/cla96
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build production site
+        run: npm run build
+
+      - name: Validate rendered technical SEO
+        run: npm run seo:check
+
+      - name: Setup Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Lighthouse CI
+        run: npm run lighthouse
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+
+      - name: Upload generated site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cla96-docusaurus-build
+          path: db2/cla96/build
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cla96-lighthouse-results
+          path: db2/cla96/.lighthouseci
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7

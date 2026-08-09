@@ -1,0 +1,77 @@
+name: Deploy CLA96G Course
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'db2/cla96/docs/**'
+      - 'db2/cla96/src/**'
+      - 'db2/cla96/static/**'
+      - 'db2/cla96/docusaurus.config.ts'
+      - 'db2/cla96/sidebars.ts'
+      - 'db2/cla96/package.json'
+      - 'db2/cla96/package-lock.json'
+      - 'db2/cla96/tsconfig.json'
+      - '.github/workflows/cla96-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cla96-static-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and publish CLA96G static course
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install course dependencies
+        working-directory: db2/cla96
+        run: npm install --no-audit --no-fund
+
+      - name: Build Docusaurus course
+        working-directory: db2/cla96
+        run: npm run build
+
+      - name: Overlay generated course into existing static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf db2/cla96/assets db2/cla96/course db2/cla96/img
+          cp -a db2/cla96/build/. db2/cla96/
+          rm -rf db2/cla96/build
+
+      - name: Commit generated deployment payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add db2/cla96/index.html \
+                  db2/cla96/404.html \
+                  db2/cla96/assets \
+                  db2/cla96/course \
+                  db2/cla96/img \
+                  db2/cla96/robots.txt \
+                  db2/cla96/sitemap.xml
+          if git diff --cached --quiet; then
+            echo 'Generated CLA96G payload is already current.'
+            exit 0
+          fi
+          git commit -m 'Deploy CLA96G Docusaurus static build'
+          git push origin HEAD:main
