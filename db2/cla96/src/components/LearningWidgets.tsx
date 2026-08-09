@@ -1,57 +1,53 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import Link from '@docusaurus/Link';
-import {COURSE_STORAGE_KEY, lessons} from '../data/course';
+import {lessons} from '../data/course';
 import {scormReport} from '../utils/scorm';
+import {
+  LEARNING_EVENT,
+  LearningState,
+  emptyLearningState,
+  markLessonComplete,
+  readLearningState,
+  recordCheck,
+  recordChecklist,
+  rememberLocation,
+} from '../utils/learningState';
 
-type ProgressState = {
-  completed: string[];
-  updatedAt: string;
-};
-
-const emptyProgress = (): ProgressState => ({completed: [], updatedAt: new Date().toISOString()});
-
-function readProgress(): ProgressState {
-  if (typeof window === 'undefined') return emptyProgress();
-  try {
-    const raw = window.localStorage.getItem(COURSE_STORAGE_KEY);
-    if (!raw) return emptyProgress();
-    const parsed = JSON.parse(raw) as Partial<ProgressState>;
-    return {
-      completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Boolean) : [],
-      updatedAt: parsed.updatedAt ?? new Date().toISOString(),
-    };
-  } catch {
-    return emptyProgress();
-  }
-}
-
-function writeProgress(progress: ProgressState) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(progress));
-  window.dispatchEvent(new CustomEvent('cla96-progress', {detail: progress}));
-}
-
-export function CourseProgress({compact = false}: {compact?: boolean}) {
-  const [progress, setProgress] = useState<ProgressState>(emptyProgress());
+function useLearningState() {
+  const [state, setState] = useState<LearningState>(emptyLearningState());
 
   useEffect(() => {
-    const refresh = () => setProgress(readProgress());
+    const refresh = () => setState(readLearningState());
     refresh();
-    window.addEventListener('cla96-progress', refresh as EventListener);
+    window.addEventListener(LEARNING_EVENT, refresh as EventListener);
     window.addEventListener('storage', refresh);
     return () => {
-      window.removeEventListener('cla96-progress', refresh as EventListener);
+      window.removeEventListener(LEARNING_EVENT, refresh as EventListener);
       window.removeEventListener('storage', refresh);
     };
   }, []);
 
+  return state;
+}
+
+export function LearningLocationTracker() {
+  useEffect(() => {
+    rememberLocation(window.location.pathname);
+  }, []);
+  return null;
+}
+
+export function CourseProgress({compact = false}: {compact?: boolean}) {
+  const progress = useLearningState();
   const completed = useMemo(
     () => lessons.filter((lesson) => progress.completed.includes(lesson.id)),
-    [progress],
+    [progress.completed],
   );
   const percentage = Math.round((completed.length / lessons.length) * 100);
   const hoursCompleted = completed.reduce((sum, lesson) => sum + lesson.durationHours, 0);
   const hoursTotal = lessons.reduce((sum, lesson) => sum + lesson.durationHours, 0);
+  const checksMastered = Object.values(progress.checks).filter((check) => check.correct).length;
+  const checklistSteps = Object.values(progress.checklists).reduce((sum, checklist) => sum + checklist.checked.length, 0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -66,7 +62,7 @@ export function CourseProgress({compact = false}: {compact?: boolean}) {
       <div className="course-progress__header">
         <div>
           <span className="eyebrow">Your progress</span>
-          <strong>{percentage}% complete</strong>
+          <strong>{percentage}% milestone completion</strong>
         </div>
         <span>{hoursCompleted} / {hoursTotal} guided hours</span>
       </div>
@@ -74,32 +70,59 @@ export function CourseProgress({compact = false}: {compact?: boolean}) {
         <span style={{width: `${percentage}%`}} />
       </div>
       {!compact && (
-        <div className="progress-milestones">
-          {lessons.map((lesson) => (
-            <Link key={lesson.id} to={lesson.href} className={progress.completed.includes(lesson.id) ? 'milestone milestone--done' : 'milestone'}>
-              <span aria-hidden="true">{progress.completed.includes(lesson.id) ? '✓' : '○'}</span>
-              {lesson.shortTitle}
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="progress-detail-grid" aria-label="Detailed learning activity">
+            <div><strong>{checksMastered}</strong><span>knowledge checks mastered</span></div>
+            <div><strong>{checklistSteps}</strong><span>practical steps recorded</span></div>
+            <div><strong>{Object.values(progress.incidents).filter((item) => item.completed).length}</strong><span>incidents solved</span></div>
+          </div>
+          <div className="progress-milestones">
+            {lessons.map((lesson) => (
+              <Link key={lesson.id} to={lesson.href} className={progress.completed.includes(lesson.id) ? 'milestone milestone--done' : 'milestone'}>
+                <span aria-hidden="true">{progress.completed.includes(lesson.id) ? '✓' : '○'}</span>
+                {lesson.shortTitle}
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
 }
 
-export function LessonComplete({lessonId, nextHref, nextLabel = 'Continue'}: {lessonId: string; nextHref?: string; nextLabel?: string}) {
-  const [done, setDone] = useState(false);
+export function ResumeLearning() {
+  const state = useLearningState();
+  const target = state.lastLocation || '/course/intro';
+  const hasStarted = Boolean(state.lastLocation || state.completed.length || Object.keys(state.checks).length);
+  const completedLessons = lessons.filter((lesson) => state.completed.includes(lesson.id)).length;
+  const remainingHours = lessons
+    .filter((lesson) => !state.completed.includes(lesson.id))
+    .reduce((sum, lesson) => sum + lesson.durationHours, 0);
 
-  useEffect(() => {
-    setDone(readProgress().completed.includes(lessonId));
-  }, [lessonId]);
+  return (
+    <section className="resume-panel" aria-label="Resume learning">
+      <div>
+        <span className="eyebrow">{hasStarted ? 'Welcome back' : 'Your learning path'}</span>
+        <h2>{hasStarted ? 'Continue where you left off.' : 'Start with orientation.'}</h2>
+        <p>
+          {hasStarted
+            ? `${completedLessons}/${lessons.length} milestones recorded · approximately ${remainingHours} guided hours remain.`
+            : 'Your progress, checks, practical steps and incident results are saved locally as you work.'}
+        </p>
+      </div>
+      <Link className="button button--primary button--lg" to={target}>
+        {hasStarted ? 'Resume course →' : 'Start course →'}
+      </Link>
+    </section>
+  );
+}
+
+export function LessonComplete({lessonId, nextHref, nextLabel = 'Continue'}: {lessonId: string; nextHref?: string; nextLabel?: string}) {
+  const state = useLearningState();
+  const done = state.completed.includes(lessonId);
 
   const markComplete = () => {
-    const current = readProgress();
-    const completed = Array.from(new Set([...current.completed, lessonId]));
-    const next = {completed, updatedAt: new Date().toISOString()};
-    writeProgress(next);
-    setDone(true);
+    markLessonComplete(lessonId);
     scormReport({lessonLocation: typeof window !== 'undefined' ? window.location.pathname : lessonId, status: 'incomplete'});
   };
 
@@ -132,13 +155,25 @@ export function KnowledgeCheck({
   correctIndex: number;
   explanation: string;
 }) {
+  const state = useLearningState();
+  const previous = state.checks[id];
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const correct = checked && selected === correctIndex;
 
+  const checkAnswer = () => {
+    if (selected === null) return;
+    const isCorrect = selected === correctIndex;
+    setChecked(true);
+    recordCheck(id, isCorrect);
+  };
+
   return (
     <section className="knowledge-check" aria-labelledby={`${id}-title`}>
-      <span className="eyebrow">Knowledge check</span>
+      <div className="widget-heading-row">
+        <span className="eyebrow">Knowledge check</span>
+        {previous?.correct && <span className="mastery-badge">Mastered ✓</span>}
+      </div>
       <h3 id={`${id}-title`}>{question}</h3>
       <div role="radiogroup" aria-label={question} className="knowledge-check__options">
         {options.map((option, index) => (
@@ -156,9 +191,10 @@ export function KnowledgeCheck({
           </label>
         ))}
       </div>
-      <button className="button button--primary" type="button" disabled={selected === null} onClick={() => setChecked(true)}>
+      <button className="button button--primary" type="button" disabled={selected === null} onClick={checkAnswer}>
         Check answer
       </button>
+      {previous && <span className="attempt-note"> Recorded attempts: {previous.attempts}</span>}
       {checked && (
         <div className={correct ? 'quiz-feedback quiz-feedback--good' : 'quiz-feedback quiz-feedback--retry'} role="status">
           <strong>{correct ? 'Correct.' : 'Reconsider that choice.'}</strong> {explanation}
@@ -241,13 +277,17 @@ const simulatedResponses: Array<{match: RegExp; output: string}> = [
 export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMPLE', 'db2 list utilities show detail']}: {suggestions?: string[]}) {
   const [command, setCommand] = useState('db2level');
   const [output, setOutput] = useState('Type a supported training command and select Run simulation.');
+  const [history, setHistory] = useState<string[]>([]);
 
   const run = () => {
-    const entry = simulatedResponses.find((candidate) => candidate.match.test(command));
+    const normalized = command.trim();
+    if (!normalized) return;
+    const entry = simulatedResponses.find((candidate) => candidate.match.test(normalized));
     setOutput(
       entry?.output ??
         `No destructive command was executed.\n\nThis browser terminal is a safe simulator, not a live Db2 shell. Try one of the suggested commands or run the command in your authorized lab environment.`,
     );
+    setHistory((current) => [normalized, ...current.filter((item) => item !== normalized)].slice(0, 5));
   };
 
   return (
@@ -273,13 +313,33 @@ export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMP
         </div>
       </label>
       <pre className="terminal-output" aria-live="polite"><code>{output}</code></pre>
+      {history.length > 0 && (
+        <div className="command-history"><strong>Recent commands</strong>{history.map((item) => <button key={item} type="button" onClick={() => setCommand(item)}>{item}</button>)}</div>
+      )}
     </section>
   );
 }
 
-export function PracticeChecklist({title, items}: {title: string; items: string[]}) {
-  const [checked, setChecked] = useState<boolean[]>(() => items.map(() => false));
+function checklistId(title: string) {
+  return `checklist-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+}
+
+export function PracticeChecklist({title, items, id}: {title: string; items: string[]; id?: string}) {
+  const key = id ?? checklistId(title);
+  const state = useLearningState();
+  const stored = state.checklists[key]?.checked ?? [];
+  const [checked, setChecked] = useState<boolean[]>(() => items.map((_, index) => stored.includes(index)));
+
+  useEffect(() => {
+    setChecked(items.map((_, index) => (state.checklists[key]?.checked ?? []).includes(index)));
+  }, [key, items.length, state.checklists]);
+
   const count = checked.filter(Boolean).length;
+  const toggle = (index: number) => {
+    const next = checked.map((value, itemIndex) => itemIndex === index ? !value : value);
+    setChecked(next);
+    recordChecklist(key, next.flatMap((value, itemIndex) => value ? [itemIndex] : []));
+  };
 
   return (
     <section className="practice-checklist">
@@ -292,14 +352,11 @@ export function PracticeChecklist({title, items}: {title: string; items: string[
       </div>
       {items.map((item, index) => (
         <label key={item} className="check-item">
-          <input
-            type="checkbox"
-            checked={checked[index]}
-            onChange={() => setChecked((current) => current.map((value, itemIndex) => itemIndex === index ? !value : value))}
-          />
+          <input type="checkbox" checked={checked[index]} onChange={() => toggle(index)} />
           <span>{item}</span>
         </label>
       ))}
+      {count === items.length && <div className="quiz-feedback quiz-feedback--good"><strong>Practical checkpoint complete.</strong> This evidence is saved in your browser.</div>}
     </section>
   );
 }
