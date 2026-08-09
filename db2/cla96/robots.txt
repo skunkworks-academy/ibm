@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /db2/cla96/
+
+Sitemap: https://ibm.skunkworksacademy.com/db2/cla96/sitemap.xml
