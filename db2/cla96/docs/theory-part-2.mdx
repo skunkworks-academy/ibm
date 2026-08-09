@@ -1,19 +1,19 @@
 ---
-title: Part 2 theory · Recovery as state reconstruction
-description: Understand RPO, RTO, logs, backup images, restore, rollforward and availability as one recovery system before beginning Part 2 practical work.
-keywords: [Db2 recovery theory, RPO, RTO, backup restore rollforward, HADR theory]
+title: Part 2 theory · Data movement, recovery and operational state
+description: Understand the official Part 2 units as one operating model: data movement changes state, recovery reconstructs state, and maintenance/monitoring proves state.
+keywords: [Db2 LOAD theory, data movement, recovery theory, HADR, maintenance monitoring]
 ---
 
 import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
 
-# Part 2 theory: recovery is controlled reconstruction of state
+# Part 2 theory: every utility changes or proves database state
 
-A backup is an important recovery input, but it is not the recovery capability itself. **Recovery is the controlled reconstruction of an acceptable database state within a business-defined time and data-loss boundary.** That requires backup images, transaction history, infrastructure, procedures and validation to work together.
+Part 2 joins three topics that are often taught separately: **data movement, recovery, and maintenance/monitoring**. Operationally they are connected. Utilities change data and object state; recovery reconstructs database state; monitoring and diagnostics tell you whether the state is usable and healthy.
 
 <ConceptStrip items={[
-  {label: 'RPO', value: 'How much data may be lost?', note: 'RPO determines how close the recovered state must be to the failure point.'},
-  {label: 'RTO', value: 'How fast must service return?', note: 'RTO includes restore, log processing, validation and application recovery time.'},
-  {label: 'Proof', value: 'Restore + recover + validate', note: 'A backup succeeds technically only when the service can be reconstructed from it.'},
+  {label: 'Data movement', value: 'Throughput ↔ logging ↔ object state', note: 'IMPORT, LOAD, INGEST and SQL movement make different trade-offs.'},
+  {label: 'Recovery', value: 'Base image + ordered change', note: 'Backups and logs cooperate to reconstruct the required point in time.'},
+  {label: 'Operations', value: 'Observe → maintain → prove', note: 'RUNSTATS, REORG, monitoring and diagnostics should be driven by evidence.'},
 ]} />
 
 <TheoryVisual
@@ -22,66 +22,73 @@ A backup is an important recovery input, but it is not the recovery capability i
   caption="A backup supplies a recoverable base state; logs reconstruct later committed change. The operational objective is a validated service inside the required RPO and RTO."
 />
 
-## 1. Databases evolve through ordered changes
+## 1. Data movement methods trade simplicity, throughput and control
 
-A transactional database is never only the set of data pages visible at one moment. It also has an ordered history of changes represented in the transaction log. Db2 uses logging to preserve transactional consistency and to support recovery mechanisms.
+SQL INSERT/MERGE/TRUNCATE, IMPORT, LOAD and INGEST do not represent the same execution model. The DBA chooses among them by considering:
 
-This creates a useful recovery model:
+- volume and throughput target;
+- logging/recoverability requirements;
+- constraints and triggers;
+- availability during the operation;
+- restartability;
+- object/table states after completion;
+- monitoring and validation needs.
 
-**base state + ordered change history → target recoverable state**
+The key principle is **utility completion is not the same as operational completion**. A LOAD can return control while the target still requires integrity processing or state validation.
 
-A backup image supplies the base. Active and archived logs can supply the change history after that backup. Restore places the base state back onto storage. Rollforward applies eligible logged changes until the chosen endpoint is reached.
+## 2. Online movement minimizes outage by adding phases
 
-The target may be the latest recoverable point, a specific timestamp, or another supported recovery boundary. The crucial idea is that recovery is a **state transition**, not simply a file copy.
+ADMIN_MOVE_TABLE illustrates a wider pattern: minimizing application outage often requires multi-phase work, staging/copy/replay behavior and a shorter controlled swap period. Online does not mean zero operational cost; it changes when and where the cost occurs.
 
-## 2. RPO and RTO describe different dimensions
+## 3. Recovery is controlled reconstruction of state
 
-RPO is a data-loss boundary. If the RPO is 15 minutes, a recovery design that can only restore last night's backup may violate the requirement even if the restore takes five minutes.
+A backup is an important recovery input, but it is not the recovery capability itself. Recovery combines:
 
-RTO is a time boundary. It includes much more than raw backup throughput: image discovery, storage provisioning, restore time, log application, database activation, dependency recovery and application validation all contribute.
+- a known base state;
+- active/archived transaction history;
+- storage and configuration;
+- restore/rollforward procedure;
+- a governed target recovery point;
+- application/business validation.
 
-<div className="theory-explain-grid">
-  <div className="theory-explain-card"><strong>RPO is about distance in data history</strong><p>How far behind the failure point may the recovered data be?</p></div>
-  <div className="theory-explain-card"><strong>RTO is about elapsed service disruption</strong><p>How long can the organisation tolerate before the restored service is usable and validated?</p></div>
-</div>
+**RPO** describes acceptable data loss. **RTO** describes acceptable service-restoration time. Backup cadence, archive logging, restore throughput, runbook quality and HADR design contribute differently to those objectives.
 
-## 3. Logging is a recovery mechanism before it is a capacity problem
+## 4. High availability and historical recovery solve different failures
 
-Active logs support current transactional processing. Archived logs preserve older log history when archive logging is configured. If archive throughput or filesystem capacity cannot keep pace, the problem can eventually affect both availability and recoverability.
+HADR can reduce outage by maintaining a log-replaying standby, but replication can also reproduce an unwanted delete or other logical change. Keep independent backup/recovery capability even when availability architecture is strong.
 
-This is why log sizing cannot be treated as an isolated performance setting. Log generation rate, archive throughput, retention policy, filesystem capacity and recovery objectives form one system.
+A role change should be a service decision based on HADR state, log gap, replay health and data-loss expectations—not a generic way to “reset” a degraded standby.
 
-A recurring log-full incident should therefore trigger a question about **why the workload produces or retains that volume of change**, not only a reflexive increase to a configuration parameter.
+## 5. Maintenance changes metadata or physical organization
 
-## 4. High availability and recovery solve related but different problems
+RUNSTATS refreshes optimizer statistics; REORG changes physical organization; REORGCHK evaluates indicators. Their names often appear together, but their purposes differ.
 
-HADR and standby designs can reduce interruption by maintaining another database copy that can assume service. They improve availability, but they do not remove the need for backups and recoverability controls.
+Condition-driven maintenance asks:
 
-A replicated logical error, accidental data deletion or application defect may reach both primary and standby. Recovery therefore needs **independent historical restore points** as well as availability mechanisms.
+- what changed in the data/workload?
+- what metric or plan evidence indicates a problem?
+- which utility changes the relevant state?
+- what is its availability/log/temp/storage cost?
+- what evidence proves success afterward?
 
-Think of the distinction this way:
+## 6. Monitoring and diagnostics narrow the causal domain
 
-- **availability** asks how service continues or resumes after component failure;
-- **recovery** asks how correct data state is reconstructed after loss, corruption or unwanted change.
-
-## 5. Validation closes the recovery loop
-
-A restore command can return successfully while the service is still unusable. The database may require rollforward, application dependencies may be unavailable, credentials may fail, or the recovered point may not satisfy the business objective.
-
-Recovery validation should therefore test both **database correctness** and **service correctness**. Useful evidence includes the achieved recovery point, elapsed time, required logs, application connectivity and representative business transactions.
+Use lightweight current-state tools first where appropriate: SQL monitoring functions, administrative views, `db2pd`, `dmctop`, utility status and event monitors. Escalate to deeper diagnostic collection (`db2diag`, support collections, FODC/trace) when the causal domain or vendor-support requirement justifies it.
 
 <div className="theory-recall">
   <strong>Retrieval practice</strong>
-  Explain the difference between backup, restore and recovery. Then describe why HADR can improve availability without replacing historical backup and restore capability.
+  Explain why a completed LOAD, a successful BACKUP and a green monitoring dashboard are each insufficient by themselves to prove that an application service is safe and recoverable.
 </div>
 
 ## What to carry into the practical part
 
-For every backup, restore, rollforward or HADR exercise, keep four questions visible:
+For every Part 2 utility or recovery action, record:
 
-1. What failure scenario are we protecting against?
-2. Which recovery point must be achievable?
-3. Which components and evidence are required to reconstruct it?
-4. How will we prove the recovered service satisfies the objective?
+1. starting state and business objective;
+2. operation/options and expected state transitions;
+3. monitoring/diagnostic evidence during execution;
+4. resulting database/table/HADR state;
+5. recovery implications;
+6. application or workload validation.
 
 [Continue to Part 2 practical →](./part-2)
