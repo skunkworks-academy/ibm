@@ -72,6 +72,18 @@ export const lessons: CourseLesson[] = [
     ],
   },
   {
+    id: 'incident-centre',
+    title: 'DBA Incident Centre · Production-style simulations',
+    shortTitle: 'Incidents',
+    href: '/course/incident-centre',
+    durationHours: 0,
+    outcomes: [
+      'Investigate lock contention using evidence before intervention.',
+      'Protect recoverability while responding to archive-log capacity pressure.',
+      'Diagnose query-plan regression after material data-distribution changes.',
+    ],
+  },
+  {
     id: 'final-assessment',
     title: 'Final assessment · Production-readiness scenarios',
     shortTitle: 'Assessment',
