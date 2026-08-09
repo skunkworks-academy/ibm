@@ -1,5 +1,7 @@
 import {COURSE_STORAGE_KEY} from '../data/course';
 
+export const LEARNING_STORAGE_KEY = 'cla96g-learning-state-v2';
+
 export type CheckResult = {
   correct: boolean;
   attempts: number;
@@ -40,12 +42,23 @@ export function emptyLearningState(): LearningState {
   };
 }
 
+function legacyCompleted(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const legacy = JSON.parse(window.localStorage.getItem(COURSE_STORAGE_KEY) ?? '{}') as {completed?: string[]};
+    return Array.isArray(legacy.completed) ? legacy.completed.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function readLearningState(): LearningState {
   if (typeof window === 'undefined') return emptyLearningState();
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(COURSE_STORAGE_KEY) ?? '{}') as Partial<LearningState>;
+    const parsed = JSON.parse(window.localStorage.getItem(LEARNING_STORAGE_KEY) ?? '{}') as Partial<LearningState>;
+    const completed = Array.from(new Set([...(Array.isArray(parsed.completed) ? parsed.completed.filter(Boolean) : []), ...legacyCompleted()]));
     return {
-      completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Boolean) : [],
+      completed,
       updatedAt: parsed.updatedAt ?? new Date().toISOString(),
       lastLocation: parsed.lastLocation,
       lastVisitedAt: parsed.lastVisitedAt,
@@ -54,14 +67,14 @@ export function readLearningState(): LearningState {
       incidents: parsed.incidents && typeof parsed.incidents === 'object' ? parsed.incidents : {},
     };
   } catch {
-    return emptyLearningState();
+    return {...emptyLearningState(), completed: legacyCompleted()};
   }
 }
 
 export function writeLearningState(next: LearningState) {
   if (typeof window === 'undefined') return;
   const state = {...next, updatedAt: new Date().toISOString()};
-  window.localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(state));
+  window.localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(state));
   window.dispatchEvent(new CustomEvent(LEARNING_EVENT, {detail: state}));
 }
 
@@ -130,16 +143,4 @@ export function recordIncident(id: string, score: number, completed: boolean) {
       },
     },
   });
-}
-
-export function granularProgress(state: LearningState) {
-  const lessonWeight = 5;
-  const checkWeight = 1;
-  const checklistWeight = 2;
-  const incidentWeight = 3;
-  const lessonsDone = state.completed.length * lessonWeight;
-  const checksDone = Object.values(state.checks).filter((result) => result.correct).length * checkWeight;
-  const checklistDone = Object.values(state.checklists).reduce((sum, result) => sum + result.checked.length, 0) * checklistWeight;
-  const incidentsDone = Object.values(state.incidents).filter((result) => result.completed).length * incidentWeight;
-  return lessonsDone + checksDone + checklistDone + incidentsDone;
 }
