@@ -4,7 +4,7 @@ import Link from '@docusaurus/Link';
 import {CourseProgress} from '../components/LearningWidgets';
 import {lessons, TOTAL_HOURS} from '../data/course';
 
-export default function Home(): JSX.Element {
+export default function Home(): React.ReactElement {
   return (
     <Layout
       title="Self-paced Db2 12.1 DBA course"
