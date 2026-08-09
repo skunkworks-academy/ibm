@@ -1,0 +1,87 @@
+---
+title: Part 2 theory · Recovery as state reconstruction
+description: Understand RPO, RTO, logs, backup images, restore, rollforward and availability as one recovery system before beginning Part 2 practical work.
+keywords: [Db2 recovery theory, RPO, RTO, backup restore rollforward, HADR theory]
+---
+
+import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
+
+# Part 2 theory: recovery is controlled reconstruction of state
+
+A backup is an important recovery input, but it is not the recovery capability itself. **Recovery is the controlled reconstruction of an acceptable database state within a business-defined time and data-loss boundary.** That requires backup images, transaction history, infrastructure, procedures and validation to work together.
+
+<ConceptStrip items={[
+  {label: 'RPO', value: 'How much data may be lost?', note: 'RPO determines how close the recovered state must be to the failure point.'},
+  {label: 'RTO', value: 'How fast must service return?', note: 'RTO includes restore, log processing, validation and application recovery time.'},
+  {label: 'Proof', value: 'Restore + recover + validate', note: 'A backup succeeds technically only when the service can be reconstructed from it.'},
+]} />
+
+<TheoryVisual
+  kind="recovery"
+  title="Recovery combines a base image with the history of change"
+  caption="A backup supplies a recoverable base state; logs reconstruct later committed change. The operational objective is a validated service inside the required RPO and RTO."
+/>
+
+## 1. Databases evolve through ordered changes
+
+A transactional database is never only the set of data pages visible at one moment. It also has an ordered history of changes represented in the transaction log. Db2 uses logging to preserve transactional consistency and to support recovery mechanisms.
+
+This creates a useful recovery model:
+
+**base state + ordered change history → target recoverable state**
+
+A backup image supplies the base. Active and archived logs can supply the change history after that backup. Restore places the base state back onto storage. Rollforward applies eligible logged changes until the chosen endpoint is reached.
+
+The target may be the latest recoverable point, a specific timestamp, or another supported recovery boundary. The crucial idea is that recovery is a **state transition**, not simply a file copy.
+
+## 2. RPO and RTO describe different dimensions
+
+RPO is a data-loss boundary. If the RPO is 15 minutes, a recovery design that can only restore last night's backup may violate the requirement even if the restore takes five minutes.
+
+RTO is a time boundary. It includes much more than raw backup throughput: image discovery, storage provisioning, restore time, log application, database activation, dependency recovery and application validation all contribute.
+
+<div className="theory-explain-grid">
+  <div className="theory-explain-card"><strong>RPO is about distance in data history</strong><p>How far behind the failure point may the recovered data be?</p></div>
+  <div className="theory-explain-card"><strong>RTO is about elapsed service disruption</strong><p>How long can the organisation tolerate before the restored service is usable and validated?</p></div>
+</div>
+
+## 3. Logging is a recovery mechanism before it is a capacity problem
+
+Active logs support current transactional processing. Archived logs preserve older log history when archive logging is configured. If archive throughput or filesystem capacity cannot keep pace, the problem can eventually affect both availability and recoverability.
+
+This is why log sizing cannot be treated as an isolated performance setting. Log generation rate, archive throughput, retention policy, filesystem capacity and recovery objectives form one system.
+
+A recurring log-full incident should therefore trigger a question about **why the workload produces or retains that volume of change**, not only a reflexive increase to a configuration parameter.
+
+## 4. High availability and recovery solve related but different problems
+
+HADR and standby designs can reduce interruption by maintaining another database copy that can assume service. They improve availability, but they do not remove the need for backups and recoverability controls.
+
+A replicated logical error, accidental data deletion or application defect may reach both primary and standby. Recovery therefore needs **independent historical restore points** as well as availability mechanisms.
+
+Think of the distinction this way:
+
+- **availability** asks how service continues or resumes after component failure;
+- **recovery** asks how correct data state is reconstructed after loss, corruption or unwanted change.
+
+## 5. Validation closes the recovery loop
+
+A restore command can return successfully while the service is still unusable. The database may require rollforward, application dependencies may be unavailable, credentials may fail, or the recovered point may not satisfy the business objective.
+
+Recovery validation should therefore test both **database correctness** and **service correctness**. Useful evidence includes the achieved recovery point, elapsed time, required logs, application connectivity and representative business transactions.
+
+<div className="theory-recall">
+  <strong>Retrieval practice</strong>
+  Explain the difference between backup, restore and recovery. Then describe why HADR can improve availability without replacing historical backup and restore capability.
+</div>
+
+## What to carry into the practical part
+
+For every backup, restore, rollforward or HADR exercise, keep four questions visible:
+
+1. What failure scenario are we protecting against?
+2. Which recovery point must be achievable?
+3. Which components and evidence are required to reconstruct it?
+4. How will we prove the recovered service satisfies the objective?
+
+[Continue to Part 2 practical →](./part-2)
