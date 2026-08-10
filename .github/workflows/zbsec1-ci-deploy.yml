@@ -1,4 +1,4 @@
-name: Build and Deploy ZBSEC1 Course
+name: ZBSEC1 Docusaurus Quality
 
 on:
   push:
@@ -15,11 +15,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 concurrency:
-  group: zbsec1-${{ github.ref }}
+  group: zbsec1-quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,79 +51,8 @@ jobs:
         working-directory: db2/zbsec1
         run: npm run seo:check
 
-  deploy:
-    name: Publish generated course into repository static path
-    needs: quality
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        working-directory: db2/zbsec1
-        run: npm install --no-audit --no-fund
-
-      - name: Build Docusaurus course
-        working-directory: db2/zbsec1
-        run: npm run build
-
-      - name: Overlay generated payload
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf db2/zbsec1/assets \
-                 db2/zbsec1/course \
-                 db2/zbsec1/img \
-                 db2/zbsec1/labs \
-                 db2/zbsec1/index.html \
-                 db2/zbsec1/404.html \
-                 db2/zbsec1/robots.txt \
-                 db2/zbsec1/sitemap.xml \
-                 db2/zbsec1/.nojekyll
-          cp -a db2/zbsec1/build/. db2/zbsec1/
-          rm -rf db2/zbsec1/build
-
-      - name: Commit generated deployment payload
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A -- \
-                  db2/zbsec1/index.html \
-                  db2/zbsec1/404.html \
-                  db2/zbsec1/assets \
-                  db2/zbsec1/course \
-                  db2/zbsec1/img \
-                  db2/zbsec1/labs \
-                  db2/zbsec1/.nojekyll \
-                  db2/zbsec1/robots.txt \
-                  db2/zbsec1/sitemap.xml
-          if git diff --cached --quiet; then
-            echo 'Generated ZBSEC1 payload is already current.'
-          else
-            git commit -m 'Deploy ZBSEC1 Docusaurus static build'
-            git push origin HEAD:main
-          fi
-
-      - name: Request GitHub Pages rebuild from latest main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh api \
-            --method POST \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2026-03-10' \
-            "/repos/${GITHUB_REPOSITORY}/pages/builds"
+# Publication is intentionally handled by pages-deploy.yml.
+# That workflow stages the complete IBM Training site, overlays a fresh ZBSEC1
+# production build, uploads a GitHub Pages artifact, and deploys it with
+# actions/deploy-pages. Keeping publication separate prevents generated-file
+# commits, workflow recursion, and stale branch-based Pages builds.
