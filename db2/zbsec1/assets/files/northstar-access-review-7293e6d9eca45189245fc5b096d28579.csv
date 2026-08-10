@@ -1,0 +1,9 @@
+identity,type,owner,primary_authid,secondary_context,db2_access,source,expiry,expected_use,risk_note
+ThaboM,human,Database Operations,THABOM,DB2SYSOPS,SYSTEM DBADM,PAM,2026-12-31,Production database administration,No standing customer-data access expected
+MayaK,human,Security Operations,MAYAK,DB2SECADM,SECADM,PAM,2026-12-31,Security policy administration,Must not self-certify grants
+NeoS,human,SOC,NEOS,DB2AUDIT,Audit evidence read,PAM,2026-12-31,Security monitoring,Read-only evidence path
+LuisD,human,Application Engineering,LUISD,DEV-BIND,Non-production bind only,Developer zone,2026-10-31,Application development,No production bind or customer-data access
+PAYAPI01,service,Payments Platform,PAYAPI01,PAY-RUNTIME,EXECUTE PAYMENTS packages,App zone,2026-09-30,Payment authorisation,Credential rotation and source restriction required
+TELLER01,human,Retail Banking,TELLER01,BRANCH-JHB,Teller role,Teller channel,2026-09-30,JHB branch servicing,Must not inherit other branch access
+BREAK01,emergency,Security Operations,BREAK01,EMERG-DB2,Time-bound elevated access,PAM,2026-08-10,Emergency incident response,Must be disabled unless active incident
+OLDAPI99,service,Unknown,OLDAPI99,LEGACY-APP,Direct SELECT CUSTOMER CARD,Legacy subnet,none,Unknown legacy integration,Orphaned overprivileged identity

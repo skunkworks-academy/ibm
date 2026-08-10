@@ -1,0 +1,82 @@
+---
+title: Part 1 theory · Scope, lifecycle and recoverability foundations
+description: "Build the mental model behind the official Part 1 units: Db2 platforms and service levels, administration tools, instances, database/storage boundaries, objects, and foundational recovery evidence."
+keywords: [Db2 architecture theory, Db2 instance, database configuration, tablespace theory, recovery fundamentals]
+---
+
+import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
+
+# Part 1 theory: scope before syntax
+
+Part 1 is about **operational boundaries**. Before learning individual commands, know where Db2 state lives, how far a change can reach, which tool is observing that state, and what evidence proves the outcome.
+
+<ConceptStrip items={[
+  {label: 'Mental model', value: 'Host → installation → instance → database → object', note: 'Move from broad infrastructure scope toward narrow data-object scope.'},
+  {label: 'Core question', value: 'Where does this state live?', note: 'Service level, configuration, storage, privileges and recovery state belong to different operational boundaries.'},
+  {label: 'DBA habit', value: 'Scope → evidence → action', note: 'Identify blast radius and current state before choosing a command.'},
+]} />
+
+<TheoryVisual
+  kind="architecture"
+  title="Db2 is a hierarchy of operational boundaries"
+  caption="The higher the layer, the broader the potential blast radius. Diagnose the layer first; then choose the smallest intervention that matches it."
+/>
+
+## 1. Product and service level define the operating envelope
+
+“Db2 12.1” describes a product family, not the complete maintenance state. Platform support, edition entitlement, installed Mod/Fix/service level, client compatibility and deployment model all shape what the DBA can safely operate.
+
+The theory to retain is **identity before change**: know the host/platform, installation/code level, instance and database target before maintenance or troubleshooting begins.
+
+## 2. Administration tools are different views of the same state
+
+CLP, CLPPlus, Data Management Console and command-line utilities are interfaces into Db2 state. The operational question determines the tool:
+
+- repeatable SQL/administration and scripts → CLP;
+- formatted SQL/report scripting → CLPPlus;
+- centralized graphical monitoring/administration → DMC;
+- low-level or task-specific administration → specialized command-line utilities.
+
+A GUI click and a CLP command are not separate realities. Both should be tied to the same baseline, authorization and validation evidence.
+
+## 3. The instance is a shared runtime boundary
+
+One instance can manage multiple databases. This makes instance identity and instance-level configuration operationally important: a listener, environment or instance-start problem can affect several databases at once.
+
+When several databases show the same symptom, ask whether the failure domain is shared before investigating a single table or schema.
+
+## 4. Database storage is both logical and physical
+
+Table spaces, storage groups, containers/automatic-storage paths and database configuration translate logical database design into physical capacity and I/O behavior. Data, temporary work, active/archive logs and backup images have different operational roles.
+
+Capacity therefore belongs to availability and recovery as well as storage. A database can have free data pages and still fail because a log or temporary resource is exhausted.
+
+## 5. Objects introduce behavior and cost
+
+Schemas, tables, indexes, views, temporary structures, partitioning, MQTs, temporal/column-organized tables and external tables are not only DDL concepts. Each adds lifecycle, performance, security or maintenance implications.
+
+A useful DBA question is: **what service behavior does this object enable, and what cost must be governed?**
+
+## 6. Recovery and troubleshooting are state reconstruction plus evidence
+
+Part 1 closes by connecting logging, backup images, RESTORE/ROLLFORWARD/RECOVER behavior, recovery history and diagnostic information. Recovery is not “run a backup command”; it is the ability to return the database to an acceptable, validated state.
+
+During incidents, capture state before destructive intervention. Diagnostic logs, administrative views and recovery metadata are most valuable when tied to the incident timeline and the exact database/instance identity.
+
+<div className="theory-recall">
+  <strong>Retrieval practice</strong>
+  Without looking back, explain why “wrong instance,” “wrong configuration scope,” “storage full” and “rollforward pending” are four different failure domains even though all may appear to an application as “database unavailable.”
+</div>
+
+## What to carry into the practical part
+
+Before any Part 1 command, ask:
+
+- Which official unit/objective does this task exercise?
+- Which layer am I observing or changing?
+- What is the blast radius?
+- What evidence describes the current state?
+- What activation/restart or recovery dependency applies?
+- How will I validate the outcome?
+
+[Continue to Part 1 practical →](./part-1)

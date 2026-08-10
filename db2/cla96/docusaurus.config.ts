@@ -59,7 +59,7 @@ const config: Config = {
         inLanguage: 'en',
         teaches: [
           'IBM Db2 12.1 administration',
-          'backup and recovery',
+          'data movement, backup and recovery',
           'security and concurrency',
           'utilities and maintenance',
           'query optimization and monitoring',

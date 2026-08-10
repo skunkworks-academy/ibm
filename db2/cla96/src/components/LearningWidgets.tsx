@@ -128,13 +128,29 @@ export function LessonComplete({lessonId, nextHref, nextLabel = 'Continue'}: {le
 
   return (
     <div className="lesson-complete">
-      <div>
-        <strong>{done ? 'Lesson recorded' : 'Ready to move on?'}</strong>
-        <p>{done ? 'This milestone is included in your course progress.' : 'Mark the lesson complete after you finish its lab and knowledge checks.'}</p>
+      <div className="lesson-complete__content">
+        <strong>{done ? 'Milestone recorded' : mastery ? (mastery.passed ? 'Mastery evidence complete' : 'Mastery gate') : 'Ready to move on?'}</strong>
+        {done ? (
+          <p>This milestone is included in your course progress.</p>
+        ) : mastery ? (
+          <>
+            <p>Part completion unlocks only when the official-unit knowledge checks and required practical evidence are complete.</p>
+            <div className="mastery-gate" aria-label="Part mastery requirements">
+              <span className={mastery.checksMastered === mastery.checkTotal ? 'mastery-gate__done' : ''}>
+                Knowledge checks <strong>{mastery.checksMastered}/{mastery.checkTotal}</strong>
+              </span>
+              <span className={mastery.practicalSteps >= mastery.practicalTotal ? 'mastery-gate__done' : ''}>
+                Practical evidence <strong>{mastery.practicalSteps}/{mastery.practicalTotal}</strong>
+              </span>
+            </div>
+          </>
+        ) : (
+          <p>Record this milestone after completing its required learning activity.</p>
+        )}
       </div>
       <div className="lesson-complete__actions">
-        <button className="button button--primary" type="button" onClick={markComplete} disabled={done}>
-          {done ? 'Completed ✓' : 'Mark complete'}
+        <button className="button button--primary" type="button" onClick={markComplete} disabled={done || !canComplete}>
+          {done ? 'Completed ✓' : canComplete ? 'Record mastery' : 'Complete requirements first'}
         </button>
         {nextHref && <Link className="button button--secondary" to={nextHref}>{nextLabel} →</Link>}
       </div>
@@ -239,39 +255,12 @@ export function ScenarioDecision({title, prompt, options}: {title: string; promp
   );
 }
 
-const simulatedResponses: Array<{match: RegExp; output: string}> = [
-  {
-    match: /db2level/i,
-    output: `DB21085I  This instance uses "64" bits and Db2 code release "SQL12010".\nInformational tokens identify Db2 12.1 level details.\n\nLearning note: confirm exact fix pack / mod pack details against your installed environment before change planning.`,
-  },
-  {
-    match: /get\s+db\s+cfg/i,
-    output: `Database Configuration for Database SAMPLE\n\n Log retain for recovery status                          = RECOVERY\n First log archive method                 (LOGARCHMETH1) = DISK:/db2archive\n Log file size (4KB)                         (LOGFILSIZ) = 8192\n Number of primary log files                (LOGPRIMARY) = 20\n Number of secondary log files               (LOGSECOND) = 10\n\nLearning note: compare values with workload, RPO/RTO, archive throughput, and filesystem capacity before changing them.`,
-  },
-  {
-    match: /list\s+utilities|mon_get_utility|load_query/i,
-    output: `ID                               = 23\nType                             = LOAD\nDatabase Name                    = SAMPLE\nState                            = Executing\nProgress                         = 71%\n\nLearning note: monitor utility state and messages; never assume a bulk operation completed cleanly because the client command returned.`,
-  },
-  {
-    match: /db2pd.*locks|locks.*db2pd/i,
-    output: `Database Member 0 -- Active -- Up 2 days\nLocks: waiting application handle 211, holder 184\nLock mode requested: X\nObject: table SALES.ORDERS\n\nLearning note: identify the root blocker, capture transaction context, then choose the least disruptive remediation.`,
-  },
-  {
-    match: /runstats/i,
-    output: `RUNSTATS simulated successfully.\nStatistics refreshed for table and indexes.\n\nLearning note: collect only the statistics justified by workload characteristics, then validate access plans rather than assuming improvement.`,
-  },
-  {
-    match: /reorgchk|reorg/i,
-    output: `REORGCHK simulation: review F1/F2/F3 indicators and object health before scheduling maintenance.\n\nLearning note: REORG has operational cost; schedule and validate it based on evidence, not habit.`,
-  },
-  {
-    match: /explain|db2exfmt|db2expln/i,
-    output: `EXPLAIN simulation\nAccess plan: IXSCAN -> FETCH -> RETURN\nEstimated rows: 128\nKey signal: predicate selectivity and clustering drive the cost model.\n\nLearning note: compare estimated vs actual cardinality and confirm statistics freshness before adding indexes.`,
-  },
-  {
-    match: /backup|restore|rollforward/i,
-    output: `Recovery simulation\nCommand accepted in training sandbox.\n\nLearning note: capture backup timestamp, image location, log chain, target recovery point, and validation evidence. A backup is not proven until restore/recovery is tested.`,
-  },
+const simulatorScenarios: Array<{id: SimulatorScenario; label: string}> = [
+  {id: 'baseline', label: 'Healthy baseline'},
+  {id: 'load', label: 'LOAD state'},
+  {id: 'recovery', label: 'Recovery pending'},
+  {id: 'plan', label: 'Plan regression'},
+  {id: 'locking', label: 'Lock contention'},
 ];
 
 export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMPLE', 'db2 list utilities show detail']}: {suggestions?: string[]}) {
@@ -291,14 +280,35 @@ export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMP
   };
 
   return (
-    <section className="terminal-lab" aria-label="Db2 command simulator">
+    <section className="terminal-lab" aria-label="Stateful Db2 command simulator">
       <div className="terminal-lab__title">
         <div>
-          <span className="eyebrow">Safe command lab</span>
+          <span className="eyebrow">Safe stateful command lab</span>
           <h3>Db2 terminal simulator</h3>
         </div>
         <span className="simulation-badge">SIMULATION ONLY</span>
       </div>
+
+      <div className="simulator-state-grid" aria-label="Current simulator state">
+        <div><span>Scenario</span><strong>{simState.scenario}</strong></div>
+        <div><span>Database</span><strong>{simState.databaseState}</strong></div>
+        <div><span>APP.ORDERS</span><strong>{simState.tableState}</strong></div>
+        <div><span>Statistics</span><strong>{simState.statistics}</strong></div>
+        <div><span>Lock wait</span><strong>{simState.lockWait ? `Holder ${simState.blockerHandle}` : 'None'}</strong></div>
+      </div>
+
+      <div className="simulator-scenarios" aria-label="Load a simulator scenario">
+        {simulatorScenarios.map((scenario) => (
+          <button
+            type="button"
+            className={simState.scenario === scenario.id ? 'scenario-choice scenario-choice--active' : 'scenario-choice'}
+            key={scenario.id}
+            onClick={() => loadScenario(scenario.id)}>
+            {scenario.label}
+          </button>
+        ))}
+      </div>
+
       <div className="terminal-suggestions">
         {suggestions.map((suggestion) => (
           <button type="button" key={suggestion} onClick={() => setCommand(suggestion)}>{suggestion}</button>
@@ -308,7 +318,7 @@ export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMP
         Command
         <div className="terminal-input-row">
           <span>$</span>
-          <input value={command} onChange={(event) => setCommand(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && run()} />
+          <input aria-label="Db2 simulator command" value={command} onChange={(event) => setCommand(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && run()} />
           <button className="button button--primary" type="button" onClick={run}>Run simulation</button>
         </div>
       </label>

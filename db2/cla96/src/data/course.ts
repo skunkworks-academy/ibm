@@ -8,7 +8,7 @@ export type CourseLesson = {
 };
 
 export const COURSE_STORAGE_KEY = 'cla96g-docusaurus-progress-v1';
-export const ASSESSMENT_STORAGE_KEY = 'cla96g-docusaurus-assessment-v1';
+export const ASSESSMENT_STORAGE_KEY = 'cla96g-docusaurus-assessment-v2';
 
 export const lessons: CourseLesson[] = [
   {
@@ -18,57 +18,69 @@ export const lessons: CourseLesson[] = [
     href: '/course/intro',
     durationHours: 1,
     outcomes: [
-      'Map the 36-hour learning path to your role and environment.',
+      'Map the guided self-paced path to the official CLA96G Part and Unit architecture.',
       'Prepare a safe Db2 practice environment and evidence notebook.',
       'Adopt a baseline → change → validate → document operating discipline.',
     ],
   },
   {
     id: 'part-1',
-    title: 'Part 1 · Foundations, configuration, storage and data movement',
+    title: 'Part 1 · Essentials for Relational DBAs',
     shortTitle: 'Part 1',
     href: '/course/part-1',
-    durationHours: 9,
+    durationHours: 8,
     outcomes: [
-      'Explain Db2 12.1 architecture and version/service terminology.',
-      'Configure instances and databases using controlled command-line workflows.',
-      'Create and manage storage, database objects and data movement utilities.',
+      'Explain Db2 12.1 platforms, editions, service levels, installation and connectivity.',
+      'Operate CLP/CLPPlus/DMC and manage the Db2 database manager instance.',
+      'Create databases and objects and perform foundational recovery/troubleshooting tasks.',
     ],
   },
   {
     id: 'part-2',
-    title: 'Part 2 · Recovery, utilities, maintenance and availability',
+    title: 'Part 2 · Data Management and Recovery for Relational DBAs',
     shortTitle: 'Part 2',
     href: '/course/part-2',
-    durationHours: 8,
+    durationHours: 7,
     outcomes: [
-      'Design backup, restore and rollforward recovery procedures.',
-      'Operate LOAD, IMPORT, EXPORT and maintenance utilities safely.',
-      'Use monitoring evidence to validate utility and recovery states.',
+      'Choose and operate SQL and utility-based data movement methods including LOAD and INGEST.',
+      'Design and execute backup, recovery and HADR procedures.',
+      'Perform maintenance, monitoring and problem determination using Db2 tools.',
     ],
   },
   {
     id: 'part-3',
-    title: 'Part 3 · Security, access control and concurrency',
+    title: 'Part 3 · Security and Concurrency',
     shortTitle: 'Part 3',
     href: '/course/part-3',
-    durationHours: 8,
+    durationHours: 6,
     outcomes: [
-      'Diagnose locking, deadlocks, timeouts and isolation behavior.',
-      'Apply least-privilege authorities, roles and object privileges.',
-      'Differentiate RCAC, LBAC, trusted contexts, encryption and auditing controls.',
+      'Diagnose locking, isolation, waits, timeouts, deadlocks and escalation.',
+      'Apply authentication, authorities, privileges and roles using least privilege.',
+      'Use RCAC, LBAC, trusted contexts, encryption and auditing controls appropriately.',
     ],
   },
   {
     id: 'part-4',
-    title: 'Part 4 · Statistics, optimization, monitoring and performance',
+    title: 'Part 4 · Performance and Tuning Optimization',
     shortTitle: 'Part 4',
     href: '/course/part-4',
-    durationHours: 8,
+    durationHours: 7,
     outcomes: [
-      'Use statistics, indexes and EXPLAIN to reason about access plans.',
-      'Apply Design Advisor and monitoring data to evidence-based tuning.',
-      'Use Db2 AI Query Optimizer concepts responsibly with workload baselines.',
+      'Use statistics and query optimization concepts to explain access-path choices.',
+      'Design and validate indexing strategies and Design Advisor recommendations.',
+      'Use EXPLAIN, monitoring SQL, db2pd, dmctop and DMC for evidence-driven tuning.',
+    ],
+  },
+  {
+    id: 'incident-centre',
+    title: 'DBA Incident Centre · Production-style simulations',
+    shortTitle: 'Incidents',
+    href: '/course/incident-centre',
+    durationHours: 5,
+    outcomes: [
+      'Prioritize relevant evidence under a constrained investigation budget.',
+      'Choose minimum-blast-radius actions across administration, recovery, security and performance incidents.',
+      'Build repeatable incident evidence and remediation habits.',
     ],
   },
   {
@@ -85,17 +97,19 @@ export const lessons: CourseLesson[] = [
   },
   {
     id: 'final-assessment',
-    title: 'Final assessment · Production-readiness scenarios',
+    title: 'Final assessment · Objective-balanced production-readiness scenarios',
     shortTitle: 'Assessment',
     href: '/course/final-assessment',
     durationHours: 2,
     outcomes: [
-      'Demonstrate integrated DBA judgment across administration, recovery, security and performance.',
-      'Achieve at least 75% on scenario-based questions.',
-      'Export a portable completion record for review or LMS evidence.',
+      'Demonstrate integrated DBA judgment across all four official CLA96G parts.',
+      'Achieve at least 75% overall with no part below the minimum domain floor.',
+      'Use remediation results to target weak units before another attempt.',
     ],
   },
 ];
 
+export const OFFICIAL_GUIDED_HOURS = 28;
 export const TOTAL_HOURS = lessons.reduce((sum, lesson) => sum + lesson.durationHours, 0);
 export const PASS_SCORE = 75;
+export const PART_SCORE_FLOOR = 60;
