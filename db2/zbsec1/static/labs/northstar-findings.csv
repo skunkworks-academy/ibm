@@ -1,0 +1,13 @@
+finding_id,domain,finding,asset,impact,current_control,priority_hint
+F01,Privileged access,Three DBAs hold SYSADM and direct sensitive-table SELECT,Customer/Card data,Confidentiality and SoD failure,PAM sessions exist,High
+F02,Secrets,PAYAPI01 credential is long-lived and stored in application configuration repository,Payments API,Credential compromise could expose broad data,Repository access control,High
+F03,Authorization,Payments application has direct SELECT on CUSTOMER ACCOUNT CARD,Core banking tables,Large blast radius if service compromised,RACF application ID,High
+F04,TLS,DDF certificate expires in 35 days and owner left,DDF endpoint,Payment channel outage or rushed insecure workaround,TLS currently active,High
+F05,Identity,CICS transactions use broad shared database identity,Teller processing,Weak end-user attribution,CICS transaction controls,Medium
+F06,Access lifecycle,Temporary RACF group membership from incident remains active,Production data,Privilege persistence,PAM incident existed,High
+F07,Data policy,Teller branch filtering exists only in application code,CUSTOMER,Bypass risk if alternate query path appears,UI/API checks,High
+F08,Data minimisation,Full PAN returned to service that displays last four digits,CARD,Excess sensitive-data exposure,TLS in transit,High
+F09,Detection,No SOC rule for privileged reads of CARD,CARD/Db2 audit,Late detection,SMF collection,High
+F10,Cryptography,DR has not tested newest encryption key dependency,Encrypted Db2 datasets,Recovery failure,Storage replication,High
+F11,Software supply chain,Production rebind uses shared deployment account,Packages,Weak accountability,Change tickets,Medium
+F12,Access governance,Recertification checks direct grants only,All Db2 access,Hidden secondary/role/package privilege may persist,Quarterly review,High
