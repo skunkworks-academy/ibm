@@ -1,42 +1,213 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import Link from '@docusaurus/Link';
-import {ASSESSMENT_STORAGE_KEY, PART_SCORE_FLOOR, PASS_SCORE} from '../data/course';
-import {AssessmentPartId, AssessmentQuestion, assessmentBankSize, buildBalancedAssessment} from '../data/assessmentBank';
-import {officialParts, partMasteryRequirements} from '../data/objectives';
-import {markLessonComplete, readLearningState} from '../utils/learningState';
+import {ASSESSMENT_STORAGE_KEY, COURSE_STORAGE_KEY, PASS_SCORE} from '../data/course';
 import {scormReport} from '../utils/scorm';
 
-type AttemptQuestion = {
-  question: AssessmentQuestion;
-  optionOrder: number[];
+type Question = {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  rationale: string;
+  domain: string;
 };
+
+const questions: Question[] = [
+  {
+    domain: 'Versioning',
+    prompt: 'A change record says “Db2 12.1” but does not identify the installed service level. What should the DBA establish before assessing an upgrade or defect fix?',
+    options: [
+      'Only the database name',
+      'The exact installed mod/fix/service level and the target level, including compatibility and prerequisites',
+      'The number of schemas',
+      'Whether the application uses JDBC',
+    ],
+    correctIndex: 1,
+    rationale: 'Version alone is insufficient for change planning. Establish the exact service level, prerequisites, compatibility and rollback path.',
+  },
+  {
+    domain: 'Configuration',
+    prompt: 'You need to change a database configuration parameter in production. Which workflow is strongest?',
+    options: [
+      'UPDATE DB CFG immediately and restart until the symptom disappears',
+      'Capture GET DB CFG baseline, confirm scope/dynamic behavior, change one justified value, validate, document and retain rollback values',
+      'Change the equivalent instance parameter instead',
+      'Use AUTOCONFIGURE and accept every recommendation automatically',
+    ],
+    correctIndex: 1,
+    rationale: 'Controlled administration starts with scope, baseline, change intent, validation and rollback readiness.',
+  },
+  {
+    domain: 'Utilities',
+    prompt: 'A LOAD was started by an overnight batch and users now report an unavailable table. What should you inspect first?',
+    options: [
+      'Drop and recreate the table',
+      'LIST UTILITIES / MON_GET_UTILITY / LOAD_QUERY plus utility messages and table state',
+      'Increase sortheap',
+      'Run RUNSTATS repeatedly',
+    ],
+    correctIndex: 1,
+    rationale: 'Utility state and message evidence tells you whether the load is active, failed, pending, or requires follow-up action.',
+  },
+  {
+    domain: 'Recovery',
+    prompt: 'A restore completed successfully but the database remains in rollforward pending. What is the correct interpretation?',
+    options: [
+      'The restore image is corrupt',
+      'Recovery is incomplete; required logs must be applied and rollforward ended at the intended recovery point',
+      'The database requires REORG',
+      'The instance must always be recreated',
+    ],
+    correctIndex: 1,
+    rationale: 'A successful restore does not necessarily complete recovery. Rollforward pending explicitly signals more recovery work.',
+  },
+  {
+    domain: 'Logging',
+    prompt: 'A recurring batch causes log-full events. What is the best first response?',
+    options: [
+      'Disable logging',
+      'Measure transaction/log generation, archive throughput and capacity; then adjust log sizing or batch design based on evidence',
+      'Drop indexes without analysis',
+      'Increase bufferpool memory',
+    ],
+    correctIndex: 1,
+    rationale: 'Log pressure is a capacity/workload/recovery-design problem. Measure before changing configuration.',
+  },
+  {
+    domain: 'Concurrency',
+    prompt: 'CPU is normal, application latency is high, and lock waits suddenly increase. What is the priority investigation?',
+    options: [
+      'Add CPU',
+      'Identify the blocking chain, root blocker, held/requested lock modes and transaction context',
+      'Collect more frequent RUNSTATS',
+      'Disable locking',
+    ],
+    correctIndex: 1,
+    rationale: 'Lock waits point to contention. Root-blocker analysis gives a causal path and avoids unrelated tuning.',
+  },
+  {
+    domain: 'Isolation',
+    prompt: 'Which statement best describes the trade-off when moving a workload toward stricter isolation?',
+    options: [
+      'Stricter isolation can improve consistency guarantees but may reduce concurrency and increase locking pressure',
+      'Stricter isolation always increases throughput',
+      'Isolation only changes authentication behavior',
+      'Isolation has no effect on data visibility',
+    ],
+    correctIndex: 0,
+    rationale: 'Isolation is a correctness/concurrency policy. Stronger guarantees generally have a concurrency cost that must be understood.',
+  },
+  {
+    domain: 'Authorities',
+    prompt: 'An application support team needs to create and maintain objects in one controlled schema but should not administer database security. What is the best principle?',
+    options: [
+      'Grant SECADM to simplify support',
+      'Grant SYSADM to avoid future tickets',
+      'Use least-privilege schema/object privileges and roles; keep security administration duties separated',
+      'Grant DATAACCESS to PUBLIC',
+    ],
+    correctIndex: 2,
+    rationale: 'Separation of duties and least privilege reduce blast radius and support auditability.',
+  },
+  {
+    domain: 'Fine-grained access',
+    prompt: 'You must let different users see different rows from the same table based on policy. Which Db2 capability is the most direct fit?',
+    options: ['RCAC row permissions', 'REORGCHK', 'HADR peer window', 'LOGSECOND'],
+    correctIndex: 0,
+    rationale: 'Row and Column Access Control can enforce row permissions and column masks within Db2.',
+  },
+  {
+    domain: 'Statistics',
+    prompt: 'A bulk data change materially shifts value distribution and query plans regress. What is a sensible evidence-driven sequence?',
+    options: [
+      'Add several indexes immediately',
+      'Refresh appropriate statistics, compare EXPLAIN/cardinality estimates, then change indexes only if the evidence supports it',
+      'Restart Db2',
+      'Disable the optimizer',
+    ],
+    correctIndex: 1,
+    rationale: 'Stale or incomplete statistics can mislead the optimizer. Validate estimates before structural changes.',
+  },
+  {
+    domain: 'EXPLAIN',
+    prompt: 'EXPLAIN estimates 100 rows but runtime monitoring consistently shows 4 million. What should you investigate early?',
+    options: [
+      'Whether statistics/selectivity assumptions are inaccurate or stale',
+      'Whether the terminal font is correct',
+      'Whether the backup directory is empty',
+      'Whether all users have DBADM',
+    ],
+    correctIndex: 0,
+    rationale: 'Large estimated-versus-actual cardinality gaps are a strong signal to inspect statistics, skew, predicates and parameter sensitivity.',
+  },
+  {
+    domain: 'Design Advisor',
+    prompt: 'Design Advisor recommends a new index. What makes the recommendation production-ready?',
+    options: [
+      'The recommendation alone',
+      'Testing against representative workload, validating read benefit and write/storage cost, and keeping a rollback plan',
+      'Creating every suggested index',
+      'Disabling existing indexes first',
+    ],
+    correctIndex: 1,
+    rationale: 'Advisor output is evidence, not an automatic change. Validate the net workload effect.',
+  },
+  {
+    domain: 'Monitoring',
+    prompt: 'What is the strongest 10-minute performance triage approach?',
+    options: [
+      'Change configuration until users stop complaining',
+      'Correlate workload rate, waits, top SQL, locks, I/O, logging, memory and recent changes against a baseline',
+      'Focus only on CPU',
+      'Collect a full support bundle before checking current state',
+    ],
+    correctIndex: 1,
+    rationale: 'Correlation across workload, resource and wait signals narrows the causal domain quickly and safely.',
+  },
+  {
+    domain: 'AI Query Optimizer',
+    prompt: 'How should a DBA treat AI-driven optimizer recommendations in a governed production environment?',
+    options: [
+      'As automatic authority to change production',
+      'As an additional decision signal that still requires workload baselines, validation, change control and rollback readiness',
+      'As a replacement for statistics',
+      'As a replacement for monitoring',
+    ],
+    correctIndex: 1,
+    rationale: 'AI-assisted optimization should strengthen evidence, not bypass operational governance.',
+  },
+  {
+    domain: 'Recovery validation',
+    prompt: 'Which statement is the strongest recovery assurance?',
+    options: [
+      'The backup command returned successfully',
+      'The backup file exists',
+      'A representative restore and recovery test met the documented RPO/RTO and application validation criteria',
+      'The archive filesystem has free space',
+    ],
+    correctIndex: 2,
+    rationale: 'Recovery capability is proven by tested restore/recovery outcomes against service objectives, not backup existence alone.',
+  },
+  {
+    domain: 'Operational governance',
+    prompt: 'A DBA wants to restart the instance immediately during an incident. What should happen first when service impact allows?',
+    options: [
+      'Capture time-correlated diagnostic evidence and current state so restart does not erase the strongest clues',
+      'Delete db2diag.log',
+      'Reset all configuration',
+      'Run REORG on every table',
+    ],
+    correctIndex: 0,
+    rationale: 'Evidence before intervention is central to reliable root-cause analysis and prevents destructive troubleshooting.',
+  },
+];
 
 type StoredAssessment = {
   bestScore: number;
   latestScore: number;
   attempts: number;
   passed: boolean;
-  partScores: Record<AssessmentPartId, number>;
   updatedAt: string;
 };
-
-const partIds: AssessmentPartId[] = ['part-1', 'part-2', 'part-3', 'part-4'];
-
-function shuffleNumbers(length: number): number[] {
-  const values = Array.from({length}, (_, index) => index);
-  for (let index = values.length - 1; index > 0; index -= 1) {
-    const target = Math.floor(Math.random() * (index + 1));
-    [values[index], values[target]] = [values[target], values[index]];
-  }
-  return values;
-}
-
-function createAttempt(): AttemptQuestion[] {
-  return buildBalancedAssessment(6).map((question) => ({
-    question,
-    optionOrder: shuffleNumbers(question.options.length),
-  }));
-}
 
 function readStored(): StoredAssessment | null {
   if (typeof window === 'undefined') return null;
@@ -47,99 +218,63 @@ function readStored(): StoredAssessment | null {
   }
 }
 
-function masteryPrerequisites() {
-  const state = readLearningState();
-  return partIds.map((partId) => {
-    const requirement = partMasteryRequirements[partId];
-    const checks = requirement.checkIds.filter((id) => state.checks[id]?.correct).length;
-    const practical = state.checklists[requirement.checklistId]?.checked.length ?? 0;
-    const mastered = checks === requirement.checkIds.length && practical >= requirement.checklistCount;
-    return {partId, mastered, checks, checkTotal: requirement.checkIds.length, practical, practicalTotal: requirement.checklistCount};
-  });
-}
-
-function questionIsCorrect(item: AttemptQuestion, displayedChoice: number | undefined): boolean {
-  if (displayedChoice === undefined) return false;
-  return item.optionOrder[displayedChoice] === item.question.correctIndex;
-}
-
-function scoreAttempt(attempt: AttemptQuestion[], answers: Record<number, number>) {
-  const correct = attempt.reduce((total, item, index) => total + (questionIsCorrect(item, answers[index]) ? 1 : 0), 0);
-  const overall = Math.round((correct / attempt.length) * 100);
-  const partScores = Object.fromEntries(partIds.map((partId) => {
-    const partQuestions = attempt.map((item, index) => ({item, index})).filter(({item}) => item.question.partId === partId);
-    const partCorrect = partQuestions.reduce((total, {item, index}) => total + (questionIsCorrect(item, answers[index]) ? 1 : 0), 0);
-    return [partId, Math.round((partCorrect / partQuestions.length) * 100)];
-  })) as Record<AssessmentPartId, number>;
-  const passed = overall >= PASS_SCORE && partIds.every((partId) => partScores[partId] >= PART_SCORE_FLOOR);
-  return {overall, partScores, passed};
+function markCourseCompleteIfPassed(score: number) {
+  if (typeof window === 'undefined' || score < PASS_SCORE) return;
+  try {
+    const progress = JSON.parse(window.localStorage.getItem(COURSE_STORAGE_KEY) ?? '{"completed":[]}') as {completed?: string[]};
+    const completed = Array.from(new Set([...(progress.completed ?? []), 'final-assessment']));
+    const next = {completed, updatedAt: new Date().toISOString()};
+    window.localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new CustomEvent('cla96-progress', {detail: next}));
+  } catch {
+    // Assessment record remains available even if progress storage is unavailable.
+  }
 }
 
 export default function FinalAssessment() {
-  const [attempt, setAttempt] = useState<AttemptQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [latest, setLatest] = useState<ReturnType<typeof scoreAttempt> | null>(null);
+  const [latestScore, setLatestScore] = useState<number | null>(null);
   const [stored, setStored] = useState<StoredAssessment | null>(null);
-  const [prerequisites, setPrerequisites] = useState<ReturnType<typeof masteryPrerequisites>>([]);
 
-  useEffect(() => {
-    setStored(readStored());
-    setPrerequisites(masteryPrerequisites());
-    setAttempt(createAttempt());
-  }, []);
+  useEffect(() => setStored(readStored()), []);
 
   const answeredCount = Object.keys(answers).length;
-  const unlocked = prerequisites.length === 4 && prerequisites.every((part) => part.mastered);
-
-  const missedByUnit = useMemo(() => {
-    if (!submitted) return new Map<string, number>();
-    const misses = new Map<string, number>();
-    attempt.forEach((item, index) => {
-      if (!questionIsCorrect(item, answers[index])) {
-        misses.set(item.question.unitId, (misses.get(item.question.unitId) ?? 0) + 1);
-      }
-    });
-    return misses;
-  }, [answers, attempt, submitted]);
+  const score = useMemo(() => {
+    const correct = questions.reduce((total, question, index) => total + (answers[index] === question.correctIndex ? 1 : 0), 0);
+    return Math.round((correct / questions.length) * 100);
+  }, [answers]);
 
   const submit = () => {
-    if (!unlocked || attempt.length === 0 || answeredCount !== attempt.length) return;
-    const result = scoreAttempt(attempt, answers);
+    if (answeredCount !== questions.length) return;
     const previous = readStored();
+    const bestScore = Math.max(previous?.bestScore ?? 0, score);
     const record: StoredAssessment = {
-      bestScore: Math.max(previous?.bestScore ?? 0, result.overall),
-      latestScore: result.overall,
+      bestScore,
+      latestScore: score,
       attempts: (previous?.attempts ?? 0) + 1,
-      passed: Boolean(previous?.passed || result.passed),
-      partScores: result.partScores,
+      passed: bestScore >= PASS_SCORE,
       updatedAt: new Date().toISOString(),
     };
     window.localStorage.setItem(ASSESSMENT_STORAGE_KEY, JSON.stringify(record));
     setStored(record);
-    setLatest(result);
+    setLatestScore(score);
     setSubmitted(true);
-    if (result.passed) markLessonComplete('final-assessment');
-    scormReport({score: result.overall, status: result.passed ? 'passed' : 'failed', lessonLocation: window.location.pathname});
+    markCourseCompleteIfPassed(bestScore);
+    scormReport({score: bestScore, status: bestScore >= PASS_SCORE ? 'passed' : 'failed', lessonLocation: window.location.pathname});
   };
 
   const resetAttempt = () => {
-    setAttempt(createAttempt());
     setAnswers({});
     setSubmitted(false);
-    setLatest(null);
-    setPrerequisites(masteryPrerequisites());
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    setLatestScore(null);
   };
 
   const exportRecord = () => {
     const record = readStored();
     const payload = {
       course: 'CLA96G — IBM Db2 12.1 Foundation for Relational DBAs self-paced companion',
-      assessmentBankSize,
-      attemptQuestionCount: 24,
       passScore: PASS_SCORE,
-      partScoreFloor: PART_SCORE_FLOOR,
       assessment: record,
       exportedAt: new Date().toISOString(),
       note: 'Browser-local learner evidence. Identity verification and proctoring are not provided by this self-paced companion.',
@@ -153,73 +288,39 @@ export default function FinalAssessment() {
     URL.revokeObjectURL(url);
   };
 
-  if (attempt.length === 0) return <div className="assessment-shell"><p>Preparing randomized assessment…</p></div>;
-
-  if (!unlocked) {
-    return (
-      <section className="assessment-gate" aria-label="Assessment mastery prerequisites">
-        <span className="eyebrow">Mastery prerequisite</span>
-        <h2>Master all four technical parts before the final assessment.</h2>
-        <p>The assessment is intentionally gated by the official-unit checks and required practical evidence. This prevents a manual completion click from bypassing learning requirements.</p>
-        <div className="assessment-prerequisite-grid">
-          {prerequisites.map((part) => {
-            const definition = officialParts.find((item) => item.id === part.partId);
-            return (
-              <Link key={part.partId} to={definition?.href ?? '/course/intro'} className={part.mastered ? 'assessment-prerequisite assessment-prerequisite--done' : 'assessment-prerequisite'}>
-                <strong>Part {definition?.number}: {definition?.shortTitle}</strong>
-                <span>Checks {part.checks}/{part.checkTotal} · Practical {part.practical}/{part.practicalTotal}</span>
-                <span>{part.mastered ? 'Mastered ✓' : 'Complete requirements →'}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-    );
-  }
-
   return (
     <div className="assessment-shell">
-      <div className="assessment-summary assessment-summary--v3">
-        <div><span className="eyebrow">Question bank</span><strong>{assessmentBankSize}</strong></div>
-        <div><span className="eyebrow">This attempt</span><strong>{attempt.length}</strong></div>
-        <div><span className="eyebrow">Answered</span><strong>{answeredCount}/{attempt.length}</strong></div>
+      <div className="assessment-summary">
+        <div><span className="eyebrow">Pass threshold</span><strong>{PASS_SCORE}%</strong></div>
+        <div><span className="eyebrow">Answered</span><strong>{answeredCount}/{questions.length}</strong></div>
         <div><span className="eyebrow">Best score</span><strong>{stored?.bestScore ?? 0}%</strong></div>
         <div><span className="eyebrow">Attempts</span><strong>{stored?.attempts ?? 0}</strong></div>
       </div>
 
-      <div className="assessment-blueprint">
-        <strong>Blueprint:</strong> 6 randomized questions per Part · all official units represented where the Part size permits · answer order randomized · pass = {PASS_SCORE}% overall and at least {PART_SCORE_FLOOR}% in every Part.
-      </div>
-
-      {attempt.map((item, index) => {
-        const question = item.question;
+      {questions.map((question, index) => {
         const chosen = answers[index];
-        const isCorrect = questionIsCorrect(item, chosen);
+        const isCorrect = chosen === question.correctIndex;
         return (
-          <section className="assessment-question" key={question.id}>
-            <div className="assessment-question__meta">
-              <span>Question {index + 1}</span>
-              <span>{question.unitId.toUpperCase()} · {question.difficulty}</span>
-            </div>
+          <section className="assessment-question" key={`${question.domain}-${index}`}>
+            <div className="assessment-question__meta"><span>Question {index + 1}</span><span>{question.domain}</span></div>
             <h3>{question.prompt}</h3>
             <div className="knowledge-check__options" role="radiogroup" aria-label={`Question ${index + 1}`}>
-              {item.optionOrder.map((originalIndex, displayedIndex) => (
-                <label className="quiz-option" key={`${question.id}-${originalIndex}`}>
+              {question.options.map((option, optionIndex) => (
+                <label className="quiz-option" key={option}>
                   <input
                     type="radio"
                     name={`assessment-${index}`}
-                    checked={chosen === displayedIndex}
+                    checked={chosen === optionIndex}
                     disabled={submitted}
-                    onChange={() => setAnswers((current) => ({...current, [index]: displayedIndex}))}
+                    onChange={() => setAnswers((current) => ({...current, [index]: optionIndex}))}
                   />
-                  <span>{question.options[originalIndex]}</span>
+                  <span>{option}</span>
                 </label>
               ))}
             </div>
             {submitted && (
               <div className={isCorrect ? 'quiz-feedback quiz-feedback--good' : 'quiz-feedback quiz-feedback--retry'}>
                 <strong>{isCorrect ? 'Correct.' : `Correct answer: ${question.options[question.correctIndex]}.`}</strong> {question.rationale}
-                <div className="assessment-objective-id">Coverage: {question.objectiveId} · {question.unitId.toUpperCase()}</div>
               </div>
             )}
           </section>
@@ -228,42 +329,22 @@ export default function FinalAssessment() {
 
       <div className="assessment-actions">
         {!submitted ? (
-          <button className="button button--primary button--lg" type="button" disabled={answeredCount !== attempt.length} onClick={submit}>
+          <button className="button button--primary button--lg" type="button" disabled={answeredCount !== questions.length} onClick={submit}>
             Submit assessment
           </button>
         ) : (
-          <button className="button button--secondary button--lg" type="button" onClick={resetAttempt}>Start randomized attempt</button>
+          <button className="button button--secondary button--lg" type="button" onClick={resetAttempt}>Start another attempt</button>
         )}
         {stored && <button className="button button--secondary button--lg" type="button" onClick={exportRecord}>Export completion record</button>}
       </div>
 
-      {submitted && latest && (
-        <section className={latest.passed ? 'assessment-result assessment-result--pass' : 'assessment-result assessment-result--retry'} role="status">
+      {submitted && latestScore !== null && (
+        <div className={latestScore >= PASS_SCORE ? 'assessment-result assessment-result--pass' : 'assessment-result assessment-result--retry'} role="status">
           <span className="eyebrow">Latest result</span>
-          <h2>{latest.overall}% · {latest.passed ? 'Mastery threshold met' : 'Targeted review required'}</h2>
-          <div className="assessment-domain-grid">
-            {officialParts.map((part) => {
-              const partScore = latest.partScores[part.id];
-              const weakUnits = part.units
-                .map((unit) => ({unit, misses: missedByUnit.get(unit.id) ?? 0}))
-                .filter((entry) => entry.misses > 0)
-                .sort((a, b) => b.misses - a.misses);
-              const remediation = weakUnits[0]?.unit;
-              return (
-                <article className={partScore >= PART_SCORE_FLOOR ? 'assessment-domain assessment-domain--pass' : 'assessment-domain assessment-domain--weak'} key={part.id}>
-                  <span>Part {part.number}</span>
-                  <strong>{partScore}%</strong>
-                  <p>{part.shortTitle}</p>
-                  {remediation ? <Link to={`${part.href}#${remediation.anchor}`}>Review {remediation.title} →</Link> : <span>No misses in this attempt.</span>}
-                </article>
-              );
-            })}
-          </div>
-          <p>{latest.passed
-            ? 'You met the overall threshold and the minimum Part floor. Your completion milestone has been recorded.'
-            : `Reach ${PASS_SCORE}% overall while keeping every Part at or above ${PART_SCORE_FLOOR}%. Use the weakest-unit links above before the next randomized attempt.`}</p>
-          {latest.passed && <Link className="button button--primary" to="/course/next-steps">Continue to next steps →</Link>}
-        </section>
+          <h2>{latestScore}% · {latestScore >= PASS_SCORE ? 'Pass' : 'Review and retry'}</h2>
+          <p>{latestScore >= PASS_SCORE ? 'You met the mastery threshold for this learning companion.' : 'Use the rationales above to target your review. Your best score is retained.'}</p>
+          {latestScore >= PASS_SCORE && <Link className="button button--primary" to="/course/next-steps">Continue to next steps →</Link>}
+        </div>
       )}
     </div>
   );

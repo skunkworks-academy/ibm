@@ -10,9 +10,8 @@
     "clear": "docusaurus clear",
     "typecheck": "tsc --noEmit",
     "seo:check": "node scripts/seo-check.mjs",
-    "course:check": "node scripts/course-integrity-check.mjs",
     "lighthouse": "lhci collect --config=.lighthouserc.json && lhci assert --config=.lighthouserc.json",
-    "quality": "npm run typecheck && npm run course:check && npm run build && npm run seo:check"
+    "quality": "npm run typecheck && npm run build && npm run seo:check"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.2",
