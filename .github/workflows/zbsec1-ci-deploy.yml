@@ -81,7 +81,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf db2/zbsec1/assets db2/zbsec1/course db2/zbsec1/img
+          rm -rf db2/zbsec1/assets \
+                 db2/zbsec1/course \
+                 db2/zbsec1/img \
+                 db2/zbsec1/labs \
+                 db2/zbsec1/index.html \
+                 db2/zbsec1/404.html \
+                 db2/zbsec1/robots.txt \
+                 db2/zbsec1/sitemap.xml \
+                 db2/zbsec1/.nojekyll
           cp -a db2/zbsec1/build/. db2/zbsec1/
           rm -rf db2/zbsec1/build
 
@@ -91,11 +99,14 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add db2/zbsec1/index.html \
+          git add -A -- \
+                  db2/zbsec1/index.html \
                   db2/zbsec1/404.html \
                   db2/zbsec1/assets \
                   db2/zbsec1/course \
                   db2/zbsec1/img \
+                  db2/zbsec1/labs \
+                  db2/zbsec1/.nojekyll \
                   db2/zbsec1/robots.txt \
                   db2/zbsec1/sitemap.xml
           if git diff --cached --quiet; then
