@@ -1,0 +1,103 @@
+name: Publish IBM Training to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and stage IBM Training site
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install ZBSEC1 dependencies
+        working-directory: db2/zbsec1
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck ZBSEC1
+        working-directory: db2/zbsec1
+        run: npm run typecheck
+
+      - name: Build ZBSEC1
+        working-directory: db2/zbsec1
+        run: npm run build
+
+      - name: Validate ZBSEC1 SEO
+        working-directory: db2/zbsec1
+        run: npm run seo:check
+
+      - name: Stage complete IBM static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+
+          # Preserve the existing IBM Training static site while excluding
+          # repository/workflow metadata and local build dependencies.
+          rsync -a ./ _site/ \
+            --exclude='_site/' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='**/node_modules/' \
+            --exclude='db2/zbsec1/build/' \
+            --exclude='db2/cla96/build/'
+
+          # Always publish ZBSEC1 from the freshly generated Docusaurus build,
+          # not from a stale generated payload committed previously.
+          mkdir -p _site/db2/zbsec1
+          rm -rf _site/db2/zbsec1/assets \
+                 _site/db2/zbsec1/course \
+                 _site/db2/zbsec1/img \
+                 _site/db2/zbsec1/labs \
+                 _site/db2/zbsec1/index.html \
+                 _site/db2/zbsec1/404.html \
+                 _site/db2/zbsec1/robots.txt \
+                 _site/db2/zbsec1/sitemap.xml \
+                 _site/db2/zbsec1/.nojekyll
+          cp -a db2/zbsec1/build/. _site/db2/zbsec1/
+
+          # GitHub Pages/static-hosting invariants.
+          touch _site/.nojekyll
+          test -f _site/CNAME
+          test -f _site/index.html
+          test -f _site/db2/zbsec1/index.html
+          test -f _site/db2/zbsec1/assets/js/main.d2bbee66.js || find _site/db2/zbsec1/assets/js -maxdepth 1 -name 'main.*.js' -print -quit | grep -q .
+          grep -q 'ZBSEC1' _site/db2/zbsec1/index.html
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy IBM Training site
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
