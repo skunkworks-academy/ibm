@@ -1,0 +1,484 @@
+---
+title: Lab Centre · Practical Db2 for z/OS banking security
+description: Twelve practical labs with safe browser evidence, authorised z/OS extensions, expected outputs and assessment criteria.
+keywords: [Db2 security labs, RACF lab, DDF lab, SMF lab, RCAC lab, banking cyber lab]
+---
+
+import {EvidenceConsole, PracticeChecklist, CourseProgress, LearningLocationTracker} from '@site/src/components/LearningWidgets';
+
+<LearningLocationTracker />
+
+# ZBSEC1 Lab Centre
+
+<CourseProgress compact />
+
+The Lab Centre provides a practical thread through all 12 modules. Every lab has a **safe simulation track** and an optional **authorised z/OS track**. The goal is not to collect commands; it is to produce **repeatable evidence that a security control works**.
+
+## Download the synthetic evidence
+
+- [Northstar access review dataset](/db2/zbsec1/labs/northstar-access-review.csv)
+- [Northstar SMF/audit sample](/db2/zbsec1/labs/northstar-smf-sample.csv)
+- [Northstar security findings](/db2/zbsec1/labs/northstar-findings.csv)
+
+:::danger Safety and data handling
+Use only synthetic data in the browser labs. Never copy production customer records, passwords, PassTickets, tokens, private keys, cryptographic key material or unredacted privileged evidence into training notes. Execute live commands only in systems where you have explicit authority.
+:::
+
+## Lab evidence standard
+
+Each lab submission should contain:
+
+```text
+Lab ID and date
+Environment / simulation dataset
+Objective
+Evidence collected
+Analysis / decision
+Positive test
+Negative test
+Control owner
+Known gap / assumption
+Remediation or next action
+Reviewer / self-review result
+```
+
+---
+
+# Lab 1 — Threat-model the banking transaction path
+
+**Module:** 1  
+**Target time:** 60–90 minutes
+
+### Objective
+
+Identify trust boundaries and control-chain weaknesses from channel to Db2 and back to evidence/recovery.
+
+### Procedure
+
+1. Pick mobile banking, teller transactions or card authorization.
+2. Draw channel → application → network → DDF/CICS/IMS → RACF → Db2 → data → audit.
+3. Mark every identity transformation.
+4. Mark where plaintext sensitive data exists.
+5. Mark every privileged administration path.
+6. Add cryptographic and DR dependencies.
+7. Identify at least 15 threats and map prevent/detect/recover controls.
+8. Identify three chained failures where one control would not be enough.
+
+### Pass criteria
+
+- at least six trust boundaries;
+- at least four identity types;
+- at least 15 threat/control rows;
+- audit and recovery included, not just prevention.
+
+---
+
+# Lab 2 — Calculate effective access from RACF to Db2
+
+**Module:** 2  
+**Target time:** 90 minutes
+
+Use the access-review CSV plus the simulator.
+
+<EvidenceConsole commands={['RACF identity review', 'Db2 privilege review']} />
+
+### Simulation tasks
+
+For `TELLER01`, `PAYAPI01`, `THABOM`, `BREAK01` and `OLDAPI99`:
+
+1. Identify identity type and owner.
+2. Record the primary authorization ID.
+3. List secondary/group-derived context.
+4. Add roles/package access/direct object privilege.
+5. Determine whether access is expected.
+6. Flag missing expiry/recertification.
+7. Write a negative test for each identity.
+
+### Authorised z/OS extension
+
+Work with your RACF security administrator to collect read-only evidence using locally approved commands. Typical RACF display functions include:
+
+```text
+LISTUSER <userid>
+LISTGRP <group> ALL
+RLIST DSNR <resource-profile> ALL
+SEARCH CLASS(DSNR) FILTER(<approved-pattern>)
+```
+
+Exact resource names, command authority and class/profile configuration are installation-specific.
+
+Db2 catalog review may include security catalog tables/views for user, table, package, role and trusted-context authorization. Verify current catalog names/columns in the IBM documentation before running queries.
+
+### Pass criteria
+
+You must explain why “no direct grant” does **not** prove “no effective access”.
+
+---
+
+# Lab 3 — Administrative SoD and toxic combinations
+
+**Module:** 3  
+**Target time:** 60 minutes
+
+### Scenario
+
+Design production access for:
+
+- SECADM security administrator;
+- system DBA;
+- application/data owner;
+- SOC analyst;
+- auditor;
+- developer;
+- emergency responder.
+
+### Procedure
+
+1. Create RACI matrix.
+2. Mark SYSADM, SECADM, system DBADM, DBADM, DATAACCESS and ACCESSCTRL use where appropriate.
+3. Identify any identity that would hold multiple conflicting powers.
+4. Define the normal role and the emergency role separately.
+5. Write five positive tests and five negative tests.
+6. Define independent evidence reviewer.
+
+### Challenge
+
+Explain how `SEPARATE_SECURITY=YES` supports the design and what evidence you need to prove the subsystem setting and assignment of powerful authorities.
+
+---
+
+# Lab 4 — Package, plan and BIND security review
+
+**Module:** 4  
+**Target time:** 90 minutes
+
+### Scenario
+
+Payments uses static SQL packages plus one dynamic reporting function.
+
+### Tasks
+
+Create a package inventory containing:
+
+```text
+Application
+Collection
+Package
+Owner
+Bind/rebind authority
+Execute grantees
+Underlying sensitive objects
+Dynamic SQL present?
+Release/change reference
+Last rebind
+Monitoring rule
+```
+
+Then answer:
+
+- Can the runtime identity query base tables directly?
+- Can developers bind/rebind production?
+- Is package ownership consistent with SoD policy?
+- Is dynamic SQL parameterized?
+- Can a package deployment be traced to approved source and change evidence?
+
+### Authorised environment evidence
+
+Use your organisation's approved catalog queries/tooling to review package and package-authorization metadata. Do not rebind production packages as part of a training exercise.
+
+---
+
+# Lab 5 — DDF/DRDA and AT-TLS validation
+
+**Module:** 5  
+**Target time:** 90 minutes
+
+<EvidenceConsole commands={['DDF security review', 'RACF identity review']} />
+
+### Review steps
+
+1. Identify DDF endpoint/location and approved secure port.
+2. Identify allowed application source zones.
+3. Identify AT-TLS/TLS policy owner.
+4. Record certificate subject/SAN expectations and expiry.
+5. Record authentication mechanism and resulting authorization ID.
+6. Record package/role access after authentication.
+7. Identify failed-authentication evidence.
+8. Confirm certificate-renewal alerting and rollback.
+
+### Authorised environment
+
+A commonly used read-only Db2 operational check is a `-DISPLAY DDF` command with options appropriate to your Db2 level and runbook. Pair Db2 output with Communications Server/AT-TLS evidence and a client-side TLS validation owned by the network/application team.
+
+### Negative tests
+
+- invalid identity fails;
+- valid identity cannot query forbidden object;
+- unapproved source does not gain trusted context;
+- certificate/trust failure does not silently downgrade to an unprotected path.
+
+---
+
+# Lab 6 — Row permissions, column masks and trusted context
+
+**Module:** 6  
+**Target time:** 120 minutes
+
+### Fictional schema
+
+```text
+BANK.CUSTOMER_ACCOUNT(
+  CUSTOMER_ID,
+  BRANCH_ID,
+  ACCOUNT_NO,
+  ID_NUMBER,
+  CARD_PAN,
+  BALANCE,
+  RISK_RATING
+)
+```
+
+### Personas
+
+- teller JHB;
+- teller CPT;
+- call centre;
+- fraud investigator;
+- payment API;
+- system DBA;
+- break-glass investigator.
+
+### Tasks
+
+1. Define row rule per persona.
+2. Define sensitive-column visibility/mask per persona.
+3. Decide whether the application uses view/package + RCAC or another approved interface.
+4. Define trusted-context attributes for the API if justified.
+5. Write at least 14 tests: one permitted and one forbidden path for every persona.
+6. Identify who can alter permissions/masks and how that change is audited.
+
+### Example design syntax
+
+Use the current IBM `CREATE PERMISSION`, `CREATE MASK` and `ALTER TABLE ... ACTIVATE ... ACCESS CONTROL` documentation to implement the lab in a sandbox. Do not use production customer tables.
+
+---
+
+# Lab 7 — Encryption/key dependency and DR validation
+
+**Module:** 7  
+**Target time:** 90 minutes
+
+### Create a cryptographic dependency map
+
+Map:
+
+```text
+Db2 data set
+→ DFSMS encryption policy
+→ key label
+→ RACF access profile
+→ ICSF service
+→ production key availability
+→ DR key availability
+→ backup/recovery dependency
+→ owner
+```
+
+### Failure injection
+
+Assume the newest key label is missing at DR.
+
+Write actions in order. Your response must **not** begin with “grant everyone key access” or “destroy/recreate the key”. Include:
+
+- evidence;
+- cryptographic owner;
+- key label verification;
+- RACF authorization;
+- ICSF status;
+- recovery impact;
+- safe restoration;
+- post-recovery access rollback.
+
+### Pass criteria
+
+Recovery proof includes data + keys + security profiles + ICSF + Db2 + business application validation.
+
+---
+
+# Lab 8 — Db2/RACF/SMF incident reconstruction
+
+**Module:** 8  
+**Target time:** 90 minutes
+
+Download `northstar-smf-sample.csv` and build a chronological timeline.
+
+<EvidenceConsole commands={['SMF audit sample', 'RACF identity review', 'Db2 privilege review']} />
+
+### Questions
+
+1. Which event generated the security alert?
+2. Which correlation ID links the privileged activity to PAM?
+3. Is the listed change ticket enough to prove the sensitive SELECT was required?
+4. Which authorization/group evidence is missing?
+5. Which event could represent remediation or attacker persistence?
+6. What should the SOC ask the DBA, security admin and application team?
+7. Which evidence should be retained in raw form?
+
+### Detection engineering extension
+
+Write pseudo-rules for:
+
+- privileged ID + sensitive table + out-of-window access;
+- privilege change + same grantee uses new access within 10 minutes;
+- repeated DDF authentication failure;
+- service account reads an object not in its baseline;
+- break-glass account without active incident ID.
+
+---
+
+# Lab 9 — OWASP secure code and abuse-case review
+
+**Module:** 9  
+**Target time:** 90 minutes
+
+### Vulnerable pseudo-code
+
+```text
+sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID='" + request.id + "' AND BRANCH='" + request.branch + "'"
+conn = connect("PAYAPI01", config.password)
+return query(sql)
+```
+
+### Required remediation
+
+Produce secure pseudo-code that includes:
+
+- parameterized query;
+- server-side authoritative branch authorization;
+- minimal SELECT list;
+- package/view decision;
+- row/column policy;
+- managed NHI credential/token;
+- safe error handling;
+- correlation/security logging;
+- abuse-case tests.
+
+### Abuse cases
+
+At least test:
+
+- `' OR '1'='1`-style injection input remains data;
+- user changes `branch=CPT` but is authorised for JHB only;
+- service credential used from new source;
+- large repeated enumeration;
+- database error does not expose schema/security detail to customer.
+
+---
+
+# Lab 10 — Compliance control-to-evidence matrix
+
+**Module:** 10  
+**Target time:** 120 minutes
+
+Create a 20+ row matrix covering:
+
+- South African financial-sector IT governance/risk management;
+- cybersecurity/cyber resilience;
+- POPIA security safeguards and incident evidence;
+- PCI DSS for cardholder-data scope where applicable;
+- NIST CSF 2.0 function mapping.
+
+Every row must end with a **test and evidence source**, not just a control name.
+
+Example:
+
+```text
+Objective: Restrict full PAN to approved roles
+Implementation: PAY package + role + column mask
+Test: Call centre receives masked PAN; fraud role receives approved representation; DBA normal role denied
+Evidence: catalog policy + test transcript + audit event
+Owner: Card data owner + SECADM
+Frequency: release + quarterly recertification
+```
+
+---
+
+# Lab 11 — Incident response / break-glass exercise
+
+**Module:** 11  
+**Target time:** 90 minutes
+
+Choose one event:
+
+1. compromised service ID;
+2. unauthorised DBA read;
+3. DDF certificate expiry/outage;
+4. key failure at DR;
+5. suspected injection/bulk extraction.
+
+Write a runbook with:
+
+- trigger and severity criteria;
+- first 15 minutes;
+- evidence sources;
+- containment ladder;
+- business-service dependencies;
+- credential/privilege actions;
+- legal/privacy/compliance decision inputs;
+- recovery validation;
+- return-to-normal control validation;
+- post-incident actions.
+
+### Break-glass test
+
+Prove conceptually or in an approved lab that:
+
+- access can be granted quickly;
+- only named responder receives it;
+- access expires/revokes;
+- activity is recorded;
+- responder cannot self-approve/self-review the entire chain;
+- the normal least-privilege baseline is restored.
+
+---
+
+# Lab 12 — Northstar capstone
+
+**Module:** 12  
+**Target time:** 3–4 hours
+
+Use `northstar-findings.csv`.
+
+Deliver:
+
+1. target architecture;
+2. 10-persona access matrix;
+3. ranked 12-finding backlog;
+4. 20+ control tests;
+5. control-to-evidence matrix;
+6. five architecture decision records;
+7. one incident playbook;
+8. one-page executive briefing.
+
+### Final practical mastery criteria
+
+Your capstone is ready for assessment when you can answer **yes** to all of these:
+
+<PracticeChecklist
+  id="lab-centre-final"
+  title="Practical mastery gate"
+  items={[
+    'Can I trace an actor from authentication through effective Db2 authorization to data and audit?',
+    'Can I demonstrate that administrators do not automatically need business-data access?',
+    'Can I prove both an allowed and a denied access path?',
+    'Can I explain the secure DDF connection from network path through Db2 authorization?',
+    'Can I design and test row/column policy for banking personas?',
+    'Can I recover encrypted Db2 data with its key/security dependencies?',
+    'Can I reconstruct a privileged incident from multiple evidence sources?',
+    'Can I map a regulatory/control objective to implementation, test, evidence and owner?',
+    'Can I execute a break-glass workflow without losing accountability?',
+    'Can I explain the architecture and top risks to an executive without hiding behind product jargon?'
+  ]}
+/>
+
+When all ten are complete, move to the **Final Assessment**.
