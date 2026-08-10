@@ -97,7 +97,7 @@ const config: Config = {
       ],
       copyright: 'Independent learning content by Skunkworks Academy. IBM, Db2, z/OS and RACF are trademarks of International Business Machines Corporation. Regulatory mappings are educational and require organisation-specific legal, risk and compliance validation.',
     },
-    prism: {additionalLanguages: ['bash', 'sql', 'json', 'jcl']},
+    prism: {additionalLanguages: ['bash', 'sql', 'json']},
     mermaid: {theme: {light: 'neutral', dark: 'dark'}},
   } satisfies Preset.ThemeConfig,
 };
