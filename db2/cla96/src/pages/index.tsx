@@ -46,7 +46,7 @@ export default function Home(): React.ReactElement {
             <div className="course-section__header">
               <div>
                 <span className="eyebrow">Learning path</span>
-                <h2>From baseline to production judgment.</h2>
+                <h2>From official objectives to production judgment.</h2>
               </div>
               <p>Each milestone combines explanation, operational patterns, safe command work, scenarios and persistent mastery evidence.</p>
             </div>
@@ -93,8 +93,8 @@ export default function Home(): React.ReactElement {
               <p>Knowledge checks, practical steps, incidents and milestone completion survive refreshes in the same browser.</p>
             </div>
             <div className="callout-card">
-              <strong>Safe by design</strong>
-              <p>Browser labs simulate output. Run real commands only in an authorized Db2 lab or governed production change.</p>
+              <strong>Safe stateful practice</strong>
+              <p>Browser labs model Db2 state transitions without touching a live database. Run real commands only in an authorized lab or governed production change.</p>
             </div>
             <div className="callout-card">
               <strong>Independent learning companion</strong>
