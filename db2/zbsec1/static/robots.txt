@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ibm.skunkworksacademy.com/db2/zbsec1/sitemap.xml
