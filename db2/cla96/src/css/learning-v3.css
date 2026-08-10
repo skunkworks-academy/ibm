@@ -1,0 +1,349 @@
+/* CLA96G learning experience v3: source-aligned objectives, mastery, simulator and incident budgets */
+
+.objective-overview,
+.objective-crosswalk__summary,
+.crosswalk-unit,
+.assessment-gate,
+.assessment-blueprint {
+  border: 1px solid var(--cla96-line);
+  border-radius: var(--cla96-radius);
+  background: color-mix(in srgb, var(--cla96-panel) 95%, transparent);
+  box-shadow: var(--cla96-shadow);
+}
+
+.objective-overview {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.2rem;
+}
+
+.objective-overview__header,
+.crosswalk-part__heading,
+.crosswalk-unit header,
+.incident-coverage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.objective-overview__header h2,
+.crosswalk-part__heading h2,
+.crosswalk-unit h3 {
+  margin: 0;
+}
+
+.objective-unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.objective-unit-card {
+  display: flex;
+  min-height: 150px;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem;
+  border: 1px solid var(--cla96-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ifm-color-primary) 5%, var(--cla96-panel));
+}
+
+.objective-unit-card > span,
+.crosswalk-unit header span,
+.crosswalk-evidence,
+.assessment-objective-id,
+.incident-coverage-row {
+  color: var(--cla96-muted);
+  font-size: 0.78rem;
+}
+
+.objective-unit-card strong {
+  line-height: 1.25;
+}
+
+.objective-unit-card p {
+  margin: 0;
+  color: var(--cla96-muted);
+}
+
+.objective-unit-card a {
+  margin-top: auto;
+  font-weight: 700;
+}
+
+.objective-crosswalk__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.4rem 0 3rem;
+  padding: 1rem;
+}
+
+.objective-crosswalk__summary > div {
+  padding: 0.8rem;
+}
+
+.objective-crosswalk__summary strong {
+  display: block;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.objective-crosswalk__summary p {
+  margin: 0.35rem 0 0;
+  color: var(--cla96-muted);
+}
+
+.crosswalk-part {
+  margin: 3rem 0;
+}
+
+.crosswalk-part__heading {
+  margin-bottom: 1rem;
+}
+
+.crosswalk-units {
+  display: grid;
+  gap: 1rem;
+}
+
+.crosswalk-unit {
+  padding: 1.1rem;
+}
+
+.crosswalk-unit ol {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1rem 0;
+  padding-left: 1.35rem;
+}
+
+.crosswalk-unit li {
+  padding-left: 0.25rem;
+}
+
+.crosswalk-unit li code {
+  display: inline-block;
+  margin-right: 0.55rem;
+  font-size: 0.72rem;
+}
+
+.crosswalk-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--cla96-line);
+}
+
+.mastery-gate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.mastery-gate span {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.42rem 0.65rem;
+  border: 1px solid var(--cla96-line);
+  border-radius: 999px;
+  color: var(--cla96-muted);
+  font-size: 0.78rem;
+}
+
+.mastery-gate .mastery-gate__done {
+  border-color: color-mix(in srgb, var(--cla96-green) 60%, var(--cla96-line));
+  background: color-mix(in srgb, var(--cla96-green) 8%, transparent);
+  color: var(--cla96-success-text);
+}
+
+.simulator-state-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 1rem 0;
+}
+
+.simulator-state-grid > div {
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--cla96-line) 85%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ifm-color-primary) 5%, transparent);
+}
+
+.simulator-state-grid span,
+.simulator-state-grid strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.simulator-state-grid span {
+  color: var(--cla96-muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.simulator-state-grid strong {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+}
+
+.simulator-scenarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.85rem 0;
+}
+
+.assessment-gate {
+  padding: clamp(1.2rem, 3vw, 1.7rem);
+}
+
+.assessment-gate h2 {
+  margin-top: 0;
+}
+
+.assessment-prerequisite-grid,
+.assessment-domain-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.assessment-prerequisite {
+  display: flex;
+  min-height: 130px;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border: 1px solid var(--cla96-line);
+  border-radius: 12px;
+  color: var(--cla96-ink);
+  text-decoration: none;
+}
+
+.assessment-prerequisite:hover {
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.assessment-prerequisite span {
+  color: var(--cla96-muted);
+  font-size: 0.78rem;
+}
+
+.assessment-prerequisite span:last-child {
+  margin-top: auto;
+  font-weight: 700;
+}
+
+.assessment-prerequisite--done {
+  border-color: color-mix(in srgb, var(--cla96-green) 60%, var(--cla96-line));
+  background: color-mix(in srgb, var(--cla96-green) 7%, transparent);
+}
+
+.assessment-summary--v3 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.assessment-blueprint {
+  margin: 1rem 0 1.4rem;
+  padding: 0.85rem 1rem;
+  color: var(--cla96-muted);
+}
+
+.assessment-objective-id {
+  margin-top: 0.5rem;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.assessment-domain {
+  padding: 0.85rem;
+  border: 1px solid var(--cla96-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--cla96-panel) 90%, transparent);
+}
+
+.assessment-domain > span,
+.assessment-domain > strong,
+.assessment-domain > p {
+  display: block;
+}
+
+.assessment-domain > strong {
+  margin-top: 0.15rem;
+  font-size: 1.7rem;
+}
+
+.assessment-domain > p {
+  margin: 0.2rem 0 0.65rem;
+  color: var(--cla96-muted);
+}
+
+.assessment-domain--pass {
+  border-color: color-mix(in srgb, var(--cla96-green) 55%, var(--cla96-line));
+}
+
+.assessment-domain--weak {
+  border-color: color-mix(in srgb, var(--cla96-red) 55%, var(--cla96-line));
+}
+
+.incident-coverage-row {
+  flex-wrap: wrap;
+  margin: 0.9rem 0 1.25rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--cla96-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ifm-color-primary) 5%, transparent);
+}
+
+@media (max-width: 996px) {
+  .simulator-state-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .assessment-prerequisite-grid,
+  .assessment-domain-grid,
+  .objective-crosswalk__summary,
+  .assessment-summary--v3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .objective-overview__header,
+  .crosswalk-part__heading,
+  .crosswalk-unit header,
+  .incident-coverage-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .simulator-state-grid,
+  .assessment-prerequisite-grid,
+  .assessment-domain-grid,
+  .objective-crosswalk__summary,
+  .assessment-summary--v3 {
+    grid-template-columns: 1fr;
+  }
+
+  .objective-overview__header .button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assessment-prerequisite,
+  .objective-unit-card,
+  .crosswalk-unit {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,252 @@
+---
+title: Module 10 · Banking compliance and regulatory control mapping
+description: Map Db2 for z/OS security controls and evidence to South African financial-sector requirements, POPIA, PCI DSS and security frameworks.
+keywords: [POPIA, PCI DSS 4.0.1, Joint Standard 2 of 2024, Joint Standard 1 of 2023, NIST CSF 2.0, banking compliance]
+---
+
+import {CourseProgress, KnowledgeCheck, PracticeChecklist, ScenarioDecision, LessonComplete, LearningLocationTracker} from '@site/src/components/LearningWidgets';
+
+<LearningLocationTracker />
+
+# Module 10: Banking compliance and regulatory control mapping
+
+**Recommended time:** 4 hours
+
+<CourseProgress compact />
+
+Compliance work fails when teams treat every document as the same kind of requirement. A bank may be subject to legislation, regulator-issued standards, industry/payment-card obligations, contractual commitments and voluntary security frameworks at the same time. Your task is to determine **scope, control objective, technical implementation, accountable owner and evidence**.
+
+:::info Educational mapping only
+This module is not legal advice. Applicability, interpretation, reporting obligations and evidence retention must be validated by the institution's legal, compliance, privacy, risk and payment-card governance functions.
+:::
+
+## 10.1 Classify the source before mapping it
+
+| Source | Type | How to use it in this course |
+|---|---|---|
+| POPIA | South African privacy law | Identify security safeguards and security-compromise obligations for personal information processing |
+| Prudential Authority / FSCA Joint Standards | Financial-sector regulatory standards for institutions in scope | Map IT governance, cybersecurity and cyber-resilience controls to accountable owners/evidence |
+| PCI DSS v4.0.1 | Payment-card industry standard/contractual ecosystem requirement | Apply to the cardholder-data environment when the organisation is in scope |
+| NIST CSF 2.0 | Cybersecurity risk-management framework | Organise governance, identify/protect/detect/respond/recover outcomes |
+| OWASP guidance | Application-security guidance | Translate common application/database risks into engineering controls and tests |
+
+A requirement can be technically similar across sources but still have different scope, evidence and accountability.
+
+## 10.2 South African financial-sector standards
+
+### Joint Standard 1 of 2023 — IT Governance and Risk Management
+
+For institutions in scope, use the standard to drive questions such as:
+
+- Is IT risk governance owned and approved at the correct level?
+- Are critical Db2 services identified and classified?
+- Are access, change, resilience and third-party risks formally controlled?
+- Is there adequate oversight of outsourced/platform services?
+- Is control effectiveness monitored and reported?
+
+Db2 evidence may include:
+
+- subsystem/application ownership;
+- access-control matrices;
+- change/release records for packages/security configuration;
+- vulnerability/maintenance process;
+- recovery test evidence;
+- exception/risk acceptance records.
+
+### Joint Standard 2 of 2024 — Cybersecurity and Cyber Resilience
+
+The Joint Standard establishes cybersecurity and cyber-resilience requirements for financial institutions in scope and took effect **1 June 2025** under the associated commencement notice.
+
+For Db2, translate the standard into control themes such as:
+
+- governance and accountability;
+- asset/data classification;
+- identity and privileged access;
+- secure configuration and vulnerability management;
+- network security;
+- data protection/cryptography;
+- monitoring/detection;
+- incident response;
+- recovery and resilience;
+- testing and continuous improvement.
+
+Do not create a “Db2 compliance silo”. The Db2 control must connect to the institution's broader cyber-risk framework and critical business services.
+
+## 10.3 POPIA — security safeguards
+
+POPIA Section 19 requires responsible parties to establish and maintain appropriate, reasonable technical and organisational measures to protect personal information, including identifying foreseeable risks, establishing safeguards, verifying that safeguards are effectively implemented and keeping them updated as risks evolve.
+
+For a Db2 banking environment, evidence could include:
+
+- personal-data classification;
+- least-privilege access and periodic recertification;
+- row/column controls;
+- encryption and key governance;
+- logging/monitoring;
+- vulnerability/maintenance processes;
+- secure disposal/retention controls;
+- incident and security-compromise response procedures.
+
+Sections 20–22 address operator/security-compromise considerations. Your privacy/legal team must determine exactly how incident notification obligations apply to a specific event.
+
+## 10.4 PCI DSS v4.0.1
+
+PCI DSS v4.0.1 is the current PCI DSS revision in this course baseline. It applies to the cardholder-data environment according to PCI SSC scoping rules and the organisation's acquiring/payment relationships.
+
+Do **not** assume mainframe storage is exempt. PCI SSC guidance explicitly addresses PCI DSS encryption requirements in mainframe environments storing cardholder data.
+
+Db2-relevant PCI control themes include:
+
+- restrict access by business need to know;
+- identify/authenticate users and non-human accounts;
+- protect cardholder data at rest and in transit;
+- manage cryptographic keys;
+- secure application development and prevent injection;
+- log and monitor access to cardholder data and privileged functions;
+- vulnerability/change management;
+- regular control testing;
+- incident response.
+
+### Cardholder-data minimisation
+
+If the application does not need full PAN, do not retrieve full PAN and hide it later in the UI. Prefer data minimisation close to the source through approved views/masks/tokenisation/role policy.
+
+## 10.5 NIST CSF 2.0 as an organising framework
+
+NIST CSF 2.0 can organise Db2 security outcomes under six functions:
+
+```mermaid
+flowchart LR
+  G[GOVERN] --> I[IDENTIFY]
+  I --> P[PROTECT]
+  P --> D[DETECT]
+  D --> R[RESPOND]
+  R --> C[RECOVER]
+  C --> G
+```
+
+Example mapping:
+
+| Function | ZBSEC1 controls |
+|---|---|
+| GOVERN | policy, ownership, SoD, regulatory mapping, risk acceptance |
+| IDENTIFY | data classification, subsystem/application inventory, threat model |
+| PROTECT | RACF, Db2 authorities, packages, TLS, RCAC, cryptography |
+| DETECT | audit policies, IFCIDs, SMF, SIEM, anomaly detection |
+| RESPOND | identity containment, evidence preservation, playbooks, notification decision process |
+| RECOVER | credential/key recovery, Db2 restore/failover, control revalidation |
+
+NIST CSF is a risk framework, not a substitute for an applicable law or regulator standard.
+
+## 10.6 Build a control-to-evidence matrix
+
+A compliance matrix should not stop at “control implemented”.
+
+| Requirement / objective | Db2 control | Prevent / detect / recover | Test | Evidence | Owner | Frequency |
+|---|---|---|---|---|---|---|
+| Restrict sensitive data to business need | role + package + row/column control | Prevent | positive + negative persona test | catalog extract + test record | Data owner / SECADM | release + recertification |
+| Protect distributed credentials/data | DDF + AT-TLS + auth policy | Prevent | TLS/auth negative test | TLS evidence + DDF + RACF records | Network/IAM/DBA | continuous + change |
+| Monitor privileged activity | Db2 audit + SMF + SIEM | Detect | generate known test event | raw event + alert/case | SOC | continuous |
+| Recover encrypted service | DFSMS + ICSF + DR key availability | Recover | end-to-end DR exercise | recovery log + application validation | DR/Crypto/DBA | risk-based schedule |
+
+## 10.7 Evidence quality rubric
+
+Score each control 0–4:
+
+- **0 — assertion only:** “We do this.”
+- **1 — configuration screenshot:** evidence exists but scope/ownership unclear.
+- **2 — documented configuration + owner:** design is traceable.
+- **3 — tested control:** positive/negative or recovery/detection test proves operation.
+- **4 — continuously governed:** tested, monitored, recertified, exceptions tracked and evidence retained.
+
+A mature bank should aim to move critical controls from **configured** to **proven and governed**.
+
+## 10.8 Lab: build a mini banking compliance pack
+
+Choose one fictional scope: **mobile-banking customer data** or **card-payment authorisation**.
+
+Create at least 20 rows with these fields:
+
+```text
+Source / requirement identifier
+Control objective
+Applicability rationale
+Db2/z/OS control
+Other platform control
+Owner
+Test method
+Evidence source
+Frequency
+Known gap
+Compensating control / remediation
+Risk acceptance owner
+```
+
+Include at least:
+
+- one Joint Standard 1/2023 governance requirement;
+- five Joint Standard 2/2024 cyber-resilience themes;
+- four POPIA security-safeguard/privacy rows;
+- six PCI DSS rows if you chose cardholder data;
+- NIST CSF function mapping for each control.
+
+<PracticeChecklist
+  id="m10-compliance"
+  title="Compliance evidence pack"
+  items={[
+    'I classified each source as law, regulatory standard, industry/contractual requirement or framework/guidance.',
+    'I documented scope and applicability instead of assuming every requirement applies identically.',
+    'I created at least 20 control-to-evidence mappings.',
+    'I mapped Db2 controls to accountable business/security/platform owners.',
+    'I defined a repeatable test and evidence source for every critical technical control.',
+    'I identified at least three gaps where a configuration exists but control effectiveness has not been proven.',
+    'I routed legal/regulatory interpretation questions to the appropriate governance owner rather than guessing.'
+  ]}
+/>
+
+<ScenarioDecision
+  title="Mainframe means out of PCI scope"
+  prompt="A project manager says card numbers are stored on a mainframe, so PCI DSS encryption and access requirements do not apply. What is the best response?"
+  options={[
+    {label: 'Accept: PCI DSS only covers x86 databases.', correct: false, feedback: 'Platform type does not create a blanket exemption for cardholder data.'},
+    {label: 'Determine the cardholder-data environment and applicable PCI requirements with the PCI governance/QSA process, then map them to the mainframe controls and evidence.', correct: true, feedback: 'Scope and control objectives must be applied to the actual technology rather than dismissed because it is a mainframe.'},
+    {label: 'Delete all card data immediately without business approval.', correct: false, feedback: 'Data minimisation is valuable, but retention/tokenisation decisions must follow the authorised payment/business architecture and legal requirements.'}
+  ]}
+/>
+
+<KnowledgeCheck
+  id="m10-kc1"
+  question="What is the strongest compliance evidence for a least-privilege control?"
+  options={[
+    'A policy stating that least privilege is required.',
+    'A role/privilege design plus owner approval, effective-access evidence, positive/negative test results, recertification and runtime audit evidence.',
+    'A screenshot of the Db2 logo.',
+    'A list of all employees.'
+  ]}
+  correctIndex={1}
+  explanation="Compliance becomes defensible when the organisation can trace requirement → control → implementation → test → evidence → owner → recurring governance."
+/>
+
+<KnowledgeCheck
+  id="m10-kc2"
+  question="How should NIST CSF 2.0 be used alongside applicable banking regulation?"
+  options={[
+    'As a replacement for regulator requirements.',
+    'As an organising risk-management framework that helps structure outcomes while regulatory/legal scope remains governed by the applicable requirements.',
+    'Only as a penetration-testing checklist.',
+    'It should not be used in financial services.'
+  ]}
+  correctIndex={1}
+  explanation="Frameworks can improve control organisation and maturity, but they do not erase statutory or regulator-specific obligations."
+/>
+
+## Primary references
+
+- FSCA / Prudential Authority supervisory information — IT Governance & Risk Management and Cybersecurity & Cyber Resilience: https://www.fsca.co.za/Regulatory%20Frameworks/Pages/Supervisory-Information.aspx
+- South African Reserve Bank Joint Standard publications: https://www.resbank.co.za/
+- Information Regulator — POPIA: https://inforegulator.org.za/popia/
+- PCI SSC document library — PCI DSS v4.0.1: https://www.pcisecuritystandards.org/document_library/
+- PCI SSC FAQ on mainframes and encryption: https://www.pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/does-pci-dss-requirement-3-5-1-apply-to-mainframes-that-store-cardholder-data/
+- NIST Cybersecurity Framework 2.0: https://www.nist.gov/cyberframework
+
+<LessonComplete lessonId="m10" nextHref="/course/module-11-incident-response-tabletops" nextLabel="Start Module 11" />

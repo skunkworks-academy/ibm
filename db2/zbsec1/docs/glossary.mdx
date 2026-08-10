@@ -1,0 +1,133 @@
+---
+title: Glossary · Db2 for z/OS banking security
+description: Plain-language definitions for z/OS, RACF, Db2, DDF, cryptography, audit and banking security terminology used in ZBSEC1.
+keywords: [Db2 glossary, RACF glossary, z/OS security terms, DDF, SMF, ICSF]
+---
+
+# ZBSEC1 Glossary
+
+**Access recertification** — Periodic review proving that an identity still requires its effective access and that rejected access is actually revoked.
+
+**ACCESSCTRL** — Db2 administrative authority associated with controlling access privileges within its supported scope. Review exact capabilities for the active Db2 level.
+
+**AT-TLS** — Application Transparent TLS, a z/OS Communications Server facility that applies TLS protection according to policy without requiring the application protocol to implement all TLS processing itself.
+
+**Audit policy** — Db2 mechanism for defining security-relevant activity to be audited according to supported categories/scope.
+
+**Authorization** — Decision about what an authenticated identity is permitted to do.
+
+**Authorization ID (auth ID)** — Identifier Db2 uses as part of authorization processing. Primary and secondary authorization IDs can affect effective access.
+
+**Authentication** — Process of establishing the identity of a user or workload.
+
+**BIND** — Db2 process that creates/updates executable package/plan structures from prepared application SQL input. Treat production BIND/REBIND as controlled changes.
+
+**Break-glass access** — Emergency elevated privilege that should be named, justified, approved, time-bound, logged and reviewed.
+
+**Cardholder Data Environment (CDE)** — PCI DSS term for the people, processes and technologies that store, process, transmit or can affect the security of cardholder data according to PCI scoping rules.
+
+**CICS** — IBM Customer Information Control System, a transaction-processing platform commonly integrated with Db2 on z/OS.
+
+**Column mask** — Db2 fine-grained control that changes the value/representation returned for a protected column based on the applicable context.
+
+**Crypto Express** — IBM Z cryptographic hardware family used to provide hardware cryptographic services according to platform/configuration.
+
+**Cryptoperiod** — Period during which a cryptographic key is authorised for use according to policy.
+
+**DATAACCESS** — Db2 administrative authority associated with access to data within its supported scope. It should not be added to administrative identities by default without business need.
+
+**DBADM** — Db2 database administration authority at database scope, with capabilities determined by Db2 rules and granted options.
+
+**Db2 Connect** — IBM connectivity technology/licensing used by distributed clients to access Db2 on z/OS or IBM i in supported configurations.
+
+**Db2 for z/OS** — IBM's Db2 relational database system designed for the z/OS platform and high-volume mission-critical workloads.
+
+**DDF** — Distributed Data Facility, the Db2 for z/OS component that enables distributed database access using DRDA.
+
+**Defense in depth** — Security design in which preventive, constraining, detective and recovery controls overlap so one control failure does not expose the full asset.
+
+**DFSMS** — Data Facility Storage Management Subsystem, z/OS storage services including data-set management and data-set encryption capabilities.
+
+**DRDA** — Distributed Relational Database Architecture, IBM's architecture/protocol for distributed relational database access.
+
+**Effective access** — The actual operations an identity can perform after considering all applicable authorities, privileges, groups/secondary IDs, roles, packages and context.
+
+**Function level** — Db2 for z/OS continuous-delivery activation level that determines available function in addition to base release/maintenance prerequisites.
+
+**HSM** — Hardware Security Module; a security boundary/device for protected cryptographic-key operations. On IBM Z, cryptographic hardware and ICSF are core parts of many enterprise key-management designs.
+
+**ICSF** — Integrated Cryptographic Service Facility, z/OS cryptographic services and key-management integration.
+
+**IFCID** — Instrumentation Facility Component Identifier used to identify categories of Db2 trace/instrumentation data.
+
+**IMS** — IBM Information Management System, including transaction and database capabilities frequently present in mainframe banking architectures.
+
+**Least privilege** — Grant only the authority required for the approved task, scope and duration.
+
+**NHI (Non-Human Identity)** — Application, service, automation, batch or machine identity that operates without an interactive human login.
+
+**Package** — Db2 object containing executable sections for bound SQL. Package ownership, EXECUTE privilege and BIND/REBIND governance matter to security.
+
+**PAM** — Privileged Access Management: systems/processes governing elevated human access, approval, credential/session control, evidence and expiry.
+
+**PAN** — Primary Account Number, the payment-card account number protected by PCI DSS when in scope.
+
+**PassTicket** — RACF-supported one-time password-like authentication mechanism used in some z/OS integration designs. Apply current IBM guidance and enterprise standards.
+
+**PCI DSS** — Payment Card Industry Data Security Standard. ZBSEC1 uses PCI DSS v4.0.1 as the course baseline.
+
+**POPIA** — South Africa's Protection of Personal Information Act, which includes security safeguard and security-compromise obligations for personal information processing.
+
+**Primary authorization ID** — Main authorization identity associated with a Db2 request.
+
+**RACF** — Resource Access Control Facility, part of z/OS Security Server, used to identify users/workloads and protect resources.
+
+**RACLIST** — RACF processing that can cache general-resource profiles for performance/availability; changes may require the appropriate refresh process under local procedures.
+
+**RCAC** — Row and Column Access Control: Db2 capability for row permissions and column masks.
+
+**REBIND** — Rebuild/update an existing package/plan under Db2 bind processing; a production software/database change that should be governed.
+
+**Role** — Named Db2 authorization object used to group and activate privileges/authorities under supported contexts.
+
+**Row permission** — Db2 control that determines whether a protected table row is available to the applicable context.
+
+**SAF** — System Authorization Facility, the z/OS interface through which applications/components request security decisions from an external security manager such as RACF.
+
+**Secondary authorization ID** — Additional authorization identity that may contribute privileges depending on the request/context, commonly related to group-derived authorization.
+
+**SECADM** — Db2 security-administration authority used to manage sensitive security objects/capabilities. SECADM is central to separation-of-duties design.
+
+**SEPARATE_SECURITY** — Db2 subsystem configuration option used to strengthen separation between SYSADM and security administration.
+
+**SIEM** — Security Information and Event Management platform for central collection, correlation, detection and investigation of security telemetry.
+
+**SMF** — System Management Facilities, the z/OS mechanism for collecting system/subsystem records used for operations, accounting, audit and security analytics.
+
+**Static SQL** — SQL known and prepared ahead of runtime and bound into Db2 package/plan structures.
+
+**System DBADM** — Db2 administrative authority intended to support broad database/system administration without inherently requiring the same business-data access as an unrestricted administrator design.
+
+**SYSADM** — High-level Db2 system administration authority. It should not automatically be the default human support role in a separation-of-duties design.
+
+**SYSCTRL / SYSOPR** — Db2 system-control/operation authorities with specific administrative capabilities. Use exact IBM authority tables for the active level.
+
+**TLS** — Transport Layer Security used to protect network traffic and authenticate endpoints according to configured policy.
+
+**Toxic combination** — Combination of permissions that defeats an intended separation-of-duties or security control even if each permission is individually legitimate.
+
+**Trusted context** — Db2 object that establishes controlled trust/authorization behaviour for connections matching defined attributes and system authorization context.
+
+**Trusted role / default role** — Role activated through a supported context such as a trusted connection, subject to Db2 rules.
+
+**Zero trust** — Security approach that avoids assuming trust solely from network location; identity, device/workload, least privilege, context and continuous verification are considered across access paths.
+
+## Reading a new term
+
+When you encounter an unfamiliar Db2/z/OS security term, ask:
+
+1. **Which layer owns it?** z/OS, RACF, Db2, Communications Server, application, storage/crypto, audit?
+2. **Is it identity, authorization, data protection, evidence or recovery?**
+3. **What scope does it have?** subsystem, database, object, package, user, connection?
+4. **What changes when it is enabled/disabled?**
+5. **Which authoritative IBM document defines its exact semantics for the active release/function level?**

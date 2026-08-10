@@ -1,0 +1,106 @@
+---
+title: Part 4 theory · How the optimizer reasons
+description: Understand workload demand, waits, statistics, cardinality, cost, access plans and runtime feedback before beginning Part 4 performance work.
+keywords: [Db2 optimizer theory, cardinality, selectivity, access plan, performance tuning theory]
+---
+
+import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
+
+# Part 4 theory: performance is a closed evidence loop
+
+Performance tuning is not the art of making isolated metrics smaller. It is the discipline of explaining **where time and resources are spent, why Db2 chose the observed work, and whether a proposed change improves the service as a whole**.
+
+<ConceptStrip items={[
+  {label: 'Demand', value: 'Workload creates pressure', note: 'Volume, concurrency, data size and SQL shape determine how much work the system must perform.'},
+  {label: 'Decision', value: 'Optimizer estimates cost', note: 'Statistics and cardinality estimates help Db2 compare candidate access plans.'},
+  {label: 'Evidence', value: 'Runtime reveals reality', note: 'Actual waits, rows, time and resource use test whether the estimates and plan were good enough.'},
+]} />
+
+<TheoryVisual
+  kind="optimizer"
+  title="The optimizer turns estimates into an access plan"
+  caption="SQL is rewritten, estimated using statistics and cardinality, costed, and converted into a plan. Runtime evidence closes the loop by showing how those estimates behaved under the real workload."
+/>
+
+## 1. Response time is composed of work and waiting
+
+A slow request can consume CPU, wait for storage, wait on locks, wait for log activity, spill to temporary space, or spend time transferring data across the network. Different causes can produce the same user symptom: “the query is slow.”
+
+That is why performance diagnosis begins by separating **demand** from **wait domain**. If workload volume doubled, the system may simply be processing more legitimate work. If demand is unchanged but lock waits increased sharply, the causal domain is different.
+
+A useful mental equation is:
+
+**response time ≈ service time + wait time**
+
+This is not a Db2-specific formula; it is a diagnostic lens. The practical task is to identify which component changed relative to a meaningful baseline.
+
+## 2. The optimizer cannot know the future; it estimates
+
+Db2's optimizer considers alternative ways to execute a statement and compares their estimated cost. It needs information about table sizes, data distribution, predicates, indexes and other characteristics to estimate how many rows each operation will produce.
+
+**Cardinality** is an estimated or observed row count at a point in the plan. **Selectivity** describes how strongly a predicate reduces the candidate rows. If these estimates are materially wrong, the optimizer can make a rational decision from inaccurate premises.
+
+For example, an index access may look inexpensive if the optimizer expects 100 qualifying rows. If four million rows actually qualify, the chosen path may perform far more random reads or fetches than expected.
+
+<div className="theory-explain-grid">
+  <div className="theory-explain-card"><strong>Statistics describe data</strong><p>They help the optimizer estimate table size, distributions, distinct values and other properties relevant to cost.</p></div>
+  <div className="theory-explain-card"><strong>Runtime tests the estimate</strong><p>Large estimated-versus-actual row differences are evidence that assumptions about distribution, predicates or parameter sensitivity need investigation.</p></div>
+</div>
+
+## 3. An access plan is a costed hypothesis
+
+An access plan describes the physical operations Db2 expects to use: scans, index access, joins, sorts, fetches and other operators. EXPLAIN exposes that plan and the optimizer's estimates.
+
+The plan is not “good” merely because it contains an index, and a table scan is not automatically “bad.” A scan can be appropriate when a large fraction of the table is required. An index can be expensive when it causes many random fetches or when maintaining it adds significant write cost.
+
+This leads to an important tuning principle:
+
+> Optimize for the workload objective, not for a preferred operator.
+
+## 4. Indexes exchange read cost for write and storage cost
+
+An index is an additional data structure maintained alongside the table. It may reduce work for selective reads, ordering, joins or uniqueness checks. But INSERT, UPDATE and DELETE operations may also need to maintain that index.
+
+Every index therefore has a portfolio of costs:
+
+- storage;
+- cache pressure;
+- write maintenance;
+- LOAD and maintenance overhead;
+- optimizer choice complexity;
+- operational governance.
+
+A 6× improvement to one report can still be the wrong production change if peak transaction latency worsens enough to violate another service objective.
+
+## 5. Tuning is iterative and falsifiable
+
+Reliable tuning follows a scientific pattern:
+
+1. capture baseline demand and response;
+2. identify the dominant wait or cost domain;
+3. select the SQL/object contributing meaningful total cost;
+4. inspect estimates, access plan and runtime evidence;
+5. define one causal hypothesis;
+6. apply the smallest justified change;
+7. compare the outcome with the baseline and guardrails;
+8. retain, revise or roll back based on evidence.
+
+The hypothesis must be falsifiable. “Increase memory because the system is slow” is weak because success cannot be attributed cleanly. “Sort spills dominate this workload; increasing the justified sort resource should reduce spill volume and response time without exceeding memory guardrails” is testable.
+
+<div className="theory-recall">
+  <strong>Retrieval practice</strong>
+  Explain why a table scan can be the correct plan. Then describe what a large estimated-versus-actual cardinality difference tells you about the optimizer's assumptions.
+</div>
+
+## What to carry into the practical part
+
+During Part 4, resist premature tuning. Keep asking:
+
+- What changed in demand or data distribution?
+- Where is time actually being spent?
+- What did the optimizer estimate?
+- What happened at runtime?
+- What is the smallest change that tests the hypothesis?
+- Which guardrail proves that another part of the workload did not regress?
+
+[Continue to Part 4 practical →](./part-4)

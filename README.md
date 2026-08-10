@@ -17,6 +17,11 @@ The page positions Skunkworks Academy delivery across:
 - Guardium, QRadar and Verify security training
 - Cloud Pak, OpenShift-aligned and hybrid cloud enablement
 
+## Published self-paced courses
+
+- `db2/cla96/` — IBM Db2 relational DBA self-paced learning experience
+- `db2/zbsec1/` — **ZBSEC1 · IBM Db2 for z/OS Banking Security**, including theory, Mermaid security architecture diagrams, labs, playbooks, tabletop exercises, compliance mapping, synthetic evidence and an 80% mastery assessment
+
 ## Site architecture
 
 The site is intentionally static and GitHub Pages friendly.
@@ -27,6 +32,7 @@ Core files:
 - `404.html` — branded fallback page
 - `CNAME` — custom domain configuration for `ibm.skunkworksacademy.com`
 - `.nojekyll` — disables Jekyll processing for predictable static hosting
+- `db2/zbsec1/index.html` — generated ZBSEC1 Docusaurus entry point
 
 ## Design alignment
 
@@ -47,6 +53,7 @@ When updating the page:
 2. Preserve the canonical URL: `https://ibm.skunkworksacademy.com/`.
 3. Keep IBM vendor names factual and avoid implying direct vendor ownership unless contractually approved.
 4. Validate the page locally before publishing.
+5. For generated Docusaurus payloads committed by GitHub Actions, explicitly request a GitHub Pages rebuild after the payload reaches `main`; commits made with the workflow `GITHUB_TOKEN` do not themselves trigger a Pages build.
 
 ## Contact
 

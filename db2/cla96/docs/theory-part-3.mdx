@@ -1,0 +1,97 @@
+---
+title: Part 3 theory · Transactions, trust & concurrency
+description: Build the mental model behind Db2 locking, isolation, authorization, least privilege and fine-grained access before beginning Part 3 practical work.
+keywords: [Db2 concurrency theory, isolation levels, locking, least privilege, Db2 authorization]
+---
+
+import {ConceptStrip, TheoryVisual} from '@site/src/components/TheoryVisuals';
+
+# Part 3 theory: protect correctness while many actors share data
+
+Security and concurrency look like different subjects, but both govern **controlled access to shared state**. Concurrency decides when simultaneous transactions may observe or change data. Security decides which identities are permitted to perform those actions in the first place.
+
+<ConceptStrip items={[
+  {label: 'Concurrency', value: 'Coordinate simultaneous transactions', note: 'Locks, isolation and transaction boundaries protect correctness while work overlaps.'},
+  {label: 'Security', value: 'Constrain authority', note: 'Authentication establishes identity; authorization determines what that identity may do.'},
+  {label: 'DBA objective', value: 'Least privilege + sufficient concurrency', note: 'Protect data without granting unnecessary power or serialising the workload.'},
+]} />
+
+<TheoryVisual
+  kind="concurrency"
+  title="A lock wait is a dependency graph made visible"
+  caption="Transactions request incompatible access to protected data. The lock manager coordinates those requests according to lock compatibility, transaction duration and isolation semantics."
+/>
+
+## 1. Transactions define the unit of consistency
+
+A transaction groups database operations into a unit of work. The fundamental expectation is that the database moves from one valid state to another even when multiple users act simultaneously or failures occur.
+
+A useful interpretation of the ACID properties is:
+
+- **Atomicity:** the unit of work succeeds or is undone as one logical change.
+- **Consistency:** committed changes preserve the rules that define valid database state.
+- **Isolation:** concurrent work is controlled so transactions do not observe unacceptable intermediate effects.
+- **Durability:** committed work survives supported failure scenarios through logging and recovery mechanisms.
+
+Isolation is the property most visible during concurrency incidents, but it does not operate alone. Long transactions, access paths, lock-list capacity and application commit behaviour can all change how much contention is observed.
+
+## 2. Locks encode temporary ownership and compatibility
+
+A lock represents a transaction's protected interest in a resource. Another transaction may proceed immediately if its requested lock is compatible, or it may have to wait.
+
+That means a lock wait is not automatically a defect. It is evidence of a dependency:
+
+**waiting transaction → requested resource → incompatible holder → holder's transaction lifetime**
+
+The DBA's job is to reconstruct that chain. Killing the visible waiter often treats the symptom rather than the root cause.
+
+<div className="theory-explain-grid">
+  <div className="theory-explain-card"><strong>Duration matters</strong><p>A normally harmless lock can become operationally expensive when a transaction remains open for too long.</p></div>
+  <div className="theory-explain-card"><strong>Access path matters</strong><p>A statement that touches far more rows or pages than expected may acquire more locks and increase the probability of contention or escalation.</p></div>
+</div>
+
+## 3. Isolation is a correctness/concurrency trade-off
+
+Isolation levels determine which concurrent changes may be observed and how strongly Db2 protects rows or result stability during a transaction. Stronger isolation can provide stronger consistency guarantees, but it may retain protection longer and reduce concurrency.
+
+The practical question is therefore not “Which isolation level is best?” It is:
+
+> Which consistency guarantee does this business operation require, and what concurrency cost follows from that guarantee?
+
+An analytical query, a bank transfer and a queue-processing worker may need different semantics.
+
+## 4. Security begins with identity, then narrows authority
+
+Authentication establishes **who the actor is**. Authorization answers **what that actor can do**. Db2 privileges and authorities are different layers of authorization.
+
+Object privileges can grant specific capabilities such as selecting or updating particular objects. Broader authorities can permit administration across larger scopes. Roles group privileges so access can be assigned according to job function rather than individual identity.
+
+Least privilege means granting enough authority to perform the required function and no more. It reduces blast radius, improves auditability and supports separation of duties.
+
+## 5. Fine-grained controls move policy closer to the data
+
+RCAC, LBAC, trusted contexts and related controls can express policy closer to database data and connection context. They are valuable because application code alone is not always the strongest enforcement boundary.
+
+However, a security feature is only as strong as its governance. DBAs should understand who can define policies, who can bypass them, how privileges are inherited through roles, and what audit evidence proves the intended control is active.
+
+Security design therefore follows the same evidence pattern as concurrency:
+
+**identity → authority → object/data scope → observed action → audit evidence**
+
+<div className="theory-recall">
+  <strong>Retrieval practice</strong>
+  Explain why a lock wait can be normal but still become an incident. Then explain the difference between authentication, authorization, a privilege and an authority.
+</div>
+
+## What to carry into the practical part
+
+When diagnosing contention or reviewing access, reconstruct the relationship rather than jumping to a command:
+
+- Who or what is the actor?
+- What resource or data is involved?
+- Which rule permits, prevents or delays the action?
+- How long does the condition persist?
+- What is the narrowest safe intervention?
+- What evidence proves the outcome?
+
+[Continue to Part 3 practical →](./part-3)
