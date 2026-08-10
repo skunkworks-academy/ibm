@@ -110,7 +110,7 @@ export function recordCheck(id: string, correct: boolean) {
     checks: {
       ...current.checks,
       [id]: {
-        correct: Boolean(previous?.correct || correct),
+        correct,
         attempts: (previous?.attempts ?? 0) + 1,
         updatedAt: new Date().toISOString(),
       },

@@ -1,8 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import Link from '@docusaurus/Link';
 import {lessons} from '../data/course';
-import {partMasteryRequirements} from '../data/objectives';
-import {createSimulatorState, executeDb2Command, SimulatorScenario} from '../utils/db2Simulator';
 import {scormReport} from '../utils/scorm';
 import {
   LEARNING_EVENT,
@@ -32,20 +30,6 @@ function useLearningState() {
   return state;
 }
 
-function partMastery(partId: string, state: LearningState) {
-  const requirement = partMasteryRequirements[partId];
-  if (!requirement) return null;
-  const checksMastered = requirement.checkIds.filter((id) => state.checks[id]?.correct).length;
-  const practicalSteps = state.checklists[requirement.checklistId]?.checked.length ?? 0;
-  return {
-    checksMastered,
-    checkTotal: requirement.checkIds.length,
-    practicalSteps,
-    practicalTotal: requirement.checklistCount,
-    passed: checksMastered === requirement.checkIds.length && practicalSteps >= requirement.checklistCount,
-  };
-}
-
 export function LearningLocationTracker() {
   useEffect(() => {
     rememberLocation(window.location.pathname);
@@ -64,7 +48,6 @@ export function CourseProgress({compact = false}: {compact?: boolean}) {
   const hoursTotal = lessons.reduce((sum, lesson) => sum + lesson.durationHours, 0);
   const checksMastered = Object.values(progress.checks).filter((check) => check.correct).length;
   const checklistSteps = Object.values(progress.checklists).reduce((sum, checklist) => sum + checklist.checked.length, 0);
-  const partsMastered = ['part-1', 'part-2', 'part-3', 'part-4'].filter((partId) => partMastery(partId, progress)?.passed).length;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -89,9 +72,9 @@ export function CourseProgress({compact = false}: {compact?: boolean}) {
       {!compact && (
         <>
           <div className="progress-detail-grid" aria-label="Detailed learning activity">
-            <div><strong>{partsMastered}/4</strong><span>technical parts mastered</span></div>
             <div><strong>{checksMastered}</strong><span>knowledge checks mastered</span></div>
             <div><strong>{checklistSteps}</strong><span>practical steps recorded</span></div>
+            <div><strong>{Object.values(progress.incidents).filter((item) => item.completed).length}</strong><span>incidents solved</span></div>
           </div>
           <div className="progress-milestones">
             {lessons.map((lesson) => (
@@ -137,11 +120,8 @@ export function ResumeLearning() {
 export function LessonComplete({lessonId, nextHref, nextLabel = 'Continue'}: {lessonId: string; nextHref?: string; nextLabel?: string}) {
   const state = useLearningState();
   const done = state.completed.includes(lessonId);
-  const mastery = partMastery(lessonId, state);
-  const canComplete = !mastery || mastery.passed;
 
   const markComplete = () => {
-    if (!canComplete) return;
     markLessonComplete(lessonId);
     scormReport({lessonLocation: typeof window !== 'undefined' ? window.location.pathname : lessonId, status: 'incomplete'});
   };
@@ -283,26 +263,20 @@ const simulatorScenarios: Array<{id: SimulatorScenario; label: string}> = [
   {id: 'locking', label: 'Lock contention'},
 ];
 
-export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMPLE', 'status']}: {suggestions?: string[]}) {
-  const [command, setCommand] = useState('status');
-  const [output, setOutput] = useState('Stateful training simulator ready. Inspect the current state or load a scenario.');
+export function Db2Terminal({suggestions = ['db2level', 'db2 get db cfg for SAMPLE', 'db2 list utilities show detail']}: {suggestions?: string[]}) {
+  const [command, setCommand] = useState('db2level');
+  const [output, setOutput] = useState('Type a supported training command and select Run simulation.');
   const [history, setHistory] = useState<string[]>([]);
-  const [simState, setSimState] = useState(() => createSimulatorState('baseline'));
 
   const run = () => {
     const normalized = command.trim();
     if (!normalized) return;
-    const result = executeDb2Command(simState, normalized);
-    setSimState(result.state);
-    setOutput(result.output);
-    setHistory((current) => [normalized, ...current.filter((item) => item !== normalized)].slice(0, 7));
-  };
-
-  const loadScenario = (scenario: SimulatorScenario) => {
-    const next = createSimulatorState(scenario);
-    setSimState(next);
-    setCommand('status');
-    setOutput(`Scenario loaded: ${scenario}.\nRun “status” and then diagnose/remediate the state with the suggested commands.`);
+    const entry = simulatedResponses.find((candidate) => candidate.match.test(normalized));
+    setOutput(
+      entry?.output ??
+        `No destructive command was executed.\n\nThis browser terminal is a safe simulator, not a live Db2 shell. Try one of the suggested commands or run the command in your authorized lab environment.`,
+    );
+    setHistory((current) => [normalized, ...current.filter((item) => item !== normalized)].slice(0, 5));
   };
 
   return (

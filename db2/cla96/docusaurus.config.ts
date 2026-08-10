@@ -34,7 +34,7 @@ const config: Config = {
           ignorePatterns: ['/course/tags/**'],
         },
         theme: {
-          customCss: ['./src/css/custom.css', './src/css/accessibility.css', './src/css/learning-v2.css', './src/css/learning-v3.css'],
+          customCss: ['./src/css/custom.css', './src/css/accessibility.css', './src/css/learning-v2.css'],
         },
       } satisfies Preset.Options,
     ],
@@ -48,7 +48,7 @@ const config: Config = {
         '@type': 'Course',
         name: 'CLA96G — IBM Db2 12.1 Foundation for Relational DBAs: Self-Paced Learning Companion',
         description:
-          'An independent self-paced learning companion aligned to the four-part CLA96G structure, with objective mapping, mastery gates, stateful Db2 simulations, production-style incidents and assessment.',
+          'An independent self-paced learning companion covering Db2 12.1 administration, utilities, recovery, security, concurrency, monitoring, performance tuning, and production-style incident response.',
         provider: {
           '@type': 'EducationalOrganization',
           name: 'Skunkworks Academy',
@@ -61,7 +61,8 @@ const config: Config = {
           'IBM Db2 12.1 administration',
           'data movement, backup and recovery',
           'security and concurrency',
-          'statistics, query optimization and monitoring',
+          'utilities and maintenance',
+          'query optimization and monitoring',
           'evidence-driven database incident response',
         ],
       }),
@@ -72,7 +73,7 @@ const config: Config = {
       {
         name: 'description',
         content:
-          'Interactive self-paced CLA96G learning companion for IBM Db2 12.1 relational database administrators, with objective mapping, mastery gates, stateful labs, incidents and randomized assessment.',
+          'Interactive self-paced CLA96G learning companion for IBM Db2 12.1 relational database administrators, with persistent labs, incidents, progress tracking, and final assessment.',
       },
       {
         name: 'keywords',
@@ -87,9 +88,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     announcementBar: {
-      id: 'cla96g-learning-v3-2026',
+      id: 'cla96g-learning-v2-2026',
       content:
-        '<strong>Learning experience v3</strong> · official Part/Unit crosswalk · enforced mastery · stateful Db2 simulator · 12 DBA incidents · randomized objective-balanced assessment.',
+        '<strong>Learning experience v2</strong> · persistent checks and labs · new DBA Incident Centre · 36-hour guided path · browser-local progress.',
       backgroundColor: '#0f62fe',
       textColor: '#ffffff',
       isCloseable: true,
@@ -104,7 +105,6 @@ const config: Config = {
           position: 'left',
           label: 'Course',
         },
-        {to: '/course/objective-crosswalk', label: 'Objectives', position: 'left'},
         {to: '/course/incident-centre', label: 'Incident Centre', position: 'left'},
         {to: '/course/final-assessment', label: 'Assessment', position: 'left'},
         {to: '/course/next-steps', label: 'Next steps', position: 'left'},
@@ -133,7 +133,6 @@ const config: Config = {
           title: 'Learn',
           items: [
             {label: 'Start course', to: '/course/intro'},
-            {label: 'Objective crosswalk', to: '/course/objective-crosswalk'},
             {label: 'DBA Incident Centre', to: '/course/incident-centre'},
             {label: 'Final assessment', to: '/course/final-assessment'},
             {label: 'Next steps', to: '/course/next-steps'},

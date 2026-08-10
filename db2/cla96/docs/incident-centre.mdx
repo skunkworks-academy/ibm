@@ -1,8 +1,8 @@
 ---
 title: DBA Incident Centre
-description: Practice evidence-first IBM Db2 incident response through 12 objective-mapped production-style scenarios with constrained investigation budgets.
+description: Practice evidence-first IBM Db2 incident response using stateful production-style scenarios covering contention, logging pressure, and query-plan regression.
 sidebar_position: 6
-keywords: [Db2 incident response, db2pd, LOAD state, HADR, lock contention, authorization, RUNSTATS, EXPLAIN]
+keywords: [Db2 incident response, db2pd, lock contention, archive logs, RUNSTATS, EXPLAIN]
 ---
 
 import {CourseProgress, LessonComplete} from '@site/src/components/LearningWidgets';
@@ -10,9 +10,9 @@ import {IncidentLab, incidents} from '@site/src/components/IncidentLab';
 
 # DBA Incident Centre
 
-**Recommended time:** 5 hours of deliberate practice · **12 incidents across Parts 1–4**
+**Recommended time:** 3 hours of deliberate practice
 
-The Incident Centre converts CLA96G concepts into production-style decisions. You are not rewarded for making the fastest change or clicking every diagnostic option. You are rewarded for selecting **discriminating evidence**, forming a causal hypothesis, protecting recovery/security controls and choosing the smallest justified intervention.
+The Incident Centre converts course concepts into production-style decisions. You are not rewarded for making the fastest change. You are rewarded for collecting the evidence that narrows the causal domain, choosing the smallest justified intervention, and protecting recovery and business continuity.
 
 <CourseProgress compact />
 
@@ -21,46 +21,36 @@ The Incident Centre converts CLA96G concepts into production-style decisions. Yo
 Use the same discipline on every scenario:
 
 1. **Stabilize the situation** — understand business impact and avoid destructive actions.
-2. **Prioritize evidence** — you have a limited evidence budget; choose signals that separate competing hypotheses.
+2. **Capture evidence** — collect time-correlated configuration, workload, wait, utility and recovery state.
 3. **Form a causal hypothesis** — state what mechanism best explains the symptom.
 4. **Choose the smallest justified action** — control blast radius and preserve rollback.
 5. **Validate** — compare technical and user-facing outcomes with the baseline.
 6. **Document** — preserve commands, evidence, decisions and follow-up actions.
 
 :::tip How scoring works
-Each incident is worth 100 points. Up to 50 points come from collecting **relevant** evidence and 50 from the operational decision. Irrelevant evidence consumes the investigation budget and reduces the evidence score. An incident is recorded as solved only when the decision is sound and the total score is at least **75%**.
+Half of each incident score comes from collecting evidence and half from selecting the sound operational response. A correct answer without enough evidence does not count as a solved incident.
 :::
-
-## Coverage
-
-The 12 scenarios deliberately span the four Parts:
-
-- **Part 1:** wrong-instance change, instance/listener startup failure, restore/rollforward-pending recovery.
-- **Part 2:** LOAD/table state, archive-log pressure, HADR replay lag.
-- **Part 3:** lock chain, deadlock after transaction change, least-privilege/RCAC authorization path.
-- **Part 4:** stale-statistics plan regression, index/workload regression, temporary-space/sort capacity pressure.
-
-Each incident displays the internal objective IDs it exercises so the scenario can be traced back to the course crosswalk.
 
 {incidents.map((incident) => <IncidentLab key={incident.id} incident={incident} />)}
 
 ## Post-incident reflection
 
-After each solved incident, record:
+After solving the incidents, write a short response for each:
 
 - Which signal most strongly changed your hypothesis?
-- Which evidence option was tempting but low-value?
-- Which intervention would have increased blast radius?
-- What alert or preventive control could detect the condition earlier?
-- What evidence belongs in the permanent incident record?
+- Which tempting action would have increased blast radius?
+- What production control or alert could detect the issue earlier?
+- What evidence would you retain in the incident record?
 
 ## Build your own incident runbook
+
+Use this minimum structure in your operational notebook:
 
 ```text
 Incident ID / date / business impact
 Current Db2 code level and database role
 Symptom timeline
-Evidence budget / evidence selected
+Evidence collected
 Root-cause hypothesis
 Change / intervention and approval
 Rollback position

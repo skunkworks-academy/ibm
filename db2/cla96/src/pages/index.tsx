@@ -2,8 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import {CourseProgress, ResumeLearning} from '../components/LearningWidgets';
-import {lessons, OFFICIAL_GUIDED_HOURS, TOTAL_HOURS} from '../data/course';
-import {objectiveCount} from '../data/objectives';
+import {lessons, TOTAL_HOURS} from '../data/course';
 
 export default function Home(): React.ReactElement {
   return (
@@ -17,19 +16,20 @@ export default function Home(): React.ReactElement {
               <span className="eyebrow">CLA96G · IBM Db2 12.1 · Intermediate</span>
               <h1>Operate Db2 like a production DBA.</h1>
               <p className="course-hero__lead">
-                A scenario-driven, self-paced learning companion aligned to the official four-Part / 16-unit CLA96G structure. Build operational
-                judgment with objective-mapped learning, mastery gates, stateful Db2 simulations, evidence-budget incidents and randomized assessment.
+                A scenario-driven, self-paced learning companion for relational DBAs. Build operational judgment across configuration,
+                utilities, recovery, security, concurrency, monitoring and query performance — with safe simulations, persistent checkpoints,
+                production-style incidents and a readiness assessment.
               </p>
               <div className="course-hero__actions">
                 <Link className="button button--primary button--lg" to="/course/intro">Start learning →</Link>
-                <Link className="button button--secondary button--lg" to="/course/objective-crosswalk">View objective crosswalk</Link>
+                <Link className="button button--secondary button--lg" to="/course/incident-centre">Open Incident Centre</Link>
               </div>
             </div>
             <aside className="course-hero__facts" aria-label="Course facts">
-              <div className="hero-fact"><strong>{TOTAL_HOURS} hours</strong><span>Self-paced path including labs, incidents and assessment</span></div>
-              <div className="hero-fact"><strong>{OFFICIAL_GUIDED_HOURS} hours</strong><span>Official CLA96G reference duration represented by the four technical Parts</span></div>
-              <div className="hero-fact"><strong>4 Parts · 16 units</strong><span>{objectiveCount} source-aligned objectives mapped</span></div>
-              <div className="hero-fact"><strong>75% mastery</strong><span>Plus a 60% minimum score in every Part on the final assessment</span></div>
+              <div className="hero-fact"><strong>{TOTAL_HOURS} hours</strong><span>Recommended guided learning time</span></div>
+              <div className="hero-fact"><strong>4 technical parts</strong><span>Administration · recovery · security · performance</span></div>
+              <div className="hero-fact"><strong>Incident Centre</strong><span>Evidence-first production simulations</span></div>
+              <div className="hero-fact"><strong>75% mastery</strong><span>Scenario-based final assessment threshold</span></div>
             </aside>
           </div>
         </section>
@@ -48,7 +48,7 @@ export default function Home(): React.ReactElement {
                 <span className="eyebrow">Learning path</span>
                 <h2>From official objectives to production judgment.</h2>
               </div>
-              <p>Each Part preserves the source Unit boundaries, then adds explanation, operational patterns, stateful command work, scenarios and persistent mastery evidence.</p>
+              <p>Each milestone combines explanation, operational patterns, safe command work, scenarios and persistent mastery evidence.</p>
             </div>
             <div className="learning-path-grid">
               {lessons.map((lesson, index) => (
@@ -89,8 +89,8 @@ export default function Home(): React.ReactElement {
         <section className="course-section">
           <div className="container callout-grid">
             <div className="callout-card">
-              <strong>Persistent mastery evidence</strong>
-              <p>Official-unit checks, practical steps, incidents and milestone completion survive refreshes in the same browser.</p>
+              <strong>Persistent learner evidence</strong>
+              <p>Knowledge checks, practical steps, incidents and milestone completion survive refreshes in the same browser.</p>
             </div>
             <div className="callout-card">
               <strong>Safe stateful practice</strong>
@@ -98,7 +98,7 @@ export default function Home(): React.ReactElement {
             </div>
             <div className="callout-card">
               <strong>Independent learning companion</strong>
-              <p>This site uses the supplied CLA96G structure as a coverage basis while the interactive explanations, scenarios and assessment are original Skunkworks Academy learning assets.</p>
+              <p>This site aligns to publicly described CLA96G skills but does not reproduce official IBM courseware.</p>
             </div>
           </div>
         </section>
