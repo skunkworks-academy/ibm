@@ -124,6 +124,10 @@ jobs:
           print(f'Verified Academy canonical v10 shell on {len(documents)} IBM HTML document(s).')
           PY
 
+      - name: Install and verify Academy search favicons
+        uses: skunkworks-academy/www/.github/actions/search-favicons@070f621875577a66ae43cdffa7e9d20c65efdc71
+        with:
+          artifact-path: "_site"
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

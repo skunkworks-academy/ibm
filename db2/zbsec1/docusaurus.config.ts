@@ -11,7 +11,7 @@ const config: Config = {
   projectName: 'ibm',
   trailingSlash: false,
   onBrokenLinks: 'throw',
-  favicon: 'img/favicon.svg',
+  favicon: 'images/favicon-search.png',
   markdown: {mermaid: true},
   themes: ['@docusaurus/theme-mermaid'],
   i18n: {defaultLocale: 'en', locales: ['en']},
