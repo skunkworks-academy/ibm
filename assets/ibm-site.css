@@ -435,9 +435,19 @@ body[data-ibm-site="academy"] #__docusaurus a:is(.navbar__link--active, .menu__l
   text-underline-offset: .3em;
 }
 
-body[data-ibm-site="academy"] #__docusaurus .navbar-sidebar {
-  top: 0;
+body[data-ibm-site="academy"] #__docusaurus :is(.navbar-sidebar, .navbar-sidebar__backdrop) {
+  top: var(--ibm-site-header-height);
+  bottom: 0;
   max-height: calc(100dvh - var(--ibm-site-header-height));
+}
+
+/* The hide-on-scroll transform would make these fixed children relative to the
+   course toolbar. An open drawer must instead use the viewport below the shell. */
+body[data-ibm-site="academy"] #__docusaurus .navbar.navbar-sidebar--show {
+  transform: none;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .navbar-sidebar {
   background: var(--ibm-site-bg);
 }
 
@@ -519,6 +529,14 @@ body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus)
   max-width: 100%;
   border-radius: 0;
   overflow-x: auto;
+}
+
+/* Both course builds use Prism's dark slate canvas (#292d3e) in either page
+   theme. Keep its blue/purple/green syntax palette and raise only the subdued
+   comment slate: #a6accd gives 6.11:1 contrast instead of #697098's 2.84:1.
+   Prism emits token colours inline, so the override must be important. */
+body[data-ibm-site="academy"] #__docusaurus .prism-code .token.comment {
+  color: #a6accd !important;
 }
 
 body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) table {

@@ -152,6 +152,9 @@ async function catalogueBehavior(page) {
   assert.equal(enquiry.searchParams.get('courseId'), 'CL722G');
   await page.keyboard.press('Escape');
   await page.locator('#ibm-detail').waitFor({state: 'hidden'});
+  // Native dialog.close queues its close event. Wait for the application's URL
+  // cleanup before reloading, otherwise the still-present deep link reopens it.
+  await page.waitForFunction(() => !new URL(location.href).searchParams.has('course'));
   await page.reload();
   await page.locator('#ibm-results .ibm-course').first().waitFor();
   assert.equal(await page.locator('#ibm-saved-count').innerText(), '1', 'Shortlist must survive reload.');
