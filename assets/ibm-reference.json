@@ -3,12 +3,13 @@
   "sourceCommit": "c0e26db52ebc2225538ee00c0914719f082cb07f",
   "designReference": "https://www.skunkworksacademy.com/ibm/",
   "adaptations": {
-    "assets/ibm-learning-model.mjs": "Use the absolute Academy registration URL from the IBM subdomain."
+    "assets/ibm-learning-model.mjs": "Use the absolute Academy registration URL from the IBM subdomain.",
+    "assets/ibm-learning.mjs": "Keep the visit-only shortlist warning visible when browser storage fails."
   },
   "sha256": {
     "assets/ibm-carbon.css": "73dfc7ce3908a866009eadcebefd85e0f61a3d4c541cca1231fe2b3de98b6d17",
     "assets/ibm-learning.css": "be19dce61bd9c7b90c243f435323377c12a342b8adcd7f36d0d835deafc6bb7d",
-    "assets/ibm-learning.mjs": "41b0f8c86cf6df452e0c57b2f02d33ba604dba0e55a8301f680b1ffa3674794b",
+    "assets/ibm-learning.mjs": "4969cd0fb2b6c2fa3b1f70504f0860ecde952913684beee428bfc85be1aae5e5",
     "assets/ibm-learning-model.mjs": "73effc3b616e3130cc86a5d10d98dfa1bf43392d7dc516f1a6cd246d68061654",
     "assets/ibm-fonts/Light.woff2": "769209c2a0dbf2e3f012c22e4c604100cb3f1e7b8beb0ef77bc7d982d85509cc",
     "assets/ibm-fonts/Regular.woff2": "ba711a3085ff9f27440b6b9c4550cfc47c97bf36591d5da958b975bb3add8c1a",

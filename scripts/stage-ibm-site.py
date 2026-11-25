@@ -72,7 +72,7 @@ def stage(output, use_existing_courses=False):
         "builtAt": datetime.now(timezone.utc).isoformat(),
         "courseBuilds": "committed-preview" if use_existing_courses else "fresh",
     }, indent=2) + "\n")
-    (output / "ibm-routes.json").write_text(json.dumps({"designRevision": REVISION, "routes": routes}, indent=2) + "\n")
+    (output / "ibm-routes.json").write_text(json.dumps({"commit": commit, "designRevision": REVISION, "routes": routes}, indent=2) + "\n")
     ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
     sitemap = ET.Element("{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
     for entry in routes:

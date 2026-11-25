@@ -2,7 +2,7 @@ import {filterCourses,isCurrent,enquiryUrl} from './ibm-learning-model.mjs';
 const byId=id=>document.getElementById('ibm-'+id);
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const params=new URLSearchParams(location.search),pageSize=12;
-let courses=[],page=1,savedOnly=false,saved=[],lastTrigger=null;
+let courses=[],page=1,savedOnly=false,saved=[],lastTrigger=null,shortlistPersistenceFailed=false;
 try {const value=JSON.parse(localStorage.getItem('academy-ibm-shortlist')||'[]');if(Array.isArray(value))saved=value.filter(x=>typeof x==='string').slice(0,30);}catch{}
 for(const [key,id] of [['q','search'],['family','family'],['level','level'],['status','status']])if(params.has(key))byId(id).value=params.get(key);
 if(!byId('status').value)byId('status').value='current';
@@ -13,13 +13,13 @@ function updateSaved(){
  byId('shortlist-toggle').setAttribute('aria-pressed',String(savedOnly));
  const selected=courses.filter(c=>saved.includes(c.code));
  byId('team-enquiry').href=enquiryUrl(selected);
- byId('shortlist-note').textContent=selected.length?`${selected.length} saved course${selected.length===1?'':'s'} will be included in your enquiry. Saved on this browser only.`:'Save courses to include them in your enquiry.';
+ byId('shortlist-note').textContent=shortlistPersistenceFailed?'Shortlist saved for this visit only; browser storage is unavailable.':selected.length?`${selected.length} saved course${selected.length===1?'':'s'} will be included in your enquiry. Saved on this browser only.`:'Save courses to include them in your enquiry.';
 }
 function toggleSaved(c,button){
  if(saved.includes(c.code))saved=saved.filter(x=>x!==c.code);
  else if(saved.length<30)saved.push(c.code);
  else {byId('results-count').textContent='Your shortlist holds up to 30 courses. Remove one to add another.';return;}
- try{localStorage.setItem('academy-ibm-shortlist',JSON.stringify(saved));}catch{byId('shortlist-note').textContent='Shortlist saved for this visit only; browser storage is unavailable.';}
+ try{localStorage.setItem('academy-ibm-shortlist',JSON.stringify(saved));shortlistPersistenceFailed=false;}catch{shortlistPersistenceFailed=true;}
  updateSaved();if(savedOnly)render();else {button.setAttribute('aria-pressed',String(saved.includes(c.code)));button.textContent=saved.includes(c.code)?'✓ Saved':'+ Save';}
 }
 function openDetail(c,trigger){

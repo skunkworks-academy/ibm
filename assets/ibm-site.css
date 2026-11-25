@@ -66,6 +66,13 @@ html body[data-ibm-site="academy"] {
   line-height: 1.5;
 }
 
+/* Legacy CLA96 files style every header. The canonical shell owns its inner
+   spacing; inherited page-header padding must not increase its fixed height. */
+body[data-ibm-site="academy"] > .swa-global-nav {
+  padding: 0 !important;
+  text-align: left !important;
+}
+
 :root[data-theme="dark"] body[data-ibm-site="academy"],
 :root[data-swa-theme="dark"] body[data-ibm-site="academy"] {
   --ibm-site-bg: #000;
@@ -593,11 +600,16 @@ body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus)
 
 @media print {
   html body[data-ibm-site="academy"] {
-    --ibm-site-bg: #fff;
-    --ibm-site-layer: #f5f5f5;
-    --ibm-site-text: #111;
-    --ibm-site-muted: #525252;
-    --ibm-site-line: #d4d4d4;
-    --ibm-site-link: #0055cc;
+    /* Explicit dark theme selectors are more specific than the base selector.
+       Printed pages always use the light palette, including status colours. */
+    --ibm-site-bg: #fff !important;
+    --ibm-site-layer: #f5f5f5 !important;
+    --ibm-site-text: #111 !important;
+    --ibm-site-muted: #525252 !important;
+    --ibm-site-line: #d4d4d4 !important;
+    --ibm-site-link: #0055cc !important;
+    --ibm-site-success: #0e6027 !important;
+    --ibm-site-warning: #6f5200 !important;
+    --ibm-site-danger: #b81922 !important;
   }
 }

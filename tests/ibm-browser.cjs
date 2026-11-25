@@ -99,6 +99,7 @@ async function layout(page, theme) {
     const body = getComputedStyle(document.body);
     return {
       viewport: innerWidth, width: document.documentElement.scrollWidth,
+      headerHeight: document.querySelector('.swa-global-nav').getBoundingClientRect().height,
       theme: document.documentElement.dataset.theme,
       background: body.backgroundColor, foreground: body.color, font: body.fontFamily,
       overflow: [...document.querySelectorAll('body *')].filter(node => {
@@ -112,6 +113,9 @@ async function layout(page, theme) {
     };
   });
   assert.ok(metrics.width <= metrics.viewport + 1, 'Page scrolls horizontally: ' + JSON.stringify(metrics));
+  const expectedHeaderHeight = metrics.viewport <= 620 ? 64 : 72;
+  assert.ok(metrics.headerHeight >= expectedHeaderHeight && metrics.headerHeight <= expectedHeaderHeight + 2,
+    'Legacy styles must not enlarge the Academy header: ' + JSON.stringify(metrics));
   assert.equal(metrics.theme, theme);
   assert.equal(metrics.background, theme === 'dark' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)', 'Content canvas must match the reference palette.');
   assert.equal(metrics.foreground, theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(17, 17, 17)', 'Content text must follow the selected theme.');
@@ -175,6 +179,63 @@ async function toggleTheme(page, initial) {
   return next;
 }
 
+async function focusedButtonBehavior(page, name) {
+  await page.mouse.move(0, 0);
+  await page.locator('#ibm-learning .cds--btn--tertiary').first().focus();
+  await accessibility(page, name + '-button-focus', '#ibm-learning .cds--btn--tertiary');
+  await page.keyboard.press('Tab');
+  report.behavior.push(name + ': focused tertiary button contrast passed.');
+}
+
+async function printBehavior(page) {
+  await page.emulateMedia({media: 'print'});
+  const palette = await page.evaluate(() => {
+    const body = getComputedStyle(document.body);
+    return {background: body.backgroundColor, foreground: body.color};
+  });
+  assert.equal(palette.background, 'rgb(255, 255, 255)', 'Printing a dark course must use a white canvas.');
+  assert.equal(palette.foreground, 'rgb(17, 17, 17)', 'Printed text must remain dark on the white canvas.');
+  await page.emulateMedia({media: 'screen'});
+  report.behavior.push('Dark-mode course printing restores the light print palette.');
+}
+
+async function storageFailureBehavior(browser, origin) {
+  const context = await browser.newContext({viewport: {width: 390, height: 1000}, colorScheme: 'light'});
+  context.setDefaultTimeout(15000);
+  await fixture(context, origin);
+  await context.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === 'academy-ibm-shortlist') throw new DOMException('Storage quota unavailable', 'QuotaExceededError');
+      return original.call(this, key, value);
+    };
+  });
+  const page = await context.newPage();
+  try {
+    await page.goto(origin + '/', {waitUntil: 'load'});
+    await ready(page, 'light');
+    await page.locator('#ibm-results .ibm-course').first().waitFor();
+    await page.locator('#ibm-status').selectOption('all');
+    await page.getByLabel('Search courses', {exact: true}).fill('CL722G');
+    await page.getByRole('button', {name: 'Save CL722G to shortlist', exact: true}).click();
+    assert.equal(await page.locator('#ibm-saved-count').innerText(), '1');
+    assert.match(await page.locator('#ibm-shortlist-note').innerText(), /this visit only.*storage is unavailable/i);
+    await page.getByLabel('Search courses', {exact: true}).fill('CL722');
+    assert.match(await page.locator('#ibm-shortlist-note').innerText(), /this visit only.*storage is unavailable/i,
+      'Filtering must not erase the failed-persistence warning.');
+    await page.reload();
+    await page.locator('#ibm-results .ibm-course').first().waitFor();
+    assert.equal(await page.locator('#ibm-saved-count').innerText(), '0');
+    report.behavior.push('Unavailable browser storage retains an honest session-only shortlist warning.');
+  } catch (error) {
+    report.failures.push({name: 'catalogue-storage-unavailable', message: error.message});
+    await page.screenshot({path: path.join(output, 'catalogue-storage-unavailable-failed.png')}).catch(() => {});
+  } finally {
+    await context.close();
+    fs.writeFileSync(path.join(output, 'ibm-browser-report.json'), JSON.stringify(report, null, 2));
+  }
+}
+
 async function courseBehavior(page, name, theme, width) {
   if (width === 390) {
     const toggle = page.getByRole('button', {name: 'Toggle navigation bar', exact: true});
@@ -233,12 +294,14 @@ async function main() {
             const metrics = await layout(page, theme);
             await page.screenshot({path: path.join(output, name + '.png'), animations: 'disabled'});
             if (template.audit && width !== 768) await accessibility(page, name);
+            if (template.name === 'catalogue' && width !== 768) await focusedButtonBehavior(page, name);
             if (template.name === 'catalogue' && width === 390 && theme === 'light') {
               await catalogueBehavior(page);
               await toggleTheme(page, theme);
               await toggleTheme(page, 'dark');
             }
             if (template.course && width === 390) await courseBehavior(page, name, theme, width);
+            if (template.name === 'cla96-lesson' && width === 1440 && theme === 'dark') await printBehavior(page);
             assert.deepEqual(errors, [], 'Page JavaScript errors must be fixed: ' + JSON.stringify(errors));
             assert.deepEqual(resourceErrors, [], 'Missing publication resources: ' + JSON.stringify(resourceErrors));
             report.cases.push({name, status: 'passed', route: template.route, metrics});
@@ -256,11 +319,12 @@ async function main() {
         await context.close();
       }
     }
+    await storageFailureBehavior(browser, origin);
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));
   }
-  console.log(`${report.cases.length - report.failures.length}/${report.cases.length} responsive/theme cases passed; ${report.behavior.length} behavior checks recorded.`);
+  console.log(`${report.cases.filter(item => item.status === 'passed').length}/${report.cases.length} responsive/theme cases passed; ${report.behavior.length} behavior checks recorded; ${report.failures.length} failures.`);
   if (report.failures.length) process.exitCode = 1;
 }
 

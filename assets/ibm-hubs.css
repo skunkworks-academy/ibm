@@ -1,5 +1,13 @@
 /* IBM domain and learning-resource extensions to the canonical /ibm/ design.
    Shared primitives, palette, font faces and breakpoints live in ibm-learning.css. */
+
+/* Carbon fills a focused tertiary button with its inverse surface. Override the
+   reference page's important link colour with Carbon's matching inverse text,
+   retaining the existing focus ring and hover backgrounds in both themes. */
+#ibm-learning .cds--btn--tertiary:focus:not(:disabled):not(.cds--btn--disabled) {
+  color: var(--cds-text-inverse, #fff) !important;
+}
+
 #ibm-learning .ibm-domain-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

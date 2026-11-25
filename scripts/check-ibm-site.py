@@ -4,6 +4,7 @@
 import argparse
 import json
 from pathlib import Path
+import re
 from urllib.parse import urlsplit
 from xml.etree import ElementTree as ET
 
@@ -19,8 +20,17 @@ if not (site / "CNAME").is_file() or (site / "CNAME").read_text().strip() != url
 for name in ("ibm-release.json", "ibm-routes.json", "sitemap.xml"):
     if not (site / name).is_file():
         errors.append("Missing release evidence: " + name)
+release = {}
+if (site / "ibm-release.json").is_file():
+    release = json.loads((site / "ibm-release.json").read_text())
+    if not re.fullmatch(r"[a-f0-9]{40}", str(release.get("commit", ""))):
+        errors.append("Release evidence must identify an immutable source commit.")
+    if release.get("designRevision") != REVISION or release.get("htmlDocuments") != len(routes):
+        errors.append("Release evidence does not match the staged design and document count.")
 if (site / "ibm-routes.json").is_file():
     recorded = json.loads((site / "ibm-routes.json").read_text())
+    if recorded.get("commit") != release.get("commit") or recorded.get("designRevision") != release.get("designRevision"):
+        errors.append("Route manifest identity does not match the release evidence.")
     if recorded.get("routes") != routes or recorded.get("designRevision") != REVISION:
         errors.append("Route evidence does not cover every staged HTML document.")
 if (site / "sitemap.xml").is_file():

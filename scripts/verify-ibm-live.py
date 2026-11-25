@@ -49,7 +49,10 @@ for attempt in range(1, args.attempts + 1):
         release = json.loads(fetch("/ibm-release.json"))
         if release.get("commit") != args.commit or release.get("designRevision") != REVISION:
             raise ValueError("Public release marker does not match this deployment.")
-        routes = json.loads(fetch("/ibm-routes.json"))["routes"]
+        route_manifest = json.loads(fetch("/ibm-routes.json"))
+        if route_manifest.get("commit") != args.commit or route_manifest.get("designRevision") != REVISION:
+            raise ValueError("Public route manifest identity does not match this deployment.")
+        routes = route_manifest["routes"]
         if len(routes) != release.get("htmlDocuments") or not routes:
             raise ValueError("Public route evidence does not match the release.")
         public_routes = [item["route"] for item in routes if not item["file"].endswith("404.html")]
