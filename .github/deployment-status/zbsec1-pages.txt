@@ -1,5 +1,5 @@
-ZBSEC1 GitHub Pages deployment verified.
-Source workflow SHA: 578a6c3ed11692747dfb5749b4555ab212365873
+IBM shared-design GitHub Pages deployment verified.
+Source workflow SHA: 576286d13dbcdfda6a6de55ec8c4cf6940b8e30d
 GitHub Pages URL: https://ibm.skunkworksacademy.com/
 Public URL: https://ibm.skunkworksacademy.com/db2/zbsec1/
-Verified by: actions/deploy-pages + public HTTP content check
+Verified by: actions/deploy-pages + release SHA + all public routes + shared CSS
