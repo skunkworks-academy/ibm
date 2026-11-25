@@ -7,6 +7,7 @@ export type OfficialUnit = {
   id: string;
   title: string;
   anchor: string;
+  contentPath?: string;
   objectives: OfficialObjective[];
 };
 
@@ -33,7 +34,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u1',
         title: 'Introduction to Db2 v12.1',
-        anchor: 'unit-1--introduction-to-db2-v121',
+        anchor: 'unit-1--db2-121-architecture-and-service-level-thinking',
         objectives: objectives('p1u1', [
           'Identify the supported system platforms and virtualization options for deploying Db2 v12.1.',
           'Compare the core features, limitations, and appropriate use cases of the Db2 product editions.',
@@ -46,7 +47,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u2',
         title: 'Db2 Command Line and GUI Tools',
-        anchor: 'unit-2--db2-command-line-and-gui-tools',
+        anchor: 'unit-2--command-line-discipline-and-configuration-control',
         objectives: objectives('p1u2', [
           'Use the Db2 Command Line Processor (CLP) to execute SQL statements, Db2 commands, and operating system commands.',
           'Differentiate between interactive and non-interactive modes of the CLP and execute scripts using input files.',
@@ -59,7 +60,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u3',
         title: 'The Db2 Database Manager Instance',
-        anchor: 'unit-3--the-db2-database-manager-instance',
+        anchor: 'unit-3--instances-databases-and-operational-lifecycle',
         objectives: objectives('p1u3', [
           'Define the purpose of a Db2 database manager instance and describe how it manages one or more databases on a server.',
           'Create, configure, and manage a Db2 instance using both command line utilities and the Data Management Console.',
@@ -70,7 +71,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u4',
         title: 'Creating Databases and Data Placement',
-        anchor: 'unit-4--creating-databases-and-data-placement',
+        anchor: 'unit-4--database-creation-storage-and-table-spaces',
         objectives: objectives('p1u4', [
           'Create a Db2 database using appropriate storage options, page sizes, and configuration parameters.',
           'Explain the structure and purpose of table spaces, containers, extents, and storage groups.',
@@ -82,7 +83,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u5',
         title: 'Creating Database Objects',
-        anchor: 'unit-5--creating-database-objects',
+        anchor: 'unit-5--database-objects-and-least-surprise-design',
         objectives: objectives('p1u5', [
           'Create and manage core database objects such as schemas, tables, indexes, views, aliases, and triggers using SQL statements.',
           'Differentiate between declared and created global temporary tables and describe their behavior and use cases.',
@@ -94,7 +95,8 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p1u6',
         title: 'Recovery and Troubleshooting Fundamentals',
-        anchor: 'unit-6--recovery-and-troubleshooting-fundamentals',
+        anchor: 'unit-1--start-with-rpo-and-rto',
+        contentPath: '/course/part-2',
         objectives: objectives('p1u6', [
           'Differentiate between recoverable and non-recoverable Db2 databases and describe how logging and backup files support recovery operations.',
           'Execute recovery-related commands such as BACKUP, RESTORE, ROLLFORWARD, and RECOVER DATABASE to maintain data availability and integrity.',
@@ -114,7 +116,8 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p2u1',
         title: 'Data Movement and Loading Fundamentals',
-        anchor: 'unit-1--data-movement-and-loading-fundamentals',
+        anchor: 'unit-6--data-movement-export-import-and-load',
+        contentPath: '/course/part-1',
         objectives: objectives('p2u1', [
           'Execute SQL-based data movement operations using INSERT, MERGE, and TRUNCATE statements.',
           'Utilize Db2 utilities for data movement and recovery, including EXPORT, IMPORT, and LOAD.',
@@ -126,7 +129,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p2u2',
         title: 'Backup and Recovery',
-        anchor: 'unit-2--backup-and-recovery',
+        anchor: 'unit-2--backup-strategy-and-evidence',
         objectives: objectives('p2u2', [
           'Differentiate between crash recovery, version recovery, and roll-forward recovery in a Db2 database environment and describe the logging mechanisms that support each method.',
           'Configure and manage database and log backup strategies using parameters such as LOGARCHMETH1, NEWLOGPATH, LOGFILSIZ, and backup options including incremental and encrypted backups.',
@@ -138,7 +141,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p2u3',
         title: 'Database Maintenance, Monitoring, and Problem Determination',
-        anchor: 'unit-3--database-maintenance-monitoring-and-problem-determination',
+        anchor: 'unit-9--runstats-reorg-and-maintenance-windows',
         objectives: objectives('p2u3', [
           'Perform database maintenance tasks using RUNSTATS, REORG, and REORGCHK to optimize performance.',
           'Monitor database activity and resource usage with tools like db2pd, dmctop, and SQL table functions.',
@@ -160,7 +163,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p3u1',
         title: 'Locking and Concurrency Control',
-        anchor: 'unit-1--locking-and-concurrency-control',
+        anchor: 'unit-1--concurrency-is-correctness-under-simultaneous-work',
         objectives: objectives('p3u1', [
           'Explain the purpose and mechanisms of Db2 serialization techniques, including locking, versioning, and latching.',
           'Differentiate between Db2 isolation levels (UR, CS, RS, RR) and describe how they control data visibility and prevent concurrency anomalies.',
@@ -171,7 +174,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p3u2',
         title: 'Security and Access Control Fundamentals',
-        anchor: 'unit-2--security-and-access-control-fundamentals',
+        anchor: 'unit-4--authentication-vs-authorization',
         objectives: objectives('p3u2', [
           'Distinguish between authentication and authorization in Db2.',
           'Identify and explain the hierarchy of Db2 authorities and privileges, including instance-level, database-level, schema-level, and tenant-level controls.',
@@ -182,7 +185,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p3u3',
         title: 'More about Db2 Security and Access Control',
-        anchor: 'unit-3--more-about-db2-security-and-access-control',
+        anchor: 'unit-7--rcac-row-permissions-and-column-masks',
         objectives: objectives('p3u3', [
           'Describe the available encryption methods for securing Db2 database connections and explain how they protect data in transit.',
           'Configure and manage Row and Column Access Control (RCAC) to enforce fine-grained data access policies within a Db2 database.',
@@ -202,7 +205,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p4u1',
         title: 'Statistics and Query Optimization',
-        anchor: 'unit-1--statistics-and-query-optimization',
+        anchor: 'unit-2--optimizer-statistics-are-a-model-of-the-data',
         objectives: objectives('p4u1', [
           'Analyze how query predicates and selectivity influence the optimizer’s choices for access paths.',
           'Describe the phases of Db2 query optimization process and its role in performance tuning.',
@@ -213,7 +216,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p4u2',
         title: 'Indexing for Performance Improvement',
-        anchor: 'unit-2--indexing-for-performance-improvement',
+        anchor: 'unit-3--index-design-is-a-workload-trade-off',
         objectives: objectives('p4u2', [
           'Explain the types of indexes supported by Db2 and select indexing strategies based on query patterns.',
           'Design and implement optimal indexes for performance based on workload analysis and query structure.',
@@ -225,7 +228,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p4u3',
         title: 'Using Explain Tools for Query Optimization',
-        anchor: 'unit-3--using-explain-tools-for-query-optimization',
+        anchor: 'unit-5--explain-understand-the-selected-access-plan',
         objectives: objectives('p4u3', [
           'Create and maintain EXPLAIN tables to capture optimizer access plans for SQL statements.',
           'Capture and interpret EXPLAIN data using tools such as db2exfmt, db2expln, and Activity Event Monitor.',
@@ -236,7 +239,7 @@ export const officialParts: OfficialPart[] = [
       {
         id: 'p4u4',
         title: 'Monitoring Fundamentals',
-        anchor: 'unit-4--monitoring-fundamentals',
+        anchor: 'unit-7--monitoring-with-sql-table-functions-and-administrative-views',
         objectives: objectives('p4u4', [
           'Describe the Db2 monitoring architecture and key components used for performance observation.',
           'Use SQL-based table functions and administrative views to retrieve real-time and historical monitoring data.',

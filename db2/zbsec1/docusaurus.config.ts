@@ -54,7 +54,7 @@ const config: Config = {
       {name: 'keywords', content: 'IBM Db2 for z/OS, Db2 13, RACF, SAF, DDF, DRDA, AT-TLS, ICSF, SMF, SECADM, banking cybersecurity, PCI DSS, POPIA, cyber resilience'},
       {name: 'robots', content: 'index,follow,max-image-preview:large'},
     ],
-    colorMode: {defaultMode: 'dark', disableSwitch: false, respectPrefersColorScheme: true},
+    colorMode: {defaultMode: 'dark', disableSwitch: true, respectPrefersColorScheme: true},
     announcementBar: {
       id: 'zbsec1-2026',
       content: '<strong>ZBSEC1</strong> · 48-hour guided path · safe simulations · practical evidence labs · 80% mastery target',

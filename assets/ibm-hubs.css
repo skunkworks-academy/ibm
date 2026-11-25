@@ -1,0 +1,72 @@
+/* IBM domain and learning-resource extensions to the canonical /ibm/ design.
+   Shared primitives, palette, font faces and breakpoints live in ibm-learning.css. */
+
+/* Carbon fills a focused tertiary button with its inverse surface. Override the
+   reference page's important link colour with Carbon's matching inverse text,
+   retaining the existing focus ring and hover backgrounds in both themes. */
+#ibm-learning .cds--btn--tertiary:focus:not(:disabled):not(.cds--btn--disabled) {
+  color: var(--cds-text-inverse, #fff) !important;
+}
+
+#ibm-learning .ibm-domain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+#ibm-learning .ibm-domain-card,
+#ibm-learning .ibm-pathway {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 24px;
+  background: var(--ibm-layer);
+  border: 1px solid var(--ibm-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+#ibm-learning .ibm-domain-card {
+  min-height: 260px;
+  text-decoration: none;
+  color: var(--ibm-text) !important;
+}
+#ibm-learning .ibm-domain-card:hover { border-color: var(--ibm-link); }
+#ibm-learning .ibm-domain-card .ibm-kicker,
+#ibm-learning .ibm-pathway .ibm-kicker { color: var(--ibm-muted); margin-bottom: 18px; }
+#ibm-learning .ibm-domain-card p,
+#ibm-learning .ibm-pathway p,
+#ibm-learning .ibm-pathway ul {
+  margin-top: 16px;
+  color: var(--ibm-muted);
+  font-size: .875rem;
+}
+#ibm-learning .ibm-pathway ul { padding-left: 20px; margin-bottom: 0; }
+#ibm-learning .ibm-pathway li + li { margin-top: 8px; }
+#ibm-learning .ibm-domain-link {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--ibm-link);
+  font-size: .875rem;
+}
+#ibm-learning .ibm-breadcrumbs { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 24px; font-size: .875rem; }
+#ibm-learning .ibm-breadcrumbs [aria-current] { color: var(--ibm-muted); }
+#ibm-learning .ibm-breadcrumbs + .ibm-intro { padding-top: 40px; }
+#ibm-learning .ibm-domain-cta { display: grid; grid-template-columns: 1fr auto; gap: 64px; align-items: center; }
+#ibm-learning .ibm-domain-cta .ibm-lead { margin-top: 24px; }
+#ibm-learning .ibm-domain-cta .cds--btn { white-space: normal; }
+#ibm-learning .ibm-start .ibm-domain-card { background: var(--ibm-bg); }
+#ibm-learning .ibm-route-anchor { scroll-margin-top: 90px; }
+@media (max-width: 1056px) {
+  #ibm-learning .ibm-domain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #ibm-learning .ibm-domain-cta { gap: 32px; }
+}
+@media (max-width: 672px) {
+  #ibm-learning .ibm-domain-grid { grid-template-columns: 1fr; }
+  #ibm-learning .ibm-domain-card { min-height: 220px; }
+  #ibm-learning .ibm-domain-cta { grid-template-columns: 1fr; }
+  #ibm-learning .ibm-domain-cta .cds--btn { justify-self: start; }
+  #ibm-learning .ibm-section-nav { justify-content: flex-start; column-gap: 8px; }
+  #ibm-learning .ibm-section-nav #ibm-shortlist-toggle { margin-left: auto; }
+}

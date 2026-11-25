@@ -3,28 +3,47 @@ name: Publish IBM Training to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: github-pages
+  group: ibm-pages-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
   cancel-in-progress: true
 
 jobs:
   build:
     name: Build and stage IBM Training site
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - name: Checkout main
+      - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Install CLA96G dependencies
+        working-directory: db2/cla96
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck CLA96G
+        working-directory: db2/cla96
+        run: npm run typecheck
+
+      - name: Build CLA96G
+        working-directory: db2/cla96
+        run: npm run build
+
+      - name: Validate CLA96G SEO
+        working-directory: db2/cla96
+        run: npm run seo:check
 
       - name: Install ZBSEC1 dependencies
         working-directory: db2/zbsec1
@@ -42,98 +61,63 @@ jobs:
         working-directory: db2/zbsec1
         run: npm run seo:check
 
-      - name: Stage complete IBM static site
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf _site
-          mkdir -p _site
-
-          rsync -a ./ _site/ \
-            --exclude='_site/' \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='**/node_modules/' \
-            --exclude='db2/zbsec1/build/' \
-            --exclude='db2/cla96/build/'
-
-          mkdir -p _site/db2/zbsec1
-          rm -rf _site/db2/zbsec1/assets \
-                 _site/db2/zbsec1/course \
-                 _site/db2/zbsec1/img \
-                 _site/db2/zbsec1/labs \
-                 _site/db2/zbsec1/index.html \
-                 _site/db2/zbsec1/404.html \
-                 _site/db2/zbsec1/robots.txt \
-                 _site/db2/zbsec1/sitemap.xml \
-                 _site/db2/zbsec1/.nojekyll
-          cp -a db2/zbsec1/build/. _site/db2/zbsec1/
-
-          touch _site/.nojekyll
-          test -f _site/CNAME
-          test -f _site/index.html
-          test -f _site/db2/zbsec1/index.html
-          find _site/db2/zbsec1/assets/js -maxdepth 1 -name 'main.*.js' -print -quit | grep -q .
-          grep -q 'ZBSEC1' _site/db2/zbsec1/index.html
-          grep -q 'Db2 for z/OS banking security, end to end' _site/db2/zbsec1/index.html
-
-      - name: Enforce Academy global shell on every staged HTML page
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          current = 'https://skunkworksacademy.com/assets/academy-navigation.js?v=2026.08.15.1'
-          marker = 'data-skunkworks-global-nav="v10"'
-          loader = f'<script defer src="{current}" {marker}></script>'
-          old_tags = re.compile(r'<script\b[^>]*(?:academy-navigation\.js|data-skunkworks-global-nav|data-skunkworks-global-shell)[^>]*>\s*</script>', re.I)
-          pages = list(Path('_site').rglob('*.html'))
-          documents = []
-
-          for path in pages:
-              html = path.read_text(encoding='utf-8', errors='ignore')
-              if not re.search(r'<!doctype\s+html|<html\b|<head\b|<body\b', html, re.I):
-                  continue
-              html = old_tags.sub('', html)
-              if re.search(r'</head\s*>', html, re.I):
-                  html = re.sub(r'</head\s*>', f'{loader}</head>', html, count=1, flags=re.I)
-              elif re.search(r'</body\s*>', html, re.I):
-                  html = re.sub(r'</body\s*>', f'{loader}</body>', html, count=1, flags=re.I)
-              else:
-                  raise SystemExit(f'Malformed HTML document cannot receive Academy shell: {path}')
-              path.write_text(html, encoding='utf-8')
-              documents.append(path)
-
-          if not documents:
-              raise SystemExit('IBM staging produced no HTML documents.')
-
-          missing = []
-          duplicate = []
-          for path in documents:
-              html = path.read_text(encoding='utf-8', errors='ignore')
-              if current not in html or marker not in html:
-                  missing.append(str(path))
-              if html.count('academy-navigation.js') > 1:
-                  duplicate.append(str(path))
-
-          if missing:
-              raise SystemExit('Global shell missing from: ' + ', '.join(missing))
-          if duplicate:
-              raise SystemExit('Duplicate global shell loaders in: ' + ', '.join(duplicate))
-
-          print(f'Verified Academy canonical v10 shell on {len(documents)} IBM HTML document(s).')
-          PY
+      - name: Stage complete IBM site with the shared design
+        run: python3 scripts/stage-ibm-site.py --output _site
 
       - name: Install and verify Academy search favicons
         uses: skunkworks-academy/www/.github/actions/search-favicons@67c4ab0d8f7c5dca50d54b8dad24174b0e41a39a
         with:
           artifact-path: "_site"
+      - name: Verify every IBM route and theme asset
+        run: python3 scripts/check-ibm-site.py _site
+
+      - name: Checkout reviewed Academy shell assets
+        uses: actions/checkout@v4
+        with:
+          repository: skunkworks-academy/www
+          # Keep this literal pin equal to assets/ibm-reference.json.
+          # The browser test verifies the checked-out commit matches that file.
+          ref: c0e26db52ebc2225538ee00c0914719f082cb07f
+          persist-credentials: false
+          path: _reference-www
+          sparse-checkout: |
+            assets
+            images
+
+      - name: Install browser test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install Chromium for release checks
+        run: npx playwright install --with-deps chromium
+
+      - name: Test IBM desktop, tablet, mobile and theme workflows
+        run: npm run test:browser
+
+      - name: Upload IBM screenshots and accessibility reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibm-browser-evidence
+          path: test-results
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload reviewed design preview
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibm-design-preview
+          path: _site
+          retention-days: 7
+
       - name: Upload GitHub Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     name: Deploy IBM Training site
     needs: build
     runs-on: ubuntu-latest
@@ -150,33 +134,13 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify ZBSEC1 on public custom domain
-        shell: bash
-        run: |
-          set -euo pipefail
-          url='https://ibm.skunkworksacademy.com/db2/zbsec1/'
-          body="${RUNNER_TEMP}/zbsec1-public.html"
+      - name: Checkout release verification
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
-          for attempt in $(seq 1 18); do
-            echo "Verification attempt ${attempt}/18: ${url}"
-            status=$(curl -L -sS --connect-timeout 10 --max-time 30 \
-              -o "${body}" -w '%{http_code}' "${url}" || true)
-
-            if [ "${status}" = '200' ] && \
-               grep -q 'Db2 for z/OS banking security, end to end' "${body}"; then
-              echo 'ZBSEC1 public route verified successfully.'
-              exit 0
-            fi
-
-            echo "Public route not ready yet (HTTP ${status})."
-            sleep 10
-          done
-
-          echo 'ZBSEC1 did not become available on the public custom domain.' >&2
-          if [ -f "${body}" ]; then
-            head -c 2000 "${body}" >&2 || true
-          fi
-          exit 1
+      - name: Verify shared design on every public IBM route
+        run: python3 scripts/verify-ibm-live.py --commit "${GITHUB_SHA}"
 
       - name: Record successful Pages verification
         uses: actions/checkout@v4
@@ -192,11 +156,11 @@ jobs:
           set -euo pipefail
           mkdir -p .github/deployment-status
           cat > .github/deployment-status/zbsec1-pages.txt <<EOF
-          ZBSEC1 GitHub Pages deployment verified.
+          IBM shared-design GitHub Pages deployment verified.
           Source workflow SHA: ${GITHUB_SHA}
           GitHub Pages URL: ${PAGE_URL}
           Public URL: https://ibm.skunkworksacademy.com/db2/zbsec1/
-          Verified by: actions/deploy-pages + public HTTP content check
+          Verified by: actions/deploy-pages + release SHA + all public routes + shared CSS
           EOF
 
           git config user.name 'github-actions[bot]'
@@ -211,7 +175,7 @@ jobs:
 
   diagnostics:
     name: Record Pages workflow result
-    if: always()
+    if: ${{ always() && github.event_name != 'pull_request' }}
     needs: [build, deploy]
     runs-on: ubuntu-latest
     permissions:

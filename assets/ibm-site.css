@@ -1,0 +1,615 @@
+/*
+ * IBM course and legacy-page adapter.
+ * The catalogue and topic pages retain the exact #ibm-learning contract.
+ * This layer extends its palette, typography and geometry to existing learning
+ * activities without replacing their markup, state or meaningful status colours.
+ * Loaded by the common publication contract after each course build.
+ */
+
+html body[data-ibm-site="academy"] {
+  --ibm-site-bg: #fff;
+  --ibm-site-layer: #f5f5f5;
+  --ibm-site-text: #111;
+  --ibm-site-muted: #525252;
+  --ibm-site-line: #d4d4d4;
+  --ibm-site-link: #0055cc;
+  --ibm-site-action: #0055cc;
+  --ibm-site-action-hover: #0043a3;
+  --ibm-site-success: #0e6027;
+  --ibm-site-warning: #6f5200;
+  --ibm-site-danger: #b81922;
+  --ibm-site-font: 'IBM Plex Portal', 'IBM Plex Sans', sans-serif;
+  --ibm-site-display: var(--swa-font-display, 'IBM Plex Portal', sans-serif);
+  --ibm-site-gutter: 48px;
+  --ibm-site-header-height: 72px;
+
+  /* Existing templates read these names. Values live on body so older :root
+     declarations and OS-only media queries cannot override a manual choice. */
+  --bg: var(--ibm-site-bg) !important;
+  --panel: var(--ibm-site-layer) !important;
+  --panel-2: var(--ibm-site-layer);
+  --card: var(--ibm-site-layer);
+  --surface: var(--ibm-site-layer) !important;
+  --text: var(--ibm-site-text) !important;
+  --fg: var(--ibm-site-text);
+  --ink: var(--ibm-site-text);
+  --muted: var(--ibm-site-muted) !important;
+  --line: var(--ibm-site-line) !important;
+  --border: var(--ibm-site-line);
+  --border-gray: var(--ibm-site-line);
+  --brand: var(--ibm-site-link);
+  --brand-2: var(--ibm-site-link);
+  --blue: var(--ibm-site-action);
+  --blue2: var(--ibm-site-link);
+  --primary: var(--ibm-site-action) !important;
+  --accent: var(--ibm-site-link) !important;
+  --accent2: var(--ibm-site-success) !important;
+  --accent-soft: var(--ibm-site-layer);
+  --ibm-blue: var(--ibm-site-link);
+  --ibm-gray: var(--ibm-site-text);
+  --light-gray: var(--ibm-site-layer);
+  --success: var(--ibm-site-success);
+  --ok: var(--ibm-site-success);
+  --warn: var(--ibm-site-warning);
+  --warning: var(--ibm-site-warning) !important;
+  --danger: var(--ibm-site-danger);
+  --radius: 0;
+  --radius-sm: 0;
+  --shadow: none !important;
+  --max: 1312px;
+  --maxw: 1312px;
+  --sans: var(--ibm-site-font);
+  margin: 0;
+  background: var(--ibm-site-bg) !important;
+  color: var(--ibm-site-text) !important;
+  font-family: var(--ibm-site-font) !important;
+  line-height: 1.5;
+}
+
+/* Legacy CLA96 files style every header. The canonical shell owns its inner
+   spacing; inherited page-header padding must not increase its fixed height. */
+body[data-ibm-site="academy"] > .swa-global-nav {
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+:root[data-theme="dark"] body[data-ibm-site="academy"],
+:root[data-swa-theme="dark"] body[data-ibm-site="academy"] {
+  --ibm-site-bg: #000;
+  --ibm-site-layer: #141414;
+  --ibm-site-text: #fff;
+  --ibm-site-muted: #c6c6c6;
+  --ibm-site-line: #414141;
+  --ibm-site-link: #78a9ff;
+  --ibm-site-success: #6fdc8c;
+  --ibm-site-warning: #f1c21b;
+  --ibm-site-danger: #ff8389;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-swa-theme="light"]) body[data-ibm-site="academy"] {
+    --ibm-site-bg: #000;
+    --ibm-site-layer: #141414;
+    --ibm-site-text: #fff;
+    --ibm-site-muted: #c6c6c6;
+    --ibm-site-line: #414141;
+    --ibm-site-link: #78a9ff;
+    --ibm-site-success: #6fdc8c;
+    --ibm-site-warning: #f1c21b;
+    --ibm-site-danger: #ff8389;
+  }
+}
+
+/* Scope content rules away from the canonical Academy header/footer and the
+   reference #ibm-learning layout. Docusaurus keeps its sidebar and React tree. */
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) {
+  color: var(--ibm-site-text);
+  font-family: var(--ibm-site-font);
+  min-width: 0;
+}
+
+body[data-ibm-site="academy"] > :is(main:not(#ibm-learning), .wrap) {
+  width: min(1312px, calc(100% - var(--ibm-site-gutter) * 2));
+  max-width: 1312px;
+  margin-inline: auto;
+  padding: 40px 0 64px;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(h1, h2, h3, h4) {
+  color: var(--ibm-site-text);
+  text-shadow: none;
+  animation: none;
+  transform: none;
+  will-change: auto;
+  overflow-wrap: anywhere;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) h1,
+body[data-ibm-site="academy"] > header:not(.swa-global-nav) h1 {
+  font-family: var(--ibm-site-display) !important;
+  font-size: clamp(2.25rem, 3.6vw, 3.4rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -.04em !important;
+  line-height: 1.08 !important;
+  margin: 0 0 24px;
+  color: var(--ibm-site-text);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) h2 {
+  font-family: var(--ibm-site-font) !important;
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -.035em;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(h3, h4) {
+  font-family: var(--ibm-site-font);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(p, li, div, span, label, button, input, select, textarea, summary, th, td) {
+  font-family: var(--ibm-site-font);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.lead, .subtitle, .course-hero__lead) {
+  color: var(--ibm-site-muted);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.eyebrow, .kicker) {
+  color: var(--ibm-site-muted) !important;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .11em;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) a:not(:where(.btn, .button, .learning-card, .pagination-nav__link)) {
+  color: var(--ibm-site-link) !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :focus-visible {
+  outline: 2px solid var(--ibm-site-link);
+  outline-offset: 4px;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(section, h2, h3, [id]) {
+  scroll-margin-top: calc(var(--ibm-site-header-height) + 70px);
+}
+
+/* Flat, square panels retain each exercise's original layout and interactions. */
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  .card, .panel, .tile, .day, .tier, .hero-fact, .learning-card,
+  .course-progress, .progress-panel, .progress-card, .knowledge-check,
+  .knowledge-card, .practice-card, .practice-checklist, .scenario-card,
+  .terminal-card, .terminal-lab, .tabletop-card, .lesson-complete,
+  .assessment-question, .assessment-result, .control-card, .callout-card,
+  .resume-card, .quiz, .q, .notice, .accordion details
+) {
+  background: var(--ibm-site-layer) !important;
+  color: var(--ibm-site-text) !important;
+  border-color: var(--ibm-site-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  min-width: 0;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.learning-card, .hero-fact, .card[href]):hover {
+  transform: none;
+  border-color: var(--ibm-site-link) !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.chip, .badge, .pill, .day .tag) {
+  background: var(--ibm-site-layer);
+  color: var(--ibm-site-muted);
+  border: 1px solid var(--ibm-site-line);
+  border-radius: 0;
+  font-size: .75rem;
+  font-weight: 400;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  .quiz-option, .check-item, .checkitem, .opt, .scenario-choice,
+  .terminal-suggestions button, .toggle, .metric-grid > div,
+  .assessment-summary > div, .domain-results > div,
+  .command-sequence > div, .bank-flow > div, .pagination-nav__link
+) {
+  border-radius: 0;
+  border-color: var(--ibm-site-line);
+  background-color: var(--ibm-site-layer);
+  min-width: 0;
+}
+
+/* Interaction states must follow the neutral panel rules above. Both course
+   apps store a scenario selection in this class; its border and inset marker
+   keep the chosen action distinguishable after the pointer moves away. */
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  .quiz-option, .check-item, .checkitem, .opt, .scenario-choice,
+  .terminal-suggestions button, .toggle
+):hover {
+  border-color: var(--ibm-site-link);
+  background-color: color-mix(in srgb, var(--ibm-site-link) 6%, var(--ibm-site-layer));
+  transform: none;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  button.scenario-choice.scenario-choice--active,
+  button.scenario-choice[aria-pressed="true"]
+),
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  .quiz-option, .check-item, .checkitem, .opt, .toggle
+):has(input:checked) {
+  border-color: var(--ibm-site-link);
+  background-color: color-mix(in srgb, var(--ibm-site-link) 12%, var(--ibm-site-layer));
+  box-shadow: inset 3px 0 0 var(--ibm-site-link);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(
+  .quiz-option, .check-item, .checkitem, .opt, .toggle
+):has(input:focus-visible) {
+  outline: 2px solid var(--ibm-site-link);
+  outline-offset: 4px;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.btn, .button, button.primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  max-width: 100%;
+  padding: 14px 20px;
+  border: 1px solid var(--ibm-site-link) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ibm-site-link) !important;
+  box-shadow: none !important;
+  font-family: var(--ibm-site-font) !important;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-decoration: none;
+  white-space: normal;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.btn.primary, .button--primary, button.primary, .cta > .btn:not(.ghost)) {
+  background: var(--ibm-site-action) !important;
+  border-color: var(--ibm-site-action) !important;
+  color: #fff !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.btn.primary, .button--primary, button.primary, .cta > .btn:not(.ghost)):hover {
+  background: var(--ibm-site-action-hover) !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+  max-width: 100%;
+  border-radius: 0;
+  border: 1px solid var(--ibm-site-line);
+  border-bottom-color: var(--ibm-site-muted);
+  background: var(--ibm-site-layer);
+  color: var(--ibm-site-text);
+  font-size: 1rem;
+}
+
+/* Hero layouts stay useful for the original course content, with the same
+   restrained type scale and untextured background as the reference page. */
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.hero, .course-hero) {
+  background: var(--ibm-site-bg) !important;
+  color: var(--ibm-site-text);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding-block: 40px 48px;
+  padding-inline: 0;
+  margin-block: 0;
+  min-width: 0;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .course-hero::before {
+  content: none;
+}
+
+body[data-ibm-site="academy"] .wrap > .hero {
+  border-bottom: 1px solid var(--ibm-site-line);
+  margin-bottom: 32px;
+}
+
+body[data-ibm-site="academy"] .wrap :is(.kv .viz, .lab) {
+  background: var(--ibm-site-layer);
+  color: var(--ibm-site-text);
+  border-color: var(--ibm-site-line);
+  border-radius: 0;
+}
+
+/* Legacy full-width introductory headers are content, not global navigation. */
+body[data-ibm-site="academy"] > header:not(.swa-global-nav):not(.site) {
+  width: min(1312px, calc(100% - var(--ibm-site-gutter) * 2));
+  margin-inline: auto;
+  padding: 64px 0 40px;
+  background: var(--ibm-site-bg);
+  color: var(--ibm-site-text);
+  border-bottom: 1px solid var(--ibm-site-line);
+  text-align: left;
+}
+
+body[data-ibm-site="academy"] > header:not(.swa-global-nav):not(.site) p {
+  max-width: 800px;
+  color: var(--ibm-site-muted);
+  font: 400 1.125rem/1.6 var(--ibm-site-font);
+}
+
+/* Course navigation remains available on mobile; only duplicate framework
+   footer and colour-mode controls are suppressed. The Academy owns those. */
+body[data-ibm-site="academy"] #__docusaurus footer.footer,
+body[data-ibm-site="academy"] #__docusaurus [class*="announcementBar"],
+body[data-ibm-site="academy"] #__docusaurus .navbar [class*="colorModeToggle"] {
+  display: none !important;
+}
+
+body[data-ibm-site="academy"] #__docusaurus {
+  --ifm-color-primary: var(--ibm-site-link);
+  --ifm-color-primary-dark: var(--ibm-site-action-hover);
+  --ifm-color-primary-light: var(--ibm-site-link);
+  --ifm-color-primary-lighter: var(--ibm-site-link);
+  --ifm-background-color: var(--ibm-site-bg);
+  --ifm-background-surface-color: var(--ibm-site-layer);
+  --ifm-font-color-base: var(--ibm-site-text);
+  --ifm-heading-color: var(--ibm-site-text);
+  --ifm-font-family-base: var(--ibm-site-font);
+  --ifm-heading-font-family: var(--ibm-site-font);
+  --ifm-link-color: var(--ibm-site-link);
+  --ifm-navbar-height: 3.5rem;
+  --ifm-navbar-background-color: var(--ibm-site-layer);
+  --ifm-color-emphasis-200: var(--ibm-site-line);
+  --ifm-color-emphasis-300: var(--ibm-site-line);
+  --ifm-menu-color: var(--ibm-site-text);
+  --ifm-toc-border-color: var(--ibm-site-line);
+  --ifm-global-radius: 0;
+  --ifm-card-border-radius: 0;
+  --ifm-button-border-radius: 0;
+  --ifm-tabs-color-active: var(--ibm-site-link);
+  --ifm-breadcrumb-color-active: var(--ibm-site-link);
+  --cla96-ink: var(--ibm-site-text);
+  --cla96-muted: var(--ibm-site-muted);
+  --cla96-line: var(--ibm-site-line);
+  --cla96-panel: var(--ibm-site-layer);
+  --cla96-blue: var(--ibm-site-action);
+  --cla96-green: var(--ibm-site-success);
+  --cla96-amber: var(--ibm-site-warning);
+  --cla96-red: var(--ibm-site-danger);
+  --cla96-accent-text: var(--ibm-site-link);
+  --cla96-success-text: var(--ibm-site-success);
+  --cla96-warning-text: var(--ibm-site-warning);
+  --cla96-radius: 0;
+  --cla96-shadow: none;
+  --zb-ink: var(--ibm-site-text);
+  --zb-muted: var(--ibm-site-muted);
+  --zb-line: var(--ibm-site-line);
+  --zb-panel: var(--ibm-site-layer);
+  --zb-blue: var(--ibm-site-action);
+  --zb-green: var(--ibm-site-success);
+  --zb-amber: var(--ibm-site-warning);
+  --zb-red: var(--ibm-site-danger);
+  --zb-radius: 0;
+  --zb-shadow: none;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .container {
+  max-width: 1312px;
+}
+
+body[data-ibm-site="academy"] :is(#__docusaurus .navbar, header.site, body > nav) {
+  position: sticky;
+  top: var(--ibm-site-header-height);
+  min-height: 56px;
+  height: auto;
+  background: var(--ibm-site-bg);
+  color: var(--ibm-site-text);
+  border-bottom: 1px solid var(--ibm-site-line);
+  box-shadow: none;
+  backdrop-filter: none;
+  font-family: var(--ibm-site-font);
+}
+
+body[data-ibm-site="academy"] #__docusaurus .navbar {
+  padding-inline: var(--ibm-site-gutter);
+}
+
+body[data-ibm-site="academy"] #__docusaurus .navbar__brand {
+  color: var(--ibm-site-text);
+  font-family: var(--ibm-site-font);
+  font-size: .875rem;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .navbar__link {
+  font-size: .875rem;
+  font-weight: 400;
+}
+
+body[data-ibm-site="academy"] #__docusaurus a:is(.navbar__link, .menu__link) {
+  color: var(--ibm-site-text) !important;
+}
+
+body[data-ibm-site="academy"] #__docusaurus a:is(.navbar__link--active, .menu__link--active) {
+  color: var(--ibm-site-link) !important;
+  background-color: color-mix(in srgb, var(--ibm-site-link) 8%, var(--ibm-site-bg));
+  text-decoration: underline;
+  text-underline-offset: .3em;
+}
+
+body[data-ibm-site="academy"] #__docusaurus :is(.navbar-sidebar, .navbar-sidebar__backdrop) {
+  top: var(--ibm-site-header-height);
+  bottom: 0;
+  max-height: calc(100dvh - var(--ibm-site-header-height));
+}
+
+/* The hide-on-scroll transform would make these fixed children relative to the
+   course toolbar. An open drawer must instead use the viewport below the shell. */
+body[data-ibm-site="academy"] #__docusaurus .navbar.navbar-sidebar--show {
+  transform: none;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .navbar-sidebar {
+  background: var(--ibm-site-bg);
+}
+
+body[data-ibm-site="academy"] #__docusaurus .theme-doc-sidebar-container {
+  background: var(--ibm-site-bg);
+  border-right-color: var(--ibm-site-line);
+}
+
+body[data-ibm-site="academy"] header.site .bar {
+  max-width: 1408px;
+  padding-inline: var(--ibm-site-gutter);
+  flex-wrap: wrap;
+}
+
+body[data-ibm-site="academy"] header.site :is(.brand, .nav) {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+body[data-ibm-site="academy"] :is(header.site .nav a, body > nav a) {
+  color: var(--ibm-site-link);
+  border-radius: 0;
+  font-size: .875rem;
+}
+
+body[data-ibm-site="academy"] :is(header.site .nav a.active, header.site .nav a[aria-current="page"], body > nav a[aria-current="page"]) {
+  border-bottom: 2px solid var(--ibm-site-link);
+  background-color: color-mix(in srgb, var(--ibm-site-link) 8%, var(--ibm-site-bg));
+}
+
+body[data-ibm-site="academy"] > nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 12px var(--ibm-site-gutter);
+}
+
+/* Keep semantic feedback distinct and legible in both themes. */
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.mastery-badge, .fb.good) {
+  color: var(--ibm-site-success);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) .milestone.milestone--done,
+body[data-ibm-site="academy"] #__docusaurus a.assessment-prerequisite--done {
+  color: var(--ibm-site-success) !important;
+  border-color: var(--ibm-site-success);
+  background-color: color-mix(in srgb, var(--ibm-site-success) 7%, var(--ibm-site-layer));
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) .fb.bad {
+  color: var(--ibm-site-danger);
+}
+
+body[data-ibm-site="academy"] #__docusaurus .assessment-result.assessment-result--pass {
+  border-color: var(--ibm-site-success) !important;
+  background: color-mix(in srgb, var(--ibm-site-success) 7%, var(--ibm-site-layer)) !important;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .assessment-result.assessment-result--retry {
+  border-color: var(--ibm-site-warning) !important;
+}
+
+body[data-ibm-site="academy"] #__docusaurus .simulation-badge {
+  color: var(--ibm-site-warning);
+  border-color: var(--ibm-site-warning);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.callout, .feedback, .quiz-feedback, .inject, .mermaid, .svgwrap) {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(pre, code, kbd, samp),
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(pre, code, kbd, samp) * {
+  font-family: var(--ifm-font-family-monospace, ui-monospace, SFMono-Regular, Consolas, monospace);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(pre, .terminal-output) {
+  max-width: 100%;
+  border-radius: 0;
+  overflow-x: auto;
+}
+
+/* Both course builds use Prism's dark slate canvas (#292d3e) in either page
+   theme. Keep its blue/purple/green syntax palette and raise only the subdued
+   comment slate: #a6accd gives 6.11:1 contrast instead of #697098's 2.84:1.
+   Prism emits token colours inline, so the override must be important. */
+body[data-ibm-site="academy"] #__docusaurus .prism-code .token.comment {
+  color: #a6accd !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(th, td) {
+  border-color: var(--ibm-site-line);
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) th {
+  background: var(--ibm-site-layer);
+  color: var(--ibm-site-text);
+}
+
+body[data-ibm-site="academy"] .wrap .table code {
+  color: var(--ibm-site-text) !important;
+}
+
+body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.grid, .cols, .kv, .timeline, .learning-grid, .learning-path-grid, .course-hero__grid) > * {
+  min-width: 0;
+}
+
+@media (max-width: 1056px) {
+  html body[data-ibm-site="academy"] { --ibm-site-gutter: 24px; }
+}
+
+@media (min-width: 997px) {
+  body[data-ibm-site="academy"] #__docusaurus [class*="sidebarViewport"] {
+    top: calc(var(--ibm-site-header-height) + var(--ifm-navbar-height));
+    max-height: calc(100dvh - var(--ibm-site-header-height) - var(--ifm-navbar-height));
+  }
+  body[data-ibm-site="academy"] #__docusaurus .theme-doc-toc-desktop {
+    top: calc(var(--ibm-site-header-height) + var(--ifm-navbar-height) + 16px);
+    max-height: calc(100dvh - var(--ibm-site-header-height) - var(--ifm-navbar-height) - 32px);
+  }
+}
+
+@media (max-width: 672px) {
+  html body[data-ibm-site="academy"] { --ibm-site-gutter: 16px; }
+  body[data-ibm-site="academy"] > :is(main:not(#ibm-learning), .wrap) { padding-block: 24px 40px; }
+  body[data-ibm-site="academy"] > header:not(.swa-global-nav):not(.site) { padding-block: 40px 24px; }
+  body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.hero, .course-hero) { padding-block: 24px 32px; }
+  body[data-ibm-site="academy"] :is(main:not(#ibm-learning), .wrap, #__docusaurus) :is(.grid.cols-2, .grid.cols-3, .kv, .course-hero__grid, .hero, .price) { grid-template-columns: minmax(0, 1fr); }
+  body[data-ibm-site="academy"] header.site .bar { gap: 12px; }
+}
+
+@media (max-width: 620px) {
+  html body[data-ibm-site="academy"] { --ibm-site-header-height: 64px; }
+}
+
+@media print {
+  html body[data-ibm-site="academy"] {
+    /* Explicit dark theme selectors are more specific than the base selector.
+       Printed pages always use the light palette, including status colours. */
+    --ibm-site-bg: #fff !important;
+    --ibm-site-layer: #f5f5f5 !important;
+    --ibm-site-text: #111 !important;
+    --ibm-site-muted: #525252 !important;
+    --ibm-site-line: #d4d4d4 !important;
+    --ibm-site-link: #0055cc !important;
+    --ibm-site-success: #0e6027 !important;
+    --ibm-site-warning: #6f5200 !important;
+    --ibm-site-danger: #b81922 !important;
+  }
+}
