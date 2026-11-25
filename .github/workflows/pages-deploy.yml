@@ -16,11 +16,13 @@ concurrency:
 jobs:
   build:
     name: Build and stage IBM Training site
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -69,24 +71,14 @@ jobs:
       - name: Verify every IBM route and theme asset
         run: python3 scripts/check-ibm-site.py _site
 
-      - name: Resolve reviewed Academy shell fixture
-        id: reference
-        run: |
-          python3 - <<'PYREF'
-          import json, os, re
-          with open('assets/ibm-reference.json') as source:
-              commit = json.load(source)['sourceCommit']
-          if not re.fullmatch(r'[a-f0-9]{40}', commit):
-              raise SystemExit('An immutable Academy reference commit is required.')
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-              output.write('commit=' + commit + '\n')
-          PYREF
-
       - name: Checkout reviewed Academy shell assets
         uses: actions/checkout@v4
         with:
           repository: skunkworks-academy/www
-          ref: ${{ steps.reference.outputs.commit }}
+          # Keep this literal pin equal to assets/ibm-reference.json.
+          # The browser test verifies the checked-out commit matches that file.
+          ref: c0e26db52ebc2225538ee00c0914719f082cb07f
+          persist-credentials: false
           path: _reference-www
           sparse-checkout: |
             assets

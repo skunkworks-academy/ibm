@@ -57,6 +57,8 @@ python3 scripts/sync-ibm-reference.py --source ../academy-www
 
 Review the resulting `assets/ibm-reference.json` and page behaviour before merging. The only catalogue-module adaptation uses the absolute Academy registration URL so enquiries from the subdomain reach the correct form. Refreshing reference assets does not overwrite the domain curriculum or existing course material.
 
+When refreshing the reviewed reference commit, also update the literal `ref` in the **Checkout reviewed Academy shell assets** step of `.github/workflows/pages-deploy.yml` to the same SHA. The browser gate verifies that the fixture checkout matches `assets/ibm-reference.json`; keep this checkout pin explicit rather than reading an executable reference from a workflow output.
+
 ## Release verification
 
 Build both course projects with `npm run quality` in their own directories, then compose the complete site:
