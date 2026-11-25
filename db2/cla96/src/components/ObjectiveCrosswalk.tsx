@@ -21,7 +21,7 @@ export function PartObjectiveOverview({partId}: {partId: string}) {
             <span>Unit {index + 1}</span>
             <strong>{unit.title}</strong>
             <p>{unit.objectives.length} source-aligned objectives</p>
-            <a href={`#${unit.anchor}`}>Jump to unit ↓</a>
+            <Link to={`${unit.contentPath ?? part.href}#${unit.anchor}`}>Open learning content →</Link>
           </article>
         ))}
       </div>
@@ -49,7 +49,7 @@ export default function ObjectiveCrosswalk() {
               <article className="crosswalk-unit" key={unit.id}>
                 <header>
                   <div><span>Unit {unitIndex + 1} · {unit.id.toUpperCase()}</span><h3>{unit.title}</h3></div>
-                  <Link to={`${part.href}#${unit.anchor}`}>Learning content →</Link>
+                  <Link to={`${unit.contentPath ?? part.href}#${unit.anchor}`}>Learning content →</Link>
                 </header>
                 <ol>
                   {unit.objectives.map((objective) => (

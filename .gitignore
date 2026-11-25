@@ -1,0 +1,9 @@
+_site/
+**/node_modules/
+**/__pycache__/
+**/.docusaurus/
+**/build/
+test-results/
+playwright-report/
+
+_reference-www/
